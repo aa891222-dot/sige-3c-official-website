@@ -1489,6 +1489,21 @@ img { display: block; max-width: 100%; }
     left: 2.1rem;
     right: auto;
   }
+  .manager {
+    right: 1.25rem;
+    bottom: 7.65rem;
+    width: clamp(17.8rem, 72vw, 21.2rem);
+  }
+  .black-cat {
+    left: 1.45rem;
+    bottom: 7.2rem;
+    width: clamp(5.85rem, 24vw, 7rem);
+  }
+  .white-poodle {
+    right: 1.85rem;
+    bottom: 7.15rem;
+    width: clamp(6.5rem, 27vw, 7.8rem);
+  }
 }
 
 @media (min-width: 520px) and (max-width: 780px) {
@@ -1501,6 +1516,21 @@ img { display: block; max-width: 100%; }
     top: clamp(30rem, 58svh, 33.5rem);
     left: max(2rem, env(safe-area-inset-left));
   }
+  .manager {
+    right: 5.2rem;
+    bottom: 7.6rem;
+    width: clamp(20rem, 52vw, 23.5rem);
+  }
+  .black-cat {
+    left: 5rem;
+    bottom: 7.35rem;
+    width: 7.3rem;
+  }
+  .white-poodle {
+    right: 5rem;
+    bottom: 7.3rem;
+    width: 8.1rem;
+  }
 }
 
 @media (max-width: 420px) {
@@ -1511,6 +1541,21 @@ img { display: block; max-width: 100%; }
   .bubble-main {
     top: clamp(31.4rem, 61svh, 34.4rem);
     left: max(.9rem, env(safe-area-inset-left));
+  }
+  .manager {
+    right: 1rem;
+    bottom: 7.55rem;
+    width: clamp(17.8rem, 73vw, 20.5rem);
+  }
+  .black-cat {
+    left: 1.2rem;
+    bottom: 7.15rem;
+    width: clamp(5.7rem, 24vw, 6.6rem);
+  }
+  .white-poodle {
+    right: 1.35rem;
+    bottom: 7.1rem;
+    width: clamp(6.3rem, 27vw, 7.4rem);
   }
 }
 
@@ -1523,6 +1568,21 @@ img { display: block; max-width: 100%; }
   .bubble-main {
     top: clamp(31.8rem, 62svh, 34.8rem);
     max-width: 9.7rem;
+  }
+  .manager {
+    right: .65rem;
+    bottom: 7.45rem;
+    width: 17.6rem;
+  }
+  .black-cat {
+    left: .9rem;
+    bottom: 7.05rem;
+    width: 5.55rem;
+  }
+  .white-poodle {
+    right: .95rem;
+    bottom: 7rem;
+    width: 6.1rem;
   }
 }
 
