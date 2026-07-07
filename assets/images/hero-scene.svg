@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820">
+<defs>
+<linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#161820"/><stop offset=".52" stop-color="#0d0e14"/><stop offset="1" stop-color="#250812"/></linearGradient>
+<linearGradient id="redSuit" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#1d202b"/><stop offset=".55" stop-color="#13151e"/><stop offset="1" stop-color="#e61637"/></linearGradient>
+<radialGradient id="halo" cx=".52" cy=".48" r=".55"><stop stop-color="#ff1d3b" stop-opacity=".35"/><stop offset=".75" stop-color="#ff1d3b" stop-opacity=".06"/><stop offset="1" stop-color="#ff1d3b" stop-opacity="0"/></radialGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#000" flood-opacity=".45"/></filter>
+<filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<style>
+.manager{animation:floatM 4s ease-in-out infinite;transform-origin:650px 430px}
+.cat{animation:floatC 3.2s ease-in-out infinite;transform-origin:285px 590px}
+.dog{animation:floatD 3.5s ease-in-out infinite;transform-origin:950px 600px}
+.tail{animation:wag 1.5s ease-in-out infinite alternate;transform-origin:105px 638px}
+.dogtail{animation:wagDog 1.2s ease-in-out infinite alternate;transform-origin:1060px 612px}
+.phoneGlow{animation:pulse 1.6s ease-in-out infinite alternate}
+.eye{animation:blink 5s infinite}
+@keyframes floatM{50%{transform:translateY(-12px)}}
+@keyframes floatC{50%{transform:translateY(-8px)}}
+@keyframes floatD{50%{transform:translateY(-10px)}}
+@keyframes wag{to{transform:rotate(10deg)}}
+@keyframes wagDog{to{transform:rotate(-13deg)}}
+@keyframes pulse{to{opacity:.35}}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+</style>
+</defs>
+
+<rect width="1200" height="820" rx="42" fill="url(#bg)"/>
+<circle cx="650" cy="390" r="430" fill="url(#halo)"/>
+<g opacity=".18">
+<path d="M0 610h1200M0 540h1200M0 470h1200M0 400h1200M0 330h1200M0 260h1200" stroke="#fff"/>
+<path d="M120 0v820M240 0v820M360 0v820M480 0v820M600 0v820M720 0v820M840 0v820M960 0v820M1080 0v820" stroke="#fff"/>
+</g>
+
+<!-- shop shelves -->
+<g opacity=".85">
+<rect x="70" y="150" width="150" height="330" rx="24" fill="#ffffff10" stroke="#ffffff25"/>
+<rect x="245" y="150" width="150" height="330" rx="24" fill="#ffffff10" stroke="#ffffff25"/>
+<rect x="980" y="155" width="145" height="330" rx="24" fill="#ffffff10" stroke="#ffffff25"/>
+<g opacity=".55">
+<rect x="98" y="180" width="38" height="70" rx="9" fill="#ff1d3b55"/>
+<rect x="153" y="180" width="38" height="70" rx="9" fill="#ffd84a44"/>
+<rect x="275" y="185" width="38" height="70" rx="9" fill="#fff2"/>
+<rect x="330" y="185" width="38" height="70" rx="9" fill="#ff1d3b55"/>
+<rect x="1010" y="186" width="38" height="70" rx="9" fill="#fff2"/>
+<rect x="1063" y="186" width="38" height="70" rx="9" fill="#ffd84a44"/>
+</g>
+</g>
+<rect x="0" y="650" width="1200" height="170" fill="linear-gradient(#ffffff12,#00000045)"/>
+
+<!-- speech bubble -->
+<g filter="url(#shadow)">
+<rect x="108" y="75" width="395" height="92" rx="28" fill="#fff"/>
+<path d="M264 155l-28 55 78-55" fill="#fff"/>
+<rect x="118" y="84" width="395" height="92" rx="28" fill="#ff1d3b"/>
+<rect x="108" y="75" width="395" height="92" rx="28" fill="#fff"/>
+<text x="142" y="127" font-size="27" font-family="Microsoft JhengHei, Arial" font-weight="900" fill="#111">今天想找什麼配件？</text>
+</g>
+
+<!-- manager -->
+<g class="manager" filter="url(#shadow)">
+<ellipse cx="655" cy="735" rx="175" ry="30" fill="#000" opacity=".48"/>
+<path d="M512 720c20-105 18-213 8-305-8-78 50-150 133-154 86-4 156 62 156 146 0 96-3 205 24 313z" fill="url(#redSuit)" stroke="#171820" stroke-width="12"/>
+<path d="M526 425c-58 55-78 121-67 183 6 34 53 34 64 2 11-35 19-71 47-101z" fill="#ffd0be" stroke="#161616" stroke-width="10"/>
+<path d="M776 424c56 48 82 108 82 176 0 36-52 45-65 12-14-38-24-74-62-103z" fill="#ffd0be" stroke="#161616" stroke-width="10"/>
+<circle cx="660" cy="245" r="118" fill="#ffd1bf" stroke="#151515" stroke-width="12"/>
+<path d="M531 214c25-111 113-157 216-132 61 15 103 56 118 119-52-29-106-30-166-16-57 13-112 27-168 29z" fill="#07080d"/>
+<path d="M550 173c48-65 112-89 191-70-48 8-81 25-113 55 57-32 115-45 177-18-48 7-93 20-135 47 53-18 102-16 149 15-87 10-172 15-269-29z" fill="#0f111a"/>
+<g class="eye"><circle cx="620" cy="255" r="13" fill="#111"/><circle cx="704" cy="255" r="13" fill="#111"/></g>
+<path d="M634 312c24 23 62 23 86 0" fill="none" stroke="#111" stroke-width="9" stroke-linecap="round"/>
+<path d="M560 420h210" stroke="#fff" stroke-opacity=".22" stroke-width="10"/>
+<text x="660" y="495" text-anchor="middle" font-size="64" font-family="Arial, Microsoft JhengHei" font-weight="900" fill="#fff">四哥3C</text>
+<text x="660" y="555" text-anchor="middle" font-size="30" font-family="Arial" font-weight="900" fill="#ffd84a">STORE MANAGER</text>
+<rect x="794" y="520" width="100" height="170" rx="22" fill="#101018" stroke="#ff1d3b" stroke-width="8"/>
+<circle cx="883" cy="530" r="18" fill="#ffd84a"/>
+<rect class="phoneGlow" x="805" y="535" width="78" height="130" rx="14" fill="#ff1d3b"/>
+</g>
+
+<!-- black cat -->
+<g class="cat" filter="url(#shadow)">
+<ellipse cx="285" cy="724" rx="95" ry="18" fill="#000" opacity=".5"/>
+<path class="tail" d="M190 675c-86-38-64-142 15-125 55 12 47 82 2 80" fill="none" stroke="#ff1d3b" stroke-width="16" stroke-linecap="round"/>
+<path d="M215 568l-32-98 93 65M355 568l32-98-93 65" fill="#050609" stroke="#111" stroke-width="8"/>
+<circle cx="285" cy="610" r="112" fill="#050609" stroke="#151720" stroke-width="10"/>
+<g class="eye"><circle cx="246" cy="603" r="25" fill="#ffd84a"/><circle cx="324" cy="603" r="25" fill="#ffd84a"/></g>
+<ellipse cx="249" cy="603" rx="7" ry="18" fill="#111"/><ellipse cx="327" cy="603" rx="7" ry="18" fill="#111"/>
+<path d="M278 646h14l-7 9z" fill="#ff6b7d"/>
+<path d="M285 655c-16 22-37 18-51 6M285 655c16 22 37 18 51 6" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+<text x="285" y="705" text-anchor="middle" font-size="35" font-family="Arial, Microsoft JhengHei" font-weight="900" fill="#ffd84a">黑貓</text>
+</g>
+
+<!-- dog -->
+<g class="dog" filter="url(#shadow)">
+<path class="dogtail" d="M1040 620c40-50 91-27 81 23" fill="none" stroke="#f2f2f2" stroke-width="22" stroke-linecap="round"/>
+<ellipse cx="920" cy="736" rx="115" ry="22" fill="#000" opacity=".3"/>
+<circle cx="920" cy="620" r="116" fill="#f3f3f3" stroke="#ddd" stroke-width="9"/>
+<ellipse cx="818" cy="625" rx="48" ry="78" fill="#e7e7e7" transform="rotate(12 818 625)"/>
+<ellipse cx="1020" cy="625" rx="48" ry="78" fill="#e7e7e7" transform="rotate(-12 1020 625)"/>
+<g class="eye"><circle cx="880" cy="613" r="14" fill="#111"/><circle cx="960" cy="613" r="14" fill="#111"/></g>
+<ellipse cx="920" cy="650" rx="16" ry="12" fill="#111"/>
+<path d="M920 660c-14 25-35 24-51 8M920 660c14 25 35 24 51 8" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round"/>
+<path d="M852 715c42 35 99 34 137 0" fill="none" stroke="#ff1d3b" stroke-width="18" stroke-linecap="round"/>
+<circle cx="920" cy="718" r="18" fill="#ffd84a" stroke="#111" stroke-width="5"/>
+<text x="920" y="777" text-anchor="middle" font-size="30" font-family="Arial, Microsoft JhengHei" font-weight="900" fill="#fff">白貴賓</text>
+</g>
+</svg>
