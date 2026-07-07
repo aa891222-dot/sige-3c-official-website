@@ -1411,6 +1411,63 @@ img { display: block; max-width: 100%; }
   }
 }
 
+@media (max-width: 780px) {
+  .hero-copy > .hero-cta {
+    margin-top: 3.65rem;
+  }
+  .speech-bubble {
+    max-width: min(10.75rem, calc(100vw - 2rem));
+    padding: .74rem .86rem;
+    font-size: .82rem;
+    line-height: 1.48;
+    z-index: 36;
+  }
+  .bubble-main {
+    top: clamp(23.9rem, 52svh, 27.6rem);
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: auto;
+    transform: translate3d(calc(var(--mx, 0) * .32), calc(var(--my, 0) * .32), 0);
+  }
+  .bubble-main::after {
+    left: auto;
+    right: 2.25rem;
+  }
+}
+
+@media (min-width: 520px) and (max-width: 780px) {
+  .hero-copy > .hero-cta {
+    margin-top: 3.25rem;
+  }
+  .bubble-main {
+    top: clamp(23.2rem, 50svh, 27rem);
+    right: max(4rem, env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-copy > .hero-cta {
+    margin-top: 3.45rem;
+  }
+  .bubble-main {
+    top: clamp(24.25rem, 54svh, 28rem);
+    right: max(.85rem, env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-copy > .hero-cta {
+    margin-top: 3.1rem;
+  }
+  .speech-bubble {
+    max-width: 10rem;
+    font-size: .78rem;
+  }
+  .bubble-main {
+    top: clamp(24.75rem, 56svh, 28.4rem);
+    right: max(.7rem, env(safe-area-inset-right));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
