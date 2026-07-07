@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360">
+<ellipse cx="180" cy="320" rx="100" ry="18" fill="#000" opacity=".45"/>
+<path d="M84 119 62 38l75 55M276 119l22-81-75 55" fill="#090a10" stroke="#111" stroke-width="8"/>
+<circle cx="180" cy="185" r="118" fill="#07080d" stroke="#181a24" stroke-width="10"/>
+<circle cx="137" cy="174" r="25" fill="#ffd84a"/><circle cx="223" cy="174" r="25" fill="#ffd84a"/>
+<ellipse cx="140" cy="174" rx="7" ry="18" fill="#111"/><ellipse cx="226" cy="174" rx="7" ry="18" fill="#111"/>
+<path d="M174 213h12l-6 8z" fill="#ff6b7d"/>
+<path d="M180 221c-16 21-33 16-46 6M180 221c16 21 33 16 46 6" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+<path d="M84 94c-46 62-36 160 27 209" fill="none" stroke="#e91637" stroke-width="13" stroke-linecap="round"/>
+<circle cx="92" cy="100" r="13" fill="#ffd84a"/>
+<text x="180" y="300" text-anchor="middle" font-size="34" font-family="Arial, Microsoft JhengHei" font-weight="900" fill="#ffd84a">黑貓</text>
+</svg>

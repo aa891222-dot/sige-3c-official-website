@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 360">
+<ellipse cx="190" cy="322" rx="112" ry="20" fill="#000" opacity=".32"/>
+<circle cx="190" cy="176" r="120" fill="#f4f4f4" stroke="#ddd" stroke-width="9"/>
+<ellipse cx="85" cy="175" rx="48" ry="78" fill="#e8e8e8" transform="rotate(12 85 175)"/>
+<ellipse cx="295" cy="175" rx="48" ry="78" fill="#e8e8e8" transform="rotate(-12 295 175)"/>
+<circle cx="145" cy="170" r="14" fill="#111"/><circle cx="235" cy="170" r="14" fill="#111"/>
+<ellipse cx="190" cy="205" rx="16" ry="12" fill="#111"/>
+<path d="M190 216c-14 25-35 24-51 8M190 216c14 25 35 24 51 8" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round"/>
+<path d="M119 268c39 30 100 31 141 0" fill="none" stroke="#e91637" stroke-width="18" stroke-linecap="round"/>
+<circle cx="190" cy="274" r="18" fill="#ffd84a" stroke="#111" stroke-width="5"/>
+<text x="190" y="318" text-anchor="middle" font-size="30" font-family="Arial, Microsoft JhengHei" font-weight="900" fill="#111">白貴賓</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 760">
+<defs>
+<linearGradient id="j" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#11131b"/><stop offset=".55" stop-color="#171a24"/><stop offset="1" stop-color="#e91637"/></linearGradient>
+<filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<ellipse cx="260" cy="724" rx="150" ry="24" fill="#000" opacity=".45"/>
+<path d="M138 712c12-88 22-195 10-284-9-67 13-126 68-154h88c58 30 83 89 73 157-13 92-3 195 10 281z" fill="url(#j)" stroke="#222" stroke-width="10"/>
+<path d="M169 389c-34 18-75 79-83 151-3 26 17 48 43 43 28-6 33-35 38-61 8-40 22-71 45-90z" fill="#ffcfbd" stroke="#191919" stroke-width="8"/>
+<path d="M355 391c34 20 66 61 80 126 5 25 10 57-18 66-27 8-49-10-47-38 5-57-18-91-52-115z" fill="#ffcfbd" stroke="#191919" stroke-width="8"/>
+<rect x="322" y="476" width="86" height="142" rx="18" fill="#101018" stroke="#e91637" stroke-width="7"/>
+<circle cx="260" cy="226" r="112" fill="#ffd2c2" stroke="#151515" stroke-width="10"/>
+<path d="M141 204c8-78 57-134 127-142 60-7 113 24 134 82-48-21-91-12-134 1-44 13-82 14-127 59z" fill="#08090f"/>
+<path d="M138 199c38-96 112-137 204-112-46 3-84 19-119 50 52-33 102-46 154-24-36 6-67 20-97 44 45-19 84-19 120 4-59 14-125 22-262 38z" fill="#0b0c12"/>
+<circle cx="220" cy="231" r="12" fill="#111"/>
+<circle cx="302" cy="231" r="12" fill="#111"/>
+<path d="M232 285c21 18 52 18 73 0" fill="none" stroke="#111" stroke-width="8" stroke-linecap="round"/>
+<path d="M184 354h154" stroke="#fff" stroke-opacity=".18" stroke-width="8"/>
+<text x="260" y="448" text-anchor="middle" font-size="54" font-family="Arial, Microsoft JhengHei" font-weight="900" fill="#fff">四哥3C</text>
+<text x="260" y="508" text-anchor="middle" font-size="25" font-family="Arial" font-weight="900" fill="#ffd84a">STORE MANAGER</text>
+<path d="M140 404h241" stroke="#e91637" stroke-width="5" opacity=".9" filter="url(#glow)"/>
+<circle cx="398" cy="474" r="18" fill="#ffd84a"/>
+</svg>
