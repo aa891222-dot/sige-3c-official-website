@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="四哥3C">
+  <rect width="128" height="128" rx="20" fill="#171717"/>
+  <path d="M14 14h100v100H14z" rx="14" fill="#d92525"/>
+  <path d="M30 76h20V30h20v46h12v18H70v16H50V94H24V78l28-48h22L42 76h8V58h20v18h12v18H30z" fill="#fff"/>
+  <text x="91" y="48" fill="#fff" font-family="Arial, sans-serif" font-size="22" font-weight="900" text-anchor="middle">3C</text>
+  <text x="91" y="79" fill="#f4c24d" font-family="Arial, sans-serif" font-size="15" font-weight="900" text-anchor="middle">skr</text>
+</svg>
