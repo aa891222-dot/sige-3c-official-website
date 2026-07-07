@@ -88,8 +88,8 @@
         </div>
 
         <div class="speech-bubble bubble-main layer" data-depth="0.25" data-chat-bubble>需要我推薦適合你的手機殼嗎？</div>
-        <div class="speech-bubble bubble-cat layer" data-depth="0.4">喵～現場看看！</div>
-        <div class="speech-bubble bubble-dog layer" data-depth="0.34">包膜優惠中！</div>
+        <div class="speech-bubble bubble-cat layer" data-depth="0.4" data-i18n="bubbleCat">喵～現場看看！</div>
+        <div class="speech-bubble bubble-dog layer" data-depth="0.34" data-i18n="bubbleDog">包膜優惠中！</div>
 
         <aside class="quick-rail" aria-label="快捷功能">
           <a href="#products"><span data-i18n="railProducts">現場商品</span></a>
@@ -165,17 +165,17 @@
             <a class="primary-button pulse-button" href="https://www.google.com/maps/search/?api=1&query=%E5%9B%9B%E5%93%A53C" target="_blank" rel="noreferrer" data-i18n="googleReviewButton">前往 Google 評論</a>
           </div>
           <div class="review-list">
-            <article><b>林先生</b><span>★★★★★</span><p>服務超棒，手機殼款式很多，店員很專業！</p></article>
-            <article><b>陳小姐</b><span>★★★★★</span><p>貼膜技術一流，價格實在，會再回訪。</p></article>
-            <article><b>黃先生</b><span>★★★★★</span><p>品質很好，現場說明清楚，強力推薦！</p></article>
+            <article><b data-i18n="reviewOneName">林先生</b><span>★★★★★</span><p data-i18n="reviewOneText">服務超棒，手機殼款式很多，店員很專業！</p></article>
+            <article><b data-i18n="reviewTwoName">陳小姐</b><span>★★★★★</span><p data-i18n="reviewTwoText">貼膜技術一流，價格實在，會再回訪。</p></article>
+            <article><b data-i18n="reviewThreeName">黃先生</b><span>★★★★★</span><p data-i18n="reviewThreeText">品質很好，現場說明清楚，強力推薦！</p></article>
           </div>
         </div>
 
         <form class="local-review-form reveal-card" data-review-form>
           <h3 data-i18n="reviewFormTitle">留下你的支持</h3>
           <p data-i18n="reviewFormNote">送出後會顯示感謝訊息；若要公開評論，請使用上方 Google 評論按鈕。</p>
-          <label><span data-i18n="reviewName">姓名</span><input type="text" name="name" autocomplete="name" placeholder="王先生" /></label>
-          <label><span data-i18n="reviewMessage">評論內容</span><textarea name="message" rows="4" placeholder="服務很好，會再回訪！" required></textarea></label>
+          <label><span data-i18n="reviewName">姓名</span><input type="text" name="name" autocomplete="name" placeholder="王先生" data-i18n-placeholder="reviewNamePlaceholder" /></label>
+          <label><span data-i18n="reviewMessage">評論內容</span><textarea name="message" rows="4" placeholder="服務很好，會再回訪！" data-i18n-placeholder="reviewMessagePlaceholder" required></textarea></label>
           <button class="primary-button pulse-button" type="submit" data-i18n="reviewSubmit">送出評論</button>
         </form>
       </section>
@@ -187,10 +187,10 @@
           <p data-i18n="storeText">歡迎來店挑選手機配件、保護貼、包膜與充電周邊。</p>
         </div>
         <div class="store-grid" data-stagger>
-          <a class="reveal-card" href="https://www.google.com/maps/search/?api=1&query=%E5%9B%9B%E5%93%A53C" target="_blank" rel="noreferrer"><b>Google 地圖</b><span data-i18n="storeMap">一鍵導航到店</span></a>
+          <a class="reveal-card" href="https://www.google.com/maps/search/?api=1&query=%E5%9B%9B%E5%93%A53C" target="_blank" rel="noreferrer"><b data-i18n="storeMapTitle">Google 地圖</b><span data-i18n="storeMap">一鍵導航到店</span></a>
           <a class="reveal-card" href="tel:+88633639939"><b>03-363-9939</b><span data-i18n="storePhone">立即來電詢問</span></a>
           <a class="reveal-card" href="https://www.facebook.com/" target="_blank" rel="noreferrer"><b>Facebook</b><span data-i18n="storeFacebook">追蹤最新活動</span></a>
-          <a class="reveal-card" href="#reviews"><b>Google 評論</b><span data-i18n="storeGoogle">查看與留下評論</span></a>
+          <a class="reveal-card" href="#reviews"><b data-i18n="storeGoogleTitle">Google 評論</b><span data-i18n="storeGoogle">查看與留下評論</span></a>
         </div>
       </section>
     </main>

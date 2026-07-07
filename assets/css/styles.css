@@ -847,41 +847,45 @@ img { display: block; max-width: 100%; }
   .header-actions { gap: .4rem; }
   .icon-button { display: none; }
   .hero {
-    min-height: 1080px;
+    min-height: 1220px;
     padding-top: 96px;
     align-items: start;
   }
   .hero-copy {
     width: 100%;
     margin-top: 0;
+    padding-bottom: 30rem;
   }
   .hero h1 { font-size: clamp(4rem, 22vw, 7rem); }
   .hero-feature-row span { min-width: calc(50% - .5rem); }
   .primary-button,
   .secondary-button { width: 100%; }
   .manager {
-    right: -7rem;
-    bottom: 14rem;
-    width: 32rem;
+    right: -9rem;
+    bottom: 19rem;
+    width: 29rem;
     max-width: none;
-    opacity: .9;
+    opacity: .72;
+    z-index: 1;
   }
   .black-cat {
     left: .5rem;
     right: auto;
-    bottom: 15rem;
+    bottom: 20rem;
     width: 9rem;
+    z-index: 2;
   }
   .white-poodle {
     right: .6rem;
-    bottom: 15rem;
+    bottom: 20rem;
     width: 10rem;
+    z-index: 2;
   }
   .speech-bubble {
     max-width: 13rem;
     font-size: .9rem;
   }
-  .bubble-main { right: 1rem; top: 39rem; }
+  .bubble-main { right: 1rem; top: 43rem; }
   .hero-category-strip {
     grid-template-columns: repeat(2, 1fr);
     bottom: 1rem;

@@ -30,6 +30,8 @@ const translations = {
     featureCare: "貼心服務",
     heroReviewCta: "Google 高評價 4.9",
     heroOfferCta: "查看最新優惠",
+    bubbleCat: "喵～現場看看！",
+    bubbleDog: "包膜優惠中！",
     railProducts: "現場商品",
     railOffers: "最新優惠",
     railReviews: "Google 評論",
@@ -68,16 +70,26 @@ const translations = {
     reviewsTitle: "Google 五星評論",
     reviewsCount: "來自 300+ 則評論",
     googleReviewButton: "前往 Google 評論",
+    reviewOneName: "林先生",
+    reviewOneText: "服務超棒，手機殼款式很多，店員很專業！",
+    reviewTwoName: "陳小姐",
+    reviewTwoText: "貼膜技術一流，價格實在，會再回訪。",
+    reviewThreeName: "黃先生",
+    reviewThreeText: "品質很好，現場說明清楚，強力推薦！",
     reviewFormTitle: "留下你的支持",
     reviewFormNote: "送出後會顯示感謝訊息；若要公開評論，請使用上方 Google 評論按鈕。",
     reviewName: "姓名",
     reviewMessage: "評論內容",
+    reviewNamePlaceholder: "王先生",
+    reviewMessagePlaceholder: "服務很好，會再回訪！",
     reviewSubmit: "送出評論",
     storeTitle: "門市資訊",
     storeText: "歡迎來店挑選手機配件、保護貼、包膜與充電周邊。",
+    storeMapTitle: "Google 地圖",
     storeMap: "一鍵導航到店",
     storePhone: "立即來電詢問",
     storeFacebook: "追蹤最新活動",
+    storeGoogleTitle: "Google 評論",
     storeGoogle: "查看與留下評論",
     thanksTitle: "謝謝您的支持",
     thanksText: "你的鼓勵我們收到了，期待下次再為你服務。",
@@ -87,7 +99,7 @@ const translations = {
     skip: "Skip to content",
     brand: "Sige 3C",
     navHome: "Home",
-    navProducts: "In-store",
+    navProducts: "In-store Goods",
     navOffers: "Offers",
     navReviews: "Google Reviews",
     navStore: "Store Info",
@@ -99,13 +111,15 @@ const translations = {
     featureWrap: "Device Wraps",
     featureCare: "Friendly Care",
     heroReviewCta: "Google Rating 4.9",
-    heroOfferCta: "View Offers",
-    railProducts: "In-store",
+    heroOfferCta: "View Latest Offers",
+    bubbleCat: "Meow, come browse!",
+    bubbleDog: "Wrap offers now!",
+    railProducts: "Goods",
     railOffers: "Offers",
     railReviews: "Reviews",
     catWrap: "Wraps",
     catProtector: "Screen Films",
-    catCases: "Cases",
+    catCases: "Phone Cases",
     catLens: "Lens Films",
     catPower: "Charging",
     catAudio: "Audio",
@@ -138,16 +152,26 @@ const translations = {
     reviewsTitle: "Google Reviews",
     reviewsCount: "From 300+ reviews",
     googleReviewButton: "Open Google Reviews",
+    reviewOneName: "Mr. Lin",
+    reviewOneText: "Great service, lots of phone cases, and very professional staff.",
+    reviewTwoName: "Ms. Chen",
+    reviewTwoText: "Excellent screen protector installation, fair pricing, and I will visit again.",
+    reviewThreeName: "Mr. Huang",
+    reviewThreeText: "Great quality, clear explanations, highly recommended.",
     reviewFormTitle: "Leave Your Support",
     reviewFormNote: "Submitting here shows a thank-you message. Use the Google button above for a public review.",
     reviewName: "Name",
     reviewMessage: "Review",
+    reviewNamePlaceholder: "Your name",
+    reviewMessagePlaceholder: "Great service. I will visit again!",
     reviewSubmit: "Submit Review",
     storeTitle: "Store Info",
     storeText: "Visit us for accessories, screen protectors, wraps, and charging gear.",
+    storeMapTitle: "Google Maps",
     storeMap: "Navigate to store",
     storePhone: "Call us now",
     storeFacebook: "Follow updates",
+    storeGoogleTitle: "Google Reviews",
     storeGoogle: "View and leave reviews",
     thanksTitle: "Thank you for your support",
     thanksText: "We received your encouragement and look forward to serving you again.",
@@ -171,14 +195,36 @@ const chatLines = {
 };
 
 const defaultOffers = [
-  { label: "WRAP", title: "包膜優惠", desc: "手機包膜與保護服務，歡迎到店詢問。" },
-  { label: "GIFT", title: "滿額贈禮", desc: "消費滿額送精美小禮。" },
-  { label: "VIP", title: "會員專屬", desc: "會員最高 88 折扣。" }
+  {
+    label: "WRAP",
+    title: { zh: "包膜優惠", en: "Wrap Offer" },
+    desc: { zh: "手機包膜與保護服務，歡迎到店詢問。", en: "Phone wrap and protection service. Ask us in store." }
+  },
+  {
+    label: "GIFT",
+    title: { zh: "滿額贈禮", en: "Gift With Purchase" },
+    desc: { zh: "消費滿額送精美小禮。", en: "Get a small gift when your purchase reaches the offer amount." }
+  },
+  {
+    label: "VIP",
+    title: { zh: "會員專屬", en: "Member Special" },
+    desc: { zh: "會員最高 88 折扣。", en: "Members can receive up to 12% off." }
+  }
 ];
+
+const offerTranslations = {
+  "包膜優惠": "Wrap Offer",
+  "手機包膜與保護服務，歡迎到店詢問。": "Phone wrap and protection service. Ask us in store.",
+  "滿額贈禮": "Gift With Purchase",
+  "消費滿額送精美小禮。": "Get a small gift when your purchase reaches the offer amount.",
+  "會員專屬": "Member Special",
+  "會員最高 88 折扣。": "Members can receive up to 12% off."
+};
 
 let language = localStorage.getItem("sige3c-lang") || "zh";
 let chatIndex = 0;
 let particles = [];
+let currentOffers = defaultOffers;
 
 menuButton?.addEventListener("click", () => {
   body.classList.toggle("menu-open");
@@ -194,6 +240,13 @@ document.addEventListener("pointermove", (event) => {
   });
 });
 
+function textFor(value) {
+  if (!value) return "";
+  if (typeof value === "object") return value[language] || value.zh || value.en || "";
+  if (language === "en") return offerTranslations[value] || value;
+  return value;
+}
+
 function applyLanguage(nextLanguage) {
   language = nextLanguage;
   document.documentElement.lang = language === "zh" ? "zh-Hant-TW" : "en";
@@ -201,8 +254,13 @@ function applyLanguage(nextLanguage) {
     const key = element.dataset.i18n;
     if (translations[language][key]) element.textContent = translations[language][key];
   });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    const key = element.dataset.i18nPlaceholder;
+    if (translations[language][key]) element.placeholder = translations[language][key];
+  });
   if (langToggle) langToggle.textContent = language === "zh" ? "EN" : "中";
   if (chatBubble) chatBubble.textContent = chatLines[language][chatIndex % chatLines[language].length];
+  renderOffers(currentOffers);
   localStorage.setItem("sige3c-lang", language);
 }
 
@@ -227,13 +285,14 @@ setInterval(() => {
 }, 3600);
 
 function renderOffers(offers) {
-  offers.slice(0, 3).forEach((offer, index) => {
+  currentOffers = offers?.length ? offers : defaultOffers;
+  currentOffers.slice(0, 3).forEach((offer, index) => {
     const label = document.querySelector(`[data-offer-label="${index}"]`);
     const title = document.querySelector(`[data-offer-title="${index}"]`);
     const desc = document.querySelector(`[data-offer-desc="${index}"]`);
     if (label) label.textContent = offer.label;
-    if (title) title.textContent = offer.title;
-    if (desc) desc.textContent = offer.desc || offer.description;
+    if (title) title.textContent = textFor(offer.title);
+    if (desc) desc.textContent = textFor(offer.desc || offer.description);
   });
 }
 
