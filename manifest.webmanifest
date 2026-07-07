@@ -1,16 +1,23 @@
 {
-  "name": "四哥3C手機配件店",
+  "name": "四哥3C Official Website",
   "short_name": "四哥3C",
-  "start_url": "index.html",
+  "description": "動漫 Cyber 精品手機配件專門店",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#fffaf2",
-  "theme_color": "#d92525",
-  "description": "四哥3C手機配件店官方網站與 NFC/QR 快速入口。",
+  "background_color": "#050506",
+  "theme_color": "#060608",
   "icons": [
     {
-      "src": "assets/icons/site-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "./assets/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

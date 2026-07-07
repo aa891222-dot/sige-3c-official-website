@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://aa891222-dot.github.io/sige-3c-official-website/sitemap.xml
