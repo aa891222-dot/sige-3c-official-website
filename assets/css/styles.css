@@ -1697,6 +1697,48 @@ img { display: block; max-width: 100%; }
   }
 }
 
+@media (max-width: 780px) {
+  .bubble-main {
+    top: clamp(27.25rem, 52svh, 30.25rem);
+    left: max(1.1rem, env(safe-area-inset-left));
+    right: auto;
+    bottom: auto;
+    max-width: min(11rem, calc(100vw - 2rem));
+    padding: .78rem .9rem;
+    z-index: 36;
+  }
+  .bubble-main::after {
+    left: auto;
+    right: -9px;
+    top: 52%;
+    bottom: auto;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%) rotate(45deg);
+  }
+}
+
+@media (min-width: 520px) and (max-width: 780px) {
+  .bubble-main {
+    top: clamp(27rem, 50svh, 30rem);
+    left: max(2rem, env(safe-area-inset-left));
+  }
+}
+
+@media (max-width: 420px) {
+  .bubble-main {
+    top: clamp(27.8rem, 53svh, 30.8rem);
+    left: max(.95rem, env(safe-area-inset-left));
+  }
+}
+
+@media (max-width: 360px) {
+  .bubble-main {
+    top: clamp(28.2rem, 54svh, 31.2rem);
+    max-width: 10.25rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
