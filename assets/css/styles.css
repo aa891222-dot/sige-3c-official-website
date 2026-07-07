@@ -1586,6 +1586,70 @@ img { display: block; max-width: 100%; }
   }
 }
 
+@media (max-width: 780px) {
+  .hero {
+    min-height: 880px;
+    min-height: clamp(860px, 108svh, 920px);
+  }
+  .hero-copy > .hero-cta {
+    position: absolute;
+    top: auto;
+    left: 24px;
+    right: 24px;
+    bottom: 2.15rem;
+    width: auto;
+    margin-top: 0;
+    z-index: 38;
+  }
+  .hero .primary-button,
+  .hero .secondary-button {
+    min-height: 56px;
+    border-radius: 8px;
+  }
+  .mobile-feature-band {
+    padding-top: 2rem;
+  }
+}
+
+@media (min-width: 520px) and (max-width: 780px) {
+  .hero {
+    min-height: 900px;
+  }
+  .hero-copy > .hero-cta {
+    top: auto;
+    left: 32px;
+    right: 32px;
+    bottom: 2.35rem;
+    width: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero {
+    min-height: 880px;
+  }
+  .hero-copy > .hero-cta {
+    top: auto;
+    left: 22px;
+    right: 22px;
+    bottom: 2.05rem;
+    width: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero {
+    min-height: 860px;
+  }
+  .hero-copy > .hero-cta {
+    top: auto;
+    left: 20px;
+    right: 20px;
+    bottom: 1.9rem;
+    width: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
