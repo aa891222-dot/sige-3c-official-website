@@ -1,0 +1,16 @@
+{
+  "name": "四哥3C手機配件店",
+  "short_name": "四哥3C",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#fffaf2",
+  "theme_color": "#d92525",
+  "description": "四哥3C手機配件店官方網站與 NFC/QR 快速入口。",
+  "icons": [
+    {
+      "src": "assets/icons/site-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
