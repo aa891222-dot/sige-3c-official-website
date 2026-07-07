@@ -6,14 +6,17 @@
   <title>四哥3C 手機配件店｜官方網站</title>
   <meta name="description" content="四哥3C手機配件店官方網站：手機殼、保護貼、充電配件、音訊配件、生活配件與門市資訊。" />
   <meta name="theme-color" content="#050509" />
-  <link rel="stylesheet" href="assets/css/style.css?v=match1" />
+  <link rel="preload" as="image" href="assets/images/homepage-visual-hq.jpg">
+  <link rel="stylesheet" href="assets/css/style.css?v=v4hq1" />
 </head>
 <body>
   <main>
     <section class="visual-home" id="home">
-      <img src="assets/images/homepage-visual.jpg" alt="四哥3C 官方網站首頁主視覺" />
+      <picture>
+        <source srcset="assets/images/homepage-visual-hq.jpg 2x, assets/images/homepage-visual-original.jpg 1x">
+        <img src="assets/images/homepage-visual-hq.jpg" alt="四哥3C 官方網站首頁主視覺" />
+      </picture>
 
-      <!-- 透明點擊區：讓它看起來像圖片，但實際可點 -->
       <a class="hit nav-home" href="#home" aria-label="首頁"></a>
       <a class="hit nav-products" href="#products" aria-label="熱門商品"></a>
       <a class="hit nav-feature" href="#feature" aria-label="品牌特色"></a>
@@ -22,8 +25,10 @@
 
       <a class="hit google-btn" href="https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C+%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6+%E8%A9%95%E8%AB%96" target="_blank" rel="noopener" aria-label="Google 評論"></a>
       <a class="hit promo-btn" href="#promo" aria-label="最新優惠"></a>
-      <a class="hit store-btn" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noopener" aria-label="門市資訊"></a>
-      <a class="hit phone-btn" href="tel:033639939" aria-label="線上客服"></a>
+      <a class="hit side-hot" href="#products" aria-label="熱門商品"></a>
+      <a class="hit side-store" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noopener" aria-label="門市資訊"></a>
+      <a class="hit side-service" href="tel:033639939" aria-label="線上客服"></a>
+      <a class="hit side-top" href="#home" aria-label="回到頂部"></a>
     </section>
 
     <section class="content-section" id="products">
@@ -78,6 +83,6 @@
     </section>
   </main>
 
-  <script src="assets/js/script.js?v=match1"></script>
+  <script src="assets/js/script.js?v=v4hq1"></script>
 </body>
 </html>

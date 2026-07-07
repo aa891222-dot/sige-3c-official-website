@@ -3,8 +3,9 @@
 html{scroll-behavior:smooth}
 body{margin:0;background:#050509;color:#fff;font-family:"Microsoft JhengHei","Noto Sans TC",Arial,sans-serif;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
-.visual-home{position:relative;width:100%;background:#050509;overflow:hidden}
-.visual-home img{display:block;width:100%;height:auto;min-height:100vh;object-fit:cover}
+.visual-home{position:relative;width:100%;min-height:100vh;background:#050509;overflow:hidden}
+.visual-home picture,.visual-home img{display:block;width:100%}
+.visual-home img{height:auto;image-rendering:auto}
 .hit{position:absolute;display:block;z-index:5;border-radius:12px}
 .hit:hover{background:rgba(255,255,255,.035)}
 .nav-home{left:31.2%;top:2.2%;width:4.6%;height:4.2%}
@@ -14,8 +15,10 @@ a{text-decoration:none;color:inherit}
 .nav-store{left:59.0%;top:2.2%;width:6.5%;height:4.2%}
 .google-btn{left:3.7%;top:43.3%;width:14.1%;height:5.5%}
 .promo-btn{left:19.3%;top:43.3%;width:11.9%;height:5.5%}
-.store-btn{right:1.2%;top:31.0%;width:5.0%;height:21.8%}
-.phone-btn{right:1.2%;top:52.8%;width:5.0%;height:17.4%}
+.side-hot{right:1.0%;top:29.0%;width:5.2%;height:13.0%}
+.side-store{right:1.0%;top:42.2%;width:5.2%;height:13.0%}
+.side-service{right:1.0%;top:55.5%;width:5.2%;height:13.0%}
+.side-top{right:1.0%;top:68.8%;width:5.2%;height:8.4%}
 
 .content-section{padding:86px 6vw;background:radial-gradient(circle at 15% 10%,rgba(255,25,56,.13),transparent 28%),#050509}
 .section-title{text-align:center;margin-bottom:36px}
@@ -31,7 +34,9 @@ a{text-decoration:none;color:inherit}
 .contact-grid a b{font-size:20px}.contact-grid a small{display:block;margin-top:10px}
 
 @media(max-width:900px){
-  .visual-home img{width:auto;height:100vh;max-width:none;transform:translateX(-28%)}
+  .visual-home{height:100vh}
+  .visual-home picture,.visual-home img{height:100%}
+  .visual-home img{width:auto;max-width:none;transform:translateX(-22%);object-fit:cover}
   .hit{display:none}
   .cards,.promo-grid,.contact,.contact-grid{grid-template-columns:1fr}
   .content-section,.contact{padding-left:18px;padding-right:18px}
