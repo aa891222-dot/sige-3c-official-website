@@ -1650,6 +1650,53 @@ img { display: block; max-width: 100%; }
   }
 }
 
+@media (max-width: 780px) {
+  .hero {
+    min-height: 920px;
+    min-height: clamp(900px, 112svh, 960px);
+  }
+  .hero-copy {
+    max-width: 21.5rem;
+  }
+  .hero-copy > .hero-cta {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: min(100%, 20.5rem);
+    margin-top: 1.15rem;
+    z-index: 40;
+  }
+  .manager {
+    bottom: 5.4rem;
+  }
+  .black-cat,
+  .white-poodle {
+    bottom: 5rem;
+  }
+}
+
+@media (min-width: 520px) and (max-width: 780px) {
+  .hero-copy > .hero-cta {
+    width: min(26rem, 100%);
+  }
+  .manager {
+    bottom: 5.6rem;
+  }
+  .black-cat,
+  .white-poodle {
+    bottom: 5.2rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-copy > .hero-cta {
+    width: min(100%, 20.25rem);
+    margin-top: 1rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
