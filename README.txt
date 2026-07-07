@@ -1,44 +1,39 @@
-四哥3C Official Website V1.0
+四哥3C Official Website FULL v1 - Optimized
 
-這是一份可直接上傳主機、GitHub Pages 或交給工程人員部署的靜態網站。
+這是一份可直接部署到 GitHub Pages、Netlify、Vercel 或一般靜態主機的網站專案。
 
-網站頁面
-- index.html：互動海報首頁，外觀與主視覺圖片一致，並加上可點擊熱區
-- about.html：關於四哥3C與店內夥伴
-- promotion.html：最新優惠
-- contact.html：Google 地圖、Facebook、電話與 QR Code 入口
+專案內容
+- index.html：四哥3C 官方網站首頁
+- assets/css/style.css：紅黑動漫科技風樣式與手機版 RWD
+- assets/js/script.js：選單、動畫、資料連結套用與效能優化
+- assets/data/site.json：店家電話、Google 評論、Facebook、Google 地圖等集中設定
+- assets/images/concept-design.jpeg：概念主視覺
+- assets/images/store-sign.jpeg：店家招牌圖
 
-素材與設定
-- assets/images/sige-3c-main-visual.jpeg：主視覺圖片
-- assets/css/style.css：網站樣式
-- assets/js/script.js：手機選單與導覽狀態
-- assets/icons/site-icon.svg：網站圖示
-- manifest.webmanifest：加入主畫面用的基礎設定
-- robots.txt：搜尋引擎讀取設定
-- sitemap.xml：網站頁面清單
+已確認保留功能
+- Google 評論入口
+- Facebook 粉絲專頁入口
+- Google 地圖導航入口
+- 電話撥打入口：03-363-9939
+- NFC / QR Code 導流說明
+- 最新優惠區塊
+- 服務項目與選擇理由區塊
+- 店家招牌與概念圖素材
 
-已放入的正式連結
-- Google 地圖：https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic
-- Facebook：https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr
-- 電話：03-363-9939
-- Google 評論搜尋入口
+已優化項目
+- HTML 語意結構與 SEO meta
+- CSS RWD 手機版版面
+- 動畫效能：游標光暈與捲動事件使用 requestAnimationFrame
+- reveal 動畫只觸發一次，減少後續觀察成本
+- 支援 prefers-reduced-motion，降低使用者不適與效能負擔
+- 主要連結可從 assets/data/site.json 集中維護
 
-首頁可點擊區域
-- 立即評論按鈕
-- Google 五星評論卡片
-- Facebook 粉絲專頁卡片
-- Google 地圖導航卡片
-- 撥打電話卡片
-- 底部 Google 地圖、電話、Facebook 區塊
+部署方式
+1. 將整個資料夾內容上傳到 GitHub repository 根目錄。
+2. 到 Settings > Pages。
+3. Source 選 Deploy from a branch。
+4. Branch 選 main，資料夾選 / root。
+5. 儲存後等待 GitHub Pages 建置。
 
-使用方式
-1. 直接打開 index.html 可以預覽。
-2. 要上傳網站時，請上傳整個 sige-3c-official-website 資料夾內的所有檔案。
-3. 若要寫入 NFC，建議寫入正式上線後的首頁網址。
-4. QR Code 目前指向 Google 地圖；若之後要改成官網網址，可替換 contact.html 裡的 QR Code 連結。
-
-後續可加強
-- 補上正式店址與營業時間
-- 補上正式 Logo 原始檔
-- 補上商品實拍照片
-- 上線後將 sitemap.xml 裡的相對路徑換成正式網址
+NFC 建議寫入網址
+https://aa891222-dot.github.io/sige-3c-official-website/

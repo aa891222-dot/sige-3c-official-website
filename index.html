@@ -1,46 +1,197 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="四哥3C手機配件店互動海報網站，提供 Google 五星評論、Facebook 粉絲專頁、Google 地圖導航與電話快速入口。">
+  <meta name="description" content="四哥3C手機配件店官方網站，提供手機殼、保護貼、全機包膜、行動電源、充電配件、藍牙耳機、Apple Watch 配件與手機維修服務。">
+  <meta name="theme-color" content="#08080d">
   <meta property="og:title" content="四哥3C手機配件店">
-  <meta property="og:description" content="每一支手機，都值得最好的保護。查看四哥3C的評論、粉絲專頁、地圖與聯絡方式。">
-  <meta property="og:image" content="assets/images/sige-3c-main-visual.jpeg">
+  <meta property="og:description" content="紅黑動漫科技風手機配件店。Google 評論、Facebook、Google 地圖與電話一鍵開啟。">
+  <meta property="og:image" content="assets/images/concept-design.jpeg">
   <meta property="og:type" content="website">
-  <title>四哥3C手機配件店｜互動海報</title>
-  <link rel="icon" href="assets/icons/site-icon.svg" type="image/svg+xml">
-  <link rel="manifest" href="manifest.webmanifest">
+  <title>四哥3C 手機配件店｜官方網站</title>
+  <link rel="preload" as="image" href="assets/images/concept-design.jpeg">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="poster-body" data-page="home">
-  <main class="poster-stage" aria-label="四哥3C手機配件店互動海報">
-    <section class="poster-shell">
-      <img class="poster-image" src="assets/images/sige-3c-main-visual.jpeg" alt="四哥3C手機配件店海報，包含 Google 評論、Facebook 粉絲專頁、Google 地圖導航、電話、服務項目、選擇理由與最新優惠。">
+<body>
+  <a class="skip-link" href="#main">跳到主要內容</a>
 
-      <a class="poster-hotspot review-main" href="https://www.google.com/search?q=%E5%9B%9B+%E5%93%A5+3c+%E6%89%8B%E6%A9%9F+%E9%85%8D%E4%BB%B6%E7%9A%84%E8%A9%95%E8%AB%96" target="_blank" rel="noopener" aria-label="立即前往 Google 五星評論"></a>
-      <a class="poster-hotspot review-card" href="https://www.google.com/search?q=%E5%9B%9B+%E5%93%A5+3c+%E6%89%8B%E6%A9%9F+%E9%85%8D%E4%BB%B6%E7%9A%84%E8%A9%95%E8%AB%96" target="_blank" rel="noopener" aria-label="Google 五星評論"></a>
-      <a class="poster-hotspot facebook-card" href="https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook 粉絲專頁"></a>
-      <a class="poster-hotspot map-card" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noopener" aria-label="Google 地圖導航"></a>
-      <a class="poster-hotspot phone-card" href="tel:033639939" aria-label="撥打四哥3C電話 03-363-9939"></a>
-      <a class="poster-hotspot footer-map" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noopener" aria-label="底部 Google 地圖入口"></a>
-      <a class="poster-hotspot footer-phone" href="tel:033639939" aria-label="底部撥打電話入口"></a>
-      <a class="poster-hotspot footer-facebook" href="https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="底部 Facebook 入口"></a>
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-logo">四哥3C</div>
+    <div class="preloader-bar"><span></span></div>
+    <p>Official Website Loading...</p>
+  </div>
 
-      <div class="sr-only">
-        <h1>四哥3C手機配件店</h1>
-        <p>專業配件、包膜、維修。每一支手機，都值得最好的保護。</p>
-        <p>電話：03-363-9939</p>
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <div class="cyber-bg" aria-hidden="true">
+    <div class="grid"></div>
+    <div class="energy energy-a"></div>
+    <div class="energy energy-b"></div>
+  </div>
+
+  <header class="site-header" id="siteHeader">
+    <a class="brand" href="#home" aria-label="四哥3C首頁">
+      <span class="brand-mark">四哥3C</span>
+      <span class="brand-skr">skr~skr~</span>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="開啟選單" aria-expanded="false" aria-controls="nav">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" id="nav" aria-label="主要導覽">
+      <a href="#quick">入口</a>
+      <a href="#service">服務</a>
+      <a href="#promo">優惠</a>
+      <a href="#why">特色</a>
+      <a href="#nfc">NFC</a>
+      <a href="#contact">聯絡</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="home">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">ANIME × CYBER TECH × PHONE ACCESSORY</p>
+        <h1>四哥3C<br><span>手機配件專門店</span></h1>
+        <p class="time-greeting" id="timeGreeting">歡迎來到四哥3C</p>
+        <p class="hero-desc">守護每一支手機，服務每一位顧客。從手機殼、保護貼、全機包膜到維修與充電配件，讓手機每天都保持最佳狀態。</p>
+        <div class="stars" aria-label="五星評價">★★★★★</div>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" data-action="googleReview" href="https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96" target="_blank" rel="noopener">⭐ 立即評論</a>
+          <a class="btn btn-secondary" href="#quick">查看快速入口</a>
+        </div>
+
+        <div class="hero-stats" aria-label="網站重點">
+          <div><strong>8+</strong><span>服務項目</span></div>
+          <div><strong>NFC</strong><span>一碰導流</span></div>
+          <div><strong>QR</strong><span>掃描進站</span></div>
+        </div>
+      </div>
+
+      <div class="hero-media reveal">
+        <figure class="concept-card">
+          <img src="assets/images/concept-design.jpeg" alt="四哥3C紅黑動漫科技風概念圖" width="1024" height="1536">
+          <figcaption>四哥3C 概念主視覺</figcaption>
+        </figure>
       </div>
     </section>
 
-    <nav class="poster-nav" aria-label="網站其他頁面">
-      <a href="about.html">關於四哥</a>
-      <a href="promotion.html">最新優惠</a>
-      <a href="contact.html">聯絡導航</a>
-    </nav>
+    <section class="quick" id="quick" aria-label="快速功能">
+      <a class="quick-card red reveal" data-action="googleReview" href="https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96" target="_blank" rel="noopener">
+        <span class="icon">⭐</span>
+        <h2>Google 評論</h2>
+        <p>您的五星評論，是我們最大的動力。</p>
+        <b>立即前往</b>
+      </a>
+      <a class="quick-card blue reveal" data-action="facebook" href="https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr" target="_blank" rel="noopener">
+        <span class="icon">👍</span>
+        <h2>Facebook</h2>
+        <p>追蹤粉絲專頁，掌握最新活動。</p>
+        <b>前往粉專</b>
+      </a>
+      <a class="quick-card green reveal" data-action="googleMap" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noopener">
+        <span class="icon">📍</span>
+        <h2>Google 導航</h2>
+        <p>一鍵導航，快速找到四哥3C。</p>
+        <b>開始導航</b>
+      </a>
+      <a class="quick-card black reveal" data-action="phone" href="tel:033639939">
+        <span class="icon">☎</span>
+        <h2>撥打電話</h2>
+        <p>有任何問題歡迎來電詢問。</p>
+        <b>03-363-9939</b>
+      </a>
+    </section>
+
+    <section class="section" id="service">
+      <div class="section-heading reveal">
+        <p>PROFESSIONAL SERVICE</p>
+        <h2>我們提供</h2>
+      </div>
+
+      <div class="service-grid">
+        <article class="service-card reveal"><span>📱</span><h3>手機殼</h3><p>防摔、質感、潮流款式，保護也要好看。</p></article>
+        <article class="service-card reveal"><span>🛡️</span><h3>保護貼</h3><p>玻璃貼、防窺貼、鏡頭貼，專業貼膜服務。</p></article>
+        <article class="service-card reveal"><span>✨</span><h3>全機包膜</h3><p>完整保護機身，細節施工更安心。</p></article>
+        <article class="service-card reveal"><span>🔋</span><h3>行動電源</h3><p>外出不斷電，挑選適合你的容量與規格。</p></article>
+        <article class="service-card reveal"><span>🔌</span><h3>充電配件</h3><p>充電線、豆腐頭、車充，穩定快速充電。</p></article>
+        <article class="service-card reveal"><span>⌚</span><h3>Apple Watch 配件</h3><p>錶帶、保護殼與實用周邊一次挑齊。</p></article>
+        <article class="service-card reveal"><span>🎧</span><h3>藍牙耳機</h3><p>通勤、遊戲、追劇，找到適合你的耳機。</p></article>
+        <article class="service-card reveal"><span>🔧</span><h3>手機維修</h3><p>專業檢測，提供貼心可靠的維修服務。</p></article>
+      </div>
+    </section>
+
+    <section class="promo" id="promo">
+      <div class="promo-copy reveal">
+        <p class="eyebrow">LATEST PROMOTION</p>
+        <h2>最新優惠</h2>
+        <p>活動內容可依店內公告調整。之後只需要修改一段文字，就能更新網站優惠。</p>
+      </div>
+      <div class="promo-cards">
+        <article class="promo-card reveal"><b>HOT</b><h3>全機包膜優惠</h3><p>高質感包膜，完整保護。</p></article>
+        <article class="promo-card reveal"><b>HOT</b><h3>配件第二件 95 折</h3><p>手機殼、充電配件一起帶更划算。</p></article>
+        <article class="promo-card reveal"><b>NEW</b><h3>行動電源特價</h3><p>外出補電更安心。</p></article>
+      </div>
+    </section>
+
+    <section class="section why" id="why">
+      <div class="section-heading reveal">
+        <p>WHY CHOOSE US</p>
+        <h2>為什麼選擇四哥3C？</h2>
+      </div>
+
+      <div class="why-grid">
+        <article class="why-card reveal"><span>💎</span><h3>專業施工</h3><p>細節講究，每一支手機都用心處理。</p></article>
+        <article class="why-card reveal"><span>✅</span><h3>嚴選商品</h3><p>精選實用配件，使用更安心。</p></article>
+        <article class="why-card reveal"><span>🤝</span><h3>完善售後</h3><p>售後服務有保障，購買更放心。</p></article>
+        <article class="why-card reveal"><span>😊</span><h3>親切服務</h3><p>用心對待每位顧客，提供適合建議。</p></article>
+      </div>
+    </section>
+
+    <section class="nfc reveal" id="nfc">
+      <div>
+        <p class="eyebrow">NFC / QR CODE</p>
+        <h2>一碰進入四哥3C官方網站</h2>
+        <p>NFC 與 QR Code 建議都導向這個網站。之後要新增 LINE、優惠、作品集，不用重寫 NFC，只要更新網站。</p>
+      </div>
+      <div class="nfc-panel" aria-hidden="true">
+        <div class="phone-mock">
+          <span>📱</span>
+          <b>Touch NFC</b>
+          <small>or scan QR Code</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="store-photo reveal">
+      <div class="photo-copy">
+        <p class="eyebrow">REAL STORE</p>
+        <h2>四哥3C 店面招牌</h2>
+        <p>網站保留店家招牌與概念圖兩份素材。店面照片適合放在地圖、NFC 與顧客確認店面時使用。</p>
+      </div>
+      <figure>
+        <img src="assets/images/store-sign.jpeg" alt="四哥3C手機配件店招牌" width="1024" height="768" loading="lazy">
+      </figure>
+    </section>
   </main>
 
-  <script src="assets/js/script.js"></script>
+  <footer class="footer" id="contact">
+    <div>
+      <h2>四哥3C</h2>
+      <p>手機配件專門店｜skr~skr~</p>
+    </div>
+    <div class="footer-links">
+      <a data-action="googleReview" href="https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96" target="_blank" rel="noopener">Google 評論</a>
+      <a data-action="facebook" href="https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr" target="_blank" rel="noopener">Facebook</a>
+      <a data-action="googleMap" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noopener">Google 地圖</a>
+      <a data-action="phone" href="tel:033639939">03-363-9939</a>
+    </div>
+    <p class="copyright">© 2026 四哥3C手機配件店 All Rights Reserved.</p>
+  </footer>
+
+  <script src="assets/js/script.js" defer></script>
 </body>
 </html>
