@@ -12,14 +12,13 @@
 .tail{animation:wag 1.5s ease-in-out infinite alternate;transform-origin:105px 638px}
 .dogtail{animation:wagDog 1.2s ease-in-out infinite alternate;transform-origin:1060px 612px}
 .phoneGlow{animation:pulse 1.6s ease-in-out infinite alternate}
-.eye{animation:blink 5s infinite}
 @keyframes floatM{50%{transform:translateY(-12px)}}
 @keyframes floatC{50%{transform:translateY(-8px)}}
 @keyframes floatD{50%{transform:translateY(-10px)}}
 @keyframes wag{to{transform:rotate(10deg)}}
 @keyframes wagDog{to{transform:rotate(-13deg)}}
 @keyframes pulse{to{opacity:.35}}
-@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+96%{transform:scaleY(.12)}}
 </style>
 </defs>
 
@@ -64,7 +63,7 @@
 <circle cx="660" cy="245" r="118" fill="#ffd1bf" stroke="#151515" stroke-width="12"/>
 <path d="M531 214c25-111 113-157 216-132 61 15 103 56 118 119-52-29-106-30-166-16-57 13-112 27-168 29z" fill="#07080d"/>
 <path d="M550 173c48-65 112-89 191-70-48 8-81 25-113 55 57-32 115-45 177-18-48 7-93 20-135 47 53-18 102-16 149 15-87 10-172 15-269-29z" fill="#0f111a"/>
-<g class="eye"><circle cx="620" cy="255" r="13" fill="#111"/><circle cx="704" cy="255" r="13" fill="#111"/></g>
+<g><circle cx="620" cy="255" r="13" fill="#111"/><circle cx="704" cy="255" r="13" fill="#111"/></g>
 <path d="M634 312c24 23 62 23 86 0" fill="none" stroke="#111" stroke-width="9" stroke-linecap="round"/>
 <path d="M560 420h210" stroke="#fff" stroke-opacity=".22" stroke-width="10"/>
 <text x="660" y="495" text-anchor="middle" font-size="64" font-family="Arial, Microsoft JhengHei" font-weight="900" fill="#fff">四哥3C</text>
@@ -80,7 +79,7 @@
 <path class="tail" d="M190 675c-86-38-64-142 15-125 55 12 47 82 2 80" fill="none" stroke="#ff1d3b" stroke-width="16" stroke-linecap="round"/>
 <path d="M215 568l-32-98 93 65M355 568l32-98-93 65" fill="#050609" stroke="#111" stroke-width="8"/>
 <circle cx="285" cy="610" r="112" fill="#050609" stroke="#151720" stroke-width="10"/>
-<g class="eye"><circle cx="246" cy="603" r="25" fill="#ffd84a"/><circle cx="324" cy="603" r="25" fill="#ffd84a"/></g>
+<g><circle cx="246" cy="603" r="25" fill="#ffd84a"/><circle cx="324" cy="603" r="25" fill="#ffd84a"/></g>
 <ellipse cx="249" cy="603" rx="7" ry="18" fill="#111"/><ellipse cx="327" cy="603" rx="7" ry="18" fill="#111"/>
 <path d="M278 646h14l-7 9z" fill="#ff6b7d"/>
 <path d="M285 655c-16 22-37 18-51 6M285 655c16 22 37 18 51 6" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
@@ -94,7 +93,7 @@
 <circle cx="920" cy="620" r="116" fill="#f3f3f3" stroke="#ddd" stroke-width="9"/>
 <ellipse cx="818" cy="625" rx="48" ry="78" fill="#e7e7e7" transform="rotate(12 818 625)"/>
 <ellipse cx="1020" cy="625" rx="48" ry="78" fill="#e7e7e7" transform="rotate(-12 1020 625)"/>
-<g class="eye"><circle cx="880" cy="613" r="14" fill="#111"/><circle cx="960" cy="613" r="14" fill="#111"/></g>
+<g><circle cx="880" cy="613" r="14" fill="#111"/><circle cx="960" cy="613" r="14" fill="#111"/></g>
 <ellipse cx="920" cy="650" rx="16" ry="12" fill="#111"/>
 <path d="M920 660c-14 25-35 24-51 8M920 660c14 25 35 24 51 8" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round"/>
 <path d="M852 715c42 35 99 34 137 0" fill="none" stroke="#ff1d3b" stroke-width="18" stroke-linecap="round"/>
