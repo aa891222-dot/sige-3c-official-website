@@ -1,9 +1,11 @@
-const CACHE_NAME = "sige-3c-v3";
+const CACHE_NAME = "sige-3c-v4";
 const ASSETS = [
   "./",
   "./index.html",
+  "./admin.html",
   "./assets/css/styles.css",
   "./assets/js/main.js",
+  "./assets/js/admin.js",
   "./assets/images/hero-store-bg.png",
   "./assets/images/manager.png",
   "./assets/images/black-cat.png",

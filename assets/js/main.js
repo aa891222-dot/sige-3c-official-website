@@ -9,12 +9,8 @@ const progressBar = document.querySelector("[data-scroll-progress]");
 const reviewForm = document.querySelector("[data-review-form]");
 const thankYou = document.querySelector("[data-thank-you]");
 const closeThankYou = document.querySelector("[data-close-thank-you]");
-const adminForm = document.querySelector("[data-admin-form]");
-const adminReset = document.querySelector("[data-admin-reset]");
-const adminStatus = document.querySelector("[data-admin-status]");
 
 const googleReviewUrl = "https://www.google.com/maps/search/?api=1&query=%E5%9B%9B%E5%93%A53C";
-const offerStorageKey = "sige3c-offers";
 
 const translations = {
   zh: {
@@ -83,8 +79,6 @@ const translations = {
     storePhone: "立即來電詢問",
     storeFacebook: "追蹤最新活動",
     storeGoogle: "查看與留下評論",
-    adminTitle: "優惠後台",
-    adminNote: "這是靜態網站用的本機後台，可快速修改本頁優惠文字；重新部署前可先在瀏覽器預覽。",
     thanksTitle: "謝謝您的支持",
     thanksText: "你的鼓勵我們收到了，期待下次再為你服務。",
     footerText: "手機配件、包膜、保護貼與現場服務"
@@ -155,8 +149,6 @@ const translations = {
     storePhone: "Call us now",
     storeFacebook: "Follow updates",
     storeGoogle: "View and leave reviews",
-    adminTitle: "Offer Admin",
-    adminNote: "Local admin for this static page. Update offer text and preview before deployment.",
     thanksTitle: "Thank you for your support",
     thanksText: "We received your encouragement and look forward to serving you again.",
     footerText: "Accessories, wraps, screen protectors, and in-store service"
@@ -195,7 +187,6 @@ menuButton?.addEventListener("click", () => {
 document.addEventListener("pointermove", (event) => {
   const x = (event.clientX / window.innerWidth - 0.5) * 2;
   const y = (event.clientY / window.innerHeight - 0.5) * 2;
-
   layers.forEach((layer) => {
     const depth = Number(layer.dataset.depth || 0);
     layer.style.setProperty("--mx", `${x * depth * 28}px`);
@@ -234,6 +225,28 @@ setInterval(() => {
     chatBubble.textContent = chatLines[language][chatIndex];
   }, 190);
 }, 3600);
+
+function renderOffers(offers) {
+  offers.slice(0, 3).forEach((offer, index) => {
+    const label = document.querySelector(`[data-offer-label="${index}"]`);
+    const title = document.querySelector(`[data-offer-title="${index}"]`);
+    const desc = document.querySelector(`[data-offer-desc="${index}"]`);
+    if (label) label.textContent = offer.label;
+    if (title) title.textContent = offer.title;
+    if (desc) desc.textContent = offer.desc || offer.description;
+  });
+}
+
+async function loadOffers() {
+  try {
+    const response = await fetch("./api/offers", { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("Offer API unavailable");
+    const payload = await response.json();
+    renderOffers(payload.offers?.length ? payload.offers : defaultOffers);
+  } catch {
+    renderOffers(defaultOffers);
+  }
+}
 
 function resizeCanvas() {
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -294,45 +307,6 @@ function setupReveal() {
   cards.forEach((card) => observer.observe(card));
 }
 
-function readOffers() {
-  try {
-    return JSON.parse(localStorage.getItem(offerStorageKey)) || defaultOffers;
-  } catch {
-    return defaultOffers;
-  }
-}
-
-function renderOffers(offers) {
-  offers.forEach((offer, index) => {
-    document.querySelector(`[data-offer-label="${index}"]`).textContent = offer.label;
-    document.querySelector(`[data-offer-title="${index}"]`).textContent = offer.title;
-    document.querySelector(`[data-offer-desc="${index}"]`).textContent = offer.desc;
-    if (adminForm) {
-      adminForm.elements[`label${index}`].value = offer.label;
-      adminForm.elements[`title${index}`].value = offer.title;
-      adminForm.elements[`desc${index}`].value = offer.desc;
-    }
-  });
-}
-
-adminForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const offers = defaultOffers.map((_, index) => ({
-    label: adminForm.elements[`label${index}`].value.trim(),
-    title: adminForm.elements[`title${index}`].value.trim(),
-    desc: adminForm.elements[`desc${index}`].value.trim()
-  }));
-  localStorage.setItem(offerStorageKey, JSON.stringify(offers));
-  renderOffers(offers);
-  adminStatus.textContent = "已儲存優惠內容。";
-});
-
-adminReset?.addEventListener("click", () => {
-  localStorage.removeItem(offerStorageKey);
-  renderOffers(defaultOffers);
-  adminStatus.textContent = "已恢復預設優惠。";
-});
-
 reviewForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   thankYou.hidden = false;
@@ -355,7 +329,7 @@ resizeCanvas();
 drawParticles();
 setupReveal();
 applyLanguage(language);
-renderOffers(readOffers());
+loadOffers();
 updateScrollHud();
 
 window.addEventListener("resize", resizeCanvas);

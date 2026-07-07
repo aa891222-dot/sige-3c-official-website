@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>四哥3C｜優惠後台</title>
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body class="admin-page">
+    <main class="section admin-panel" aria-labelledby="admin-title">
+      <div class="section-heading reveal-card is-visible">
+        <p class="eyebrow">CLOUDFLARE D1 ADMIN</p>
+        <h1 id="admin-title">優惠後台</h1>
+        <p class="section-note">這裡會直接更新 Cloudflare D1，儲存後所有訪客都會看到最新優惠。</p>
+      </div>
+
+      <form class="admin-form reveal-card is-visible" data-admin-form>
+        <label>
+          <span>管理密碼</span>
+          <input name="password" type="password" autocomplete="current-password" required />
+        </label>
+
+        <div class="admin-grid">
+          <label><span>優惠 1 標籤</span><input name="label0" value="WRAP" required /></label>
+          <label><span>優惠 1 標題</span><input name="title0" value="包膜優惠" required /></label>
+          <label><span>優惠 1 內容</span><input name="desc0" value="手機包膜與保護服務，歡迎到店詢問。" required /></label>
+          <label><span>優惠 2 標籤</span><input name="label1" value="GIFT" required /></label>
+          <label><span>優惠 2 標題</span><input name="title1" value="滿額贈禮" required /></label>
+          <label><span>優惠 2 內容</span><input name="desc1" value="消費滿額送精美小禮。" required /></label>
+          <label><span>優惠 3 標籤</span><input name="label2" value="VIP" required /></label>
+          <label><span>優惠 3 標題</span><input name="title2" value="會員專屬" required /></label>
+          <label><span>優惠 3 內容</span><input name="desc2" value="會員最高 88 折扣。" required /></label>
+        </div>
+
+        <div class="admin-actions">
+          <button class="primary-button pulse-button" type="submit">儲存到雲端</button>
+          <a class="secondary-button" href="./">回到首頁</a>
+        </div>
+        <p class="admin-status" data-admin-status aria-live="polite">正在讀取目前優惠...</p>
+      </form>
+    </main>
+
+    <script src="./assets/js/admin.js" defer></script>
+  </body>
+</html>

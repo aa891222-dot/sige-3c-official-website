@@ -31,6 +31,23 @@ body {
   overflow-x: hidden;
 }
 
+.admin-page {
+  min-height: 100vh;
+}
+
+.admin-page .admin-panel {
+  min-height: 100vh;
+  display: grid;
+  align-content: center;
+}
+
+.admin-page h1 {
+  margin: 0;
+  font-size: clamp(2.9rem, 5vw, 5.4rem);
+  line-height: 1;
+  font-weight: 1000;
+}
+
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 
@@ -635,6 +652,13 @@ img { display: block; max-width: 100%; }
   color: white;
   padding: .9rem 1rem;
   font: inherit;
+}
+
+.admin-form input:focus,
+.local-review-form input:focus,
+.local-review-form textarea:focus {
+  border-color: rgba(255,38,56,.72);
+  outline: 2px solid rgba(255,38,56,.18);
 }
 
 .local-review-form {
