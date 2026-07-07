@@ -14,7 +14,7 @@
     <meta property="og:title" content="四哥3C｜手機配件與現場服務" />
     <meta property="og:description" content="手機殼、保護貼、鏡頭貼、充電配件、耳機、Apple Watch 配件、專業包膜與維修服務。" />
     <meta property="og:url" content="https://aa891222-dot.github.io/sige-3c-official-website/" />
-    <meta property="og:image" content="./assets/images/hero-store-bg.png" />
+    <meta property="og:image" content="./assets/images/hero-store-bg.webp" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -57,7 +57,7 @@
       <section class="hero reveal-ready" id="top" aria-labelledby="hero-title">
         <canvas class="particle-layer" data-particles aria-hidden="true"></canvas>
         <div class="hero-bg layer" data-depth="-0.12" aria-hidden="true">
-          <img src="./assets/images/hero-store-bg.png" alt="" />
+          <img src="./assets/images/hero-store-bg.webp" alt="" decoding="async" fetchpriority="high" />
         </div>
         <div class="hero-grid layer" data-depth="-0.05" aria-hidden="true"></div>
         <div class="hud-lines layer" data-depth="0.03" aria-hidden="true"></div>
@@ -82,14 +82,27 @@
         </div>
 
         <div class="character-stage" aria-hidden="true">
-          <img class="manager layer" data-depth="0.3" src="./assets/images/manager.png" alt="" />
-          <img class="black-cat layer" data-depth="0.42" src="./assets/images/black-cat.png" alt="" />
-          <img class="white-poodle layer" data-depth="0.36" src="./assets/images/white-poodle.png" alt="" />
+          <img class="manager layer" data-depth="0.3" src="./assets/images/manager.webp" alt="" decoding="async" fetchpriority="high" />
+          <img class="black-cat layer" data-depth="0.42" src="./assets/images/black-cat.webp" alt="" decoding="async" loading="lazy" />
+          <img class="white-poodle layer" data-depth="0.36" src="./assets/images/white-poodle.webp" alt="" decoding="async" loading="lazy" />
         </div>
 
         <div class="speech-bubble bubble-main layer" data-depth="0.25" data-chat-bubble>需要我推薦適合你的手機殼嗎？</div>
         <div class="speech-bubble bubble-cat layer" data-depth="0.4" data-i18n="bubbleCat">喵～現場看看！</div>
         <div class="speech-bubble bubble-dog layer" data-depth="0.34" data-i18n="bubbleDog">包膜優惠中！</div>
+
+        <div class="mobile-hero-flow" aria-label="手機版重點行動">
+          <div class="mobile-feature-grid" aria-label="四大特色">
+            <span data-i18n="featureQuality">品質保證</span>
+            <span data-i18n="featureInstall">專業安裝</span>
+            <span data-i18n="featureWrap">專業包膜</span>
+            <span data-i18n="featureCare">貼心服務</span>
+          </div>
+          <div class="mobile-hero-cta">
+            <a class="primary-button pulse-button" href="#reviews" data-i18n="heroReviewCta">Google 高評價 4.9</a>
+            <a class="secondary-button pulse-button" href="#offers" data-i18n="heroOfferCta">查看最新優惠</a>
+          </div>
+        </div>
 
         <aside class="quick-rail" aria-label="快捷功能">
           <a href="#products"><span data-i18n="railProducts">現場商品</span></a>

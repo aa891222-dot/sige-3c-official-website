@@ -359,6 +359,8 @@ img { display: block; max-width: 100%; }
   animation: button-breathe 2.8s ease-in-out infinite;
 }
 
+.mobile-hero-flow { display: none; }
+
 .character-stage {
   position: absolute;
   inset: 0;
@@ -870,9 +872,14 @@ img { display: block; max-width: 100%; }
 }
 
 @media (max-width: 780px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
   .site-header {
     min-height: 68px;
-    padding-inline: 20px;
+    padding-inline: 24px 20px;
   }
   .header-actions { gap: .4rem; }
   .icon-button { display: none; }
@@ -883,36 +890,50 @@ img { display: block; max-width: 100%; }
     padding: .8rem 20px 1rem;
   }
   .hero {
-    min-height: 1020px;
-    min-height: clamp(950px, 118svh, 1100px);
-    padding: 92px 22px 172px;
+    min-height: 1080px;
+    min-height: clamp(1000px, 126svh, 1100px);
+    padding: 96px 24px 172px;
     align-items: start;
     display: block;
+    overflow: hidden;
   }
-  .hero-bg { transform: scale(1.08); }
+  .hero-bg {
+    transform: scale(1.12) translate3d(calc(var(--mx, 0) * .16), calc(var(--my, 0) * .12), 0);
+  }
   .hero-bg img { object-position: center bottom; }
   .hero-bg::after {
     background:
-      linear-gradient(180deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.78) 24%, rgba(0,0,0,.36) 52%, rgba(0,0,0,.94) 100%),
-      radial-gradient(circle at 52% 64%, rgba(255,38,56,.18), transparent 42%);
+      linear-gradient(180deg, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 24%, rgba(0,0,0,.5) 52%, rgba(0,0,0,.96) 100%),
+      radial-gradient(circle at 63% 48%, rgba(255,255,255,.2), transparent 18%),
+      radial-gradient(circle at 55% 60%, rgba(255,38,56,.24), transparent 38%);
   }
-  .hero-vignette { box-shadow: inset 0 0 7rem rgba(0,0,0,.92); }
-  .hud-lines { opacity: .18; background-size: 190px 132px; }
+  .hero-vignette {
+    box-shadow:
+      inset 0 0 7rem rgba(0,0,0,.95),
+      inset 0 -16rem 10rem rgba(0,0,0,.86);
+  }
+  .hud-lines {
+    opacity: .2;
+    background-size: 190px 132px;
+    transform: translate3d(calc(var(--mx, 0) * .35), calc(var(--my, 0) * .35), 0);
+  }
   .hero-copy {
     display: flex;
     flex-direction: column;
-    gap: .85rem;
+    gap: .68rem;
     width: 100%;
-    max-width: 23.5rem;
+    max-width: 22.5rem;
     margin-top: 0;
+    padding-left: .35rem;
     padding-bottom: 0;
     position: relative;
-    z-index: 22;
+    z-index: 24;
   }
   .hero .eyebrow {
     font-size: .72rem;
     line-height: 1.45;
     max-width: 19rem;
+    margin-bottom: .45rem;
   }
   .hero h1 {
     font-size: clamp(3.25rem, 16vw, 4rem);
@@ -921,7 +942,7 @@ img { display: block; max-width: 100%; }
   }
   .hero-subtitle {
     margin: 0;
-    font-size: clamp(1.75rem, 8.8vw, 2.25rem);
+    font-size: clamp(1.56rem, 7.9vw, 2.02rem);
     line-height: 1.08;
   }
   .hero-text {
@@ -930,14 +951,26 @@ img { display: block; max-width: 100%; }
     font-size: .98rem;
     line-height: 1.65;
   }
-  .hero-feature-row {
+  .hero-copy > .hero-feature-row,
+  .hero-copy > .hero-cta {
+    display: none;
+  }
+  .mobile-hero-flow {
+    position: absolute;
+    z-index: 26;
+    left: 24px;
+    right: 24px;
+    bottom: 8.55rem;
+    display: grid;
+    gap: .85rem;
+  }
+  .mobile-feature-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: .7rem;
     width: 100%;
-    margin-top: .25rem;
   }
-  .hero-feature-row span {
+  .mobile-feature-grid span {
     min-width: 0;
     min-height: 58px;
     display: flex;
@@ -952,13 +985,14 @@ img { display: block; max-width: 100%; }
     backdrop-filter: blur(18px);
     line-height: 1.25;
     text-align: center;
+    font-weight: 950;
+    border-radius: 8px;
   }
-  .hero-cta {
+  .mobile-hero-cta {
     display: grid;
     grid-template-columns: 1fr;
     gap: .75rem;
     width: 100%;
-    margin-top: .45rem;
   }
   .primary-button,
   .secondary-button {
@@ -969,42 +1003,92 @@ img { display: block; max-width: 100%; }
     line-height: 1.25;
     text-align: center;
   }
-  .manager {
-    right: -8.8rem;
-    bottom: 13.5rem;
-    width: clamp(25rem, 112vw, 31rem);
-    max-width: none;
+  .hero .primary-button,
+  .hero .secondary-button {
+    border-color: rgba(255,255,255,.18);
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.045)),
+      rgba(0,0,0,.46);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 14px 42px rgba(0,0,0,.42);
+    backdrop-filter: blur(18px);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .hero .primary-button {
+    background:
+      linear-gradient(135deg, rgba(255,42,60,.96), rgba(189,17,31,.94)),
+      rgba(255,38,56,.32);
+    box-shadow: 0 0 24px rgba(255,38,56,.34), 0 18px 44px rgba(0,0,0,.48);
+  }
+  .hero .primary-button:hover,
+  .hero .secondary-button:hover {
+    transform: translateY(-2px);
+    border-color: rgba(243,196,83,.5);
+    box-shadow: 0 0 32px rgba(255,38,56,.35), 0 20px 48px rgba(0,0,0,.52);
+  }
+  .character-stage {
+    z-index: 12;
+  }
+  .character-stage::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: 15%;
+    right: -18%;
+    top: 29%;
+    height: 36%;
+    background:
+      radial-gradient(circle at 58% 46%, rgba(255,255,255,.2), transparent 24%),
+      radial-gradient(circle at 55% 54%, rgba(255,38,56,.2), transparent 46%);
+    filter: blur(18px);
     opacity: .86;
-    z-index: 8;
+  }
+  .manager {
+    right: -12.4rem;
+    bottom: 23.3rem;
+    width: clamp(28rem, 123vw, 34.2rem);
+    max-width: none;
+    opacity: .98;
+    z-index: 9;
+    filter:
+      drop-shadow(0 34px 44px rgba(0,0,0,.72))
+      drop-shadow(0 0 30px rgba(255,38,56,.26));
   }
   .black-cat {
     left: 1rem;
     right: auto;
-    bottom: 14.2rem;
+    bottom: 27.1rem;
     width: clamp(7.5rem, 30vw, 9.5rem);
     z-index: 10;
+    filter:
+      drop-shadow(0 18px 24px rgba(0,0,0,.72))
+      drop-shadow(0 0 18px rgba(243,196,83,.2));
   }
   .white-poodle {
-    right: .8rem;
-    bottom: 14.2rem;
+    right: 2rem;
+    bottom: 25.8rem;
     width: clamp(8rem, 33vw, 10.5rem);
     z-index: 10;
+    filter:
+      drop-shadow(0 18px 26px rgba(0,0,0,.72))
+      drop-shadow(0 0 18px rgba(255,255,255,.18));
   }
   .speech-bubble {
     max-width: 12.5rem;
     padding: .86rem .95rem;
     font-size: .88rem;
     line-height: 1.55;
+    box-shadow: 0 18px 44px rgba(0,0,0,.34);
   }
   .bubble-main {
-    right: 1rem;
+    right: 1.05rem;
     top: auto;
-    bottom: 31.5rem;
-    z-index: 18;
+    bottom: 41.4rem;
+    z-index: 30;
+    transform: translate3d(calc(var(--mx, 0) * .55), calc(var(--my, 0) * .55), 0);
   }
   .hero-category-strip {
-    left: 22px;
-    right: 22px;
+    left: 24px;
+    right: 24px;
     bottom: 1.15rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: .65rem;
@@ -1038,41 +1122,55 @@ img { display: block; max-width: 100%; }
 
 @media (min-width: 520px) and (max-width: 780px) {
   .hero {
-    min-height: 980px;
+    min-height: 1040px;
     padding-inline: 24px;
   }
   .hero-copy { max-width: 30rem; }
-  .hero-cta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mobile-hero-cta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .manager {
-    right: -4rem;
-    width: clamp(29rem, 78vw, 36rem);
+    right: -6rem;
+    width: clamp(33rem, 82vw, 39rem);
+  }
+  .mobile-hero-flow,
+  .hero-category-strip {
+    left: 28px;
+    right: 28px;
   }
 }
 
 @media (max-width: 420px) {
   .hero {
-    padding-inline: 20px;
+    min-height: 1070px;
+    padding-inline: 22px;
     padding-bottom: 178px;
   }
-  .hero-feature-row { gap: .55rem; }
-  .hero-feature-row span {
+  .mobile-feature-grid { gap: .55rem; }
+  .mobile-feature-grid span {
     min-height: 54px;
     font-size: .86rem;
   }
-  .manager {
-    right: -10.5rem;
-    bottom: 13.8rem;
-    width: 29rem;
+  .mobile-hero-flow {
+    left: 22px;
+    right: 22px;
+    bottom: 8.45rem;
   }
-  .black-cat { bottom: 14.5rem; }
-  .white-poodle { bottom: 14.5rem; }
+  .manager {
+    right: -13.5rem;
+    bottom: 23.8rem;
+    width: 32.2rem;
+  }
+  .black-cat { bottom: 27.6rem; }
+  .white-poodle {
+    right: 1.7rem;
+    bottom: 26.2rem;
+  }
   .bubble-main {
     right: .75rem;
-    bottom: 30.6rem;
+    bottom: 41rem;
   }
   .hero-category-strip {
-    left: 20px;
-    right: 20px;
+    left: 22px;
+    right: 22px;
   }
 }
 
