@@ -19,10 +19,17 @@ const cartItems = document.querySelector("[data-cart-items]");
 const cartTotal = document.querySelector("[data-cart-total]");
 const checkoutForm = document.querySelector("[data-checkout-form]");
 const checkoutStatus = document.querySelector("[data-checkout-status]");
+const shippingAddress = document.querySelector("[data-shipping-address]");
+const announcement = document.querySelector("[data-announcement]");
+const announcementTitle = document.querySelector("[data-announcement-title]");
+const announcementText = document.querySelector("[data-announcement-text]");
+const lineLinks = [...document.querySelectorAll("[data-line-link]")];
+const lineLabels = [...document.querySelectorAll("[data-line-label]")];
 
 const googleReviewUrl = "https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96";
 const googleMapUrl = "https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic";
 const facebookUrl = "https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr";
+const defaultLineUrl = "https://line.me/R/ti/p/@sige3c";
 const money = new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", maximumFractionDigits: 0 });
 
 const translations = {
@@ -32,6 +39,7 @@ const translations = {
     navHome: "首頁",
     navProducts: "現場商品",
     navShop: "線上購物",
+    navAnnouncement: "公告",
     navOffers: "優惠",
     navReviews: "Google 評論",
     navStore: "門市資訊",
@@ -48,6 +56,7 @@ const translations = {
     bubbleDog: "包膜優惠中！",
     railProducts: "現場商品",
     railShop: "線上購物",
+    railAnnouncement: "公告",
     railOffers: "最新優惠",
     railReviews: "Google 評論",
     catWrap: "專業包膜",
@@ -72,6 +81,13 @@ const translations = {
     orderLine: "LINE ID（選填）",
     orderNote: "備註（選填）",
     orderSubmit: "送出訂單",
+    deliveryMethod: "送貨方式",
+    deliveryPickup: "到門市領取",
+    deliveryShipping: "寄貨",
+    shippingAddress: "寄送地址",
+    paymentMethod: "付款方式",
+    paymentLinePay: "LINE Pay",
+    paymentTransfer: "轉帳",
     productsLoading: "正在載入商品...",
     productsLoadingNote: "請稍候，系統正在讀取最新庫存與價格。",
     addToCart: "加入購物車",
@@ -82,6 +98,10 @@ const translations = {
     stockLabel: "庫存",
     saleLabel: "優惠",
     checkoutSending: "訂單送出中...",
+    chooseOptions: "選擇規格",
+    addOnTitle: "加購商品",
+    selectedOptions: "已選規格",
+    productCode: "商品編號",
     serviceRepair: "維修服務",
     serviceRepairDesc: "現場評估手機狀況，提供維修與處理建議。",
     serviceWrap: "專業包膜",
@@ -140,6 +160,7 @@ const translations = {
     navHome: "Home",
     navProducts: "In-store Goods",
     navShop: "Shop",
+    navAnnouncement: "News",
     navOffers: "Offers",
     navReviews: "Google Reviews",
     navStore: "Store Info",
@@ -156,6 +177,7 @@ const translations = {
     bubbleDog: "Wrap offers now!",
     railProducts: "Goods",
     railShop: "Shop",
+    railAnnouncement: "News",
     railOffers: "Offers",
     railReviews: "Reviews",
     catWrap: "Wraps",
@@ -180,6 +202,13 @@ const translations = {
     orderLine: "LINE ID (optional)",
     orderNote: "Note (optional)",
     orderSubmit: "Submit Order",
+    deliveryMethod: "Delivery",
+    deliveryPickup: "Store pickup",
+    deliveryShipping: "Shipping",
+    shippingAddress: "Shipping address",
+    paymentMethod: "Payment",
+    paymentLinePay: "LINE Pay",
+    paymentTransfer: "Bank transfer",
     productsLoading: "Loading products...",
     productsLoadingNote: "Please wait while we load the latest prices and stock.",
     addToCart: "Add to Cart",
@@ -190,6 +219,10 @@ const translations = {
     stockLabel: "Stock",
     saleLabel: "Sale",
     checkoutSending: "Submitting order...",
+    chooseOptions: "Choose Options",
+    addOnTitle: "Add-ons",
+    selectedOptions: "Selected",
+    productCode: "SKU",
     serviceRepair: "Repair Service",
     serviceRepairDesc: "On-site checkup with repair and handling suggestions.",
     serviceWrap: "Professional Wraps",
@@ -286,7 +319,13 @@ const defaultProducts = [
     price: 290,
     salePrice: 250,
     stock: 12,
-    description: "支援快充，適合 Android、iPad 與 Type-C 裝置。"
+    description: "支援快充，適合 Android、iPad 與 Type-C 裝置。",
+    imageUrl: "./assets/images/concept-design.jpeg",
+    gallery: ["./assets/images/concept-design.jpeg", "./assets/images/homepage-visual.jpg"],
+    colors: ["黑色", "鈦色", "藍色"],
+    models: ["Type-C to Type-C", "Type-C to Lightning", "Lightning to USB"],
+    specs: ["60公分", "120公分"],
+    addOns: [{ name: "線材保護套", price: 49 }, { name: "收納束帶", price: 29 }]
   },
   {
     id: 2,
@@ -296,7 +335,13 @@ const defaultProducts = [
     price: 250,
     salePrice: null,
     stock: 10,
-    description: "iPhone 常用備用線，居家、公司、車上都方便。"
+    description: "iPhone 常用備用線，居家、公司、車上都方便。",
+    imageUrl: "./assets/images/homepage-visual.jpg",
+    gallery: ["./assets/images/homepage-visual.jpg"],
+    colors: ["白色", "黑色"],
+    models: ["Lightning to USB", "Type-C to Lightning"],
+    specs: ["1米", "2米"],
+    addOns: [{ name: "線材保護套", price: 49 }]
   },
   {
     id: 3,
@@ -306,7 +351,13 @@ const defaultProducts = [
     price: 390,
     salePrice: 350,
     stock: 8,
-    description: "小體積快充頭，適合日常快速補電。"
+    description: "小體積快充頭，適合日常快速補電。",
+    imageUrl: "./assets/images/hero-main.jpg",
+    gallery: ["./assets/images/hero-main.jpg"],
+    colors: ["白色", "黑色"],
+    models: ["單孔 PD", "迷你款"],
+    specs: ["20W"],
+    addOns: [{ name: "Type-C 快充線加購", price: 199 }]
   },
   {
     id: 4,
@@ -316,7 +367,13 @@ const defaultProducts = [
     price: 590,
     salePrice: null,
     stock: 6,
-    description: "雙裝置同時充電，手機與耳機一起補電。"
+    description: "雙裝置同時充電，手機與耳機一起補電。",
+    imageUrl: "./assets/images/hero-store-bg.webp",
+    gallery: ["./assets/images/hero-store-bg.webp"],
+    colors: ["白色", "黑色"],
+    models: ["雙孔 USB-C", "USB-C + USB-A"],
+    specs: ["35W"],
+    addOns: [{ name: "快充線組合價", price: 250 }]
   },
   {
     id: 5,
@@ -326,7 +383,13 @@ const defaultProducts = [
     price: 790,
     salePrice: 690,
     stock: 5,
-    description: "通勤與外出常備容量，輕巧好攜帶。"
+    description: "通勤與外出常備容量，輕巧好攜帶。",
+    imageUrl: "./assets/images/homepage-visual-hq.jpg",
+    gallery: ["./assets/images/homepage-visual-hq.jpg"],
+    colors: ["黑色", "白色"],
+    models: ["標準版", "磁吸版"],
+    specs: ["10000mAh"],
+    addOns: [{ name: "短線加購", price: 99 }]
   },
   {
     id: 6,
@@ -336,7 +399,13 @@ const defaultProducts = [
     price: 1190,
     salePrice: null,
     stock: 3,
-    description: "旅行與長時間外出適用，續航更安心。"
+    description: "旅行與長時間外出適用，續航更安心。",
+    imageUrl: "./assets/images/homepage-visual-original.jpg",
+    gallery: ["./assets/images/homepage-visual-original.jpg"],
+    colors: ["黑色", "白色"],
+    models: ["標準版", "大輸出版"],
+    specs: ["20000mAh"],
+    addOns: [{ name: "快充頭加購", price: 299 }]
   }
 ];
 
@@ -349,12 +418,22 @@ const offerTranslations = {
   "會員最高 88 折扣。": "Members can receive up to 12% off."
 };
 
+const defaultSettings = {
+  announcementActive: 1,
+  announcementTitle: "門市公告",
+  announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
+  lineLabel: "加入 LINE 詢問",
+  lineUrl: defaultLineUrl
+};
+
 let language = localStorage.getItem("sige3c-lang") || "zh";
 let chatIndex = 0;
 let particles = [];
 let currentOffers = defaultOffers;
 let currentProducts = defaultProducts;
+let currentSettings = defaultSettings;
 let activeCategory = "all";
+let selectedProductOptions = {};
 let cart = JSON.parse(localStorage.getItem("sige3c-cart") || "[]");
 
 menuButton?.addEventListener("click", () => {
@@ -403,6 +482,100 @@ function discountPercent(product) {
   return Math.max(1, Math.round((1 - finalPrice / price) * 100));
 }
 
+function ensureArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  } catch {}
+  return String(value).split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+}
+
+function addOnsFor(product) {
+  const value = product.addOns ?? product.add_ons;
+  if (Array.isArray(value)) {
+    return value.map((item) => ({
+      name: String(item.name || "").trim(),
+      price: Math.max(0, Number(item.price || 0))
+    })).filter((item) => item.name);
+  }
+  if (!value) return [];
+  try {
+    return addOnsFor({ addOns: JSON.parse(value) });
+  } catch {}
+  return String(value).split(/\r?\n/).map((line) => {
+    const [name, price = "0"] = line.split("|").map((item) => item.trim());
+    return { name, price: Math.max(0, Number(price || 0)) };
+  }).filter((item) => item.name);
+}
+
+function imageSrc(value) {
+  const src = String(value || "").trim();
+  if (!src) return "";
+  if (src.startsWith("products/")) return `./api/image?key=${encodeURIComponent(src)}`;
+  return src;
+}
+
+function productImage(product) {
+  return imageSrc(product.imageUrl || product.image_url || ensureArray(product.gallery)[0] || "");
+}
+
+function optionGroups(product) {
+  return [
+    { key: "color", label: "顏色", values: ensureArray(product.colors) },
+    { key: "model", label: "型號", values: ensureArray(product.models) },
+    { key: "spec", label: "規格", values: ensureArray(product.specs) }
+  ].filter((group) => group.values.length);
+}
+
+function productSelection(product) {
+  const groups = optionGroups(product);
+  const saved = selectedProductOptions[product.id] || {};
+  const selection = {};
+  groups.forEach((group) => {
+    selection[group.key] = saved[group.key] || group.values[0] || "";
+  });
+  return selection;
+}
+
+function itemKey(productId, options = {}, addOns = []) {
+  return JSON.stringify({
+    productId: Number(productId),
+    options,
+    addOns: addOns.map((item) => `${item.name}:${item.price}`).sort()
+  });
+}
+
+function optionsSummary(options = {}) {
+  return Object.entries(options)
+    .filter(([, value]) => value)
+    .map(([key, value]) => `${{ color: "顏色", model: "型號", spec: "規格" }[key] || key}：${value}`)
+    .join(" / ");
+}
+
+function addonsSubtotal(addOns = []) {
+  return addOns.reduce((sum, item) => sum + Number(item.price || 0), 0);
+}
+
+function renderSettings(settings = currentSettings) {
+  currentSettings = { ...defaultSettings, ...(settings || {}) };
+  const active = Number(currentSettings.announcementActive ?? currentSettings.announcement_active ?? 1) === 1;
+  if (announcement) announcement.hidden = !active;
+  if (announcementTitle) announcementTitle.textContent = currentSettings.announcementTitle || currentSettings.announcement_title || defaultSettings.announcementTitle;
+  if (announcementText) announcementText.textContent = currentSettings.announcementText || currentSettings.announcement_text || defaultSettings.announcementText;
+
+  const lineUrl = currentSettings.lineUrl || currentSettings.line_url || defaultLineUrl;
+  const lineLabel = currentSettings.lineLabel || currentSettings.line_label || defaultSettings.lineLabel;
+  lineLinks.forEach((link) => {
+    link.href = lineUrl || "#store";
+    if (lineUrl && lineUrl !== "#store") link.target = "_blank";
+  });
+  lineLabels.forEach((label) => {
+    label.textContent = lineLabel;
+  });
+}
+
 function applyLanguage(nextLanguage) {
   language = nextLanguage;
   document.documentElement.lang = language === "zh" ? "zh-Hant-TW" : "en";
@@ -417,6 +590,7 @@ function applyLanguage(nextLanguage) {
   if (langToggle) langToggle.textContent = language === "zh" ? "EN" : "中";
   if (chatBubble) chatBubble.textContent = chatLines[language][chatIndex % chatLines[language].length];
   renderOffers(currentOffers);
+  renderSettings(currentSettings);
   renderProducts(currentProducts);
   renderCart();
   localStorage.setItem("sige3c-lang", language);
@@ -478,11 +652,45 @@ function renderProducts(products = currentProducts) {
     const discount = discountPercent(product);
     const disabled = stock <= 0 ? "disabled" : "";
     const buttonText = stock <= 0 ? translations[language].soldOut : translations[language].addToCart;
+    const image = productImage(product);
+    const selection = productSelection(product);
+    const groups = optionGroups(product);
+    const addOns = addOnsFor(product);
+    const gallery = ensureArray(product.gallery).map(imageSrc);
     return `
-      <article class="product-card reveal-card is-visible" style="--delay:${index * 60}ms">
+      <article class="product-card reveal-card is-visible" data-product-card="${product.id}" style="--delay:${index * 60}ms">
+        <div class="product-image">
+          ${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" />` : `<span>SIGE 3C</span>`}
+        </div>
+        ${gallery.length > 1 ? `<div class="product-thumbs">${gallery.slice(0, 4).map((src) => `<img src="${escapeHtml(src)}" alt="" loading="lazy" decoding="async" />`).join("")}</div>` : ""}
         <span class="product-tag">${categoryName(product.category)}</span>
         <h3>${escapeHtml(product.name)}</h3>
+        <small class="product-sku">${translations[language].productCode}：${escapeHtml(product.sku || "")}</small>
         <p>${escapeHtml(product.description || "")}</p>
+        ${groups.length ? `
+          <div class="product-options">
+            <strong>${translations[language].chooseOptions}</strong>
+            ${groups.map((group) => `
+              <div class="option-group" data-option-group="${group.key}">
+                <span>${group.label}</span>
+                <div>
+                  ${group.values.map((value) => `<button type="button" data-option-value="${escapeHtml(value)}" class="${selection[group.key] === value ? "is-active" : ""}">${escapeHtml(value)}</button>`).join("")}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+        ${addOns.length ? `
+          <div class="add-on-group">
+            <strong>${translations[language].addOnTitle}</strong>
+            ${addOns.map((item, itemIndex) => `
+              <label>
+                <input type="checkbox" data-addon-index="${itemIndex}" />
+                <span>${escapeHtml(item.name)} +${money.format(item.price)}</span>
+              </label>
+            `).join("")}
+          </div>
+        ` : ""}
         <div class="product-meta">
           <div class="price-row">
             <strong>${money.format(finalPrice)}</strong>
@@ -516,6 +724,10 @@ function cartSubtotal() {
 
 function renderCart() {
   if (!cartItems || !cartCount || !cartTotal) return;
+  cart = cart.map((item) => ({
+    ...item,
+    key: item.key || itemKey(item.id, item.options || {}, item.addOns || [])
+  }));
   cartCount.textContent = String(cartQuantity());
   cartTotal.textContent = money.format(cartSubtotal());
 
@@ -528,29 +740,43 @@ function renderCart() {
     <div class="cart-item">
       <div>
         <strong>${escapeHtml(item.name)}</strong>
+        ${item.options ? `<small>${escapeHtml(optionsSummary(item.options))}</small>` : ""}
+        ${item.addOns?.length ? `<small>加購：${escapeHtml(item.addOns.map((addOn) => addOn.name).join("、"))}</small>` : ""}
         <span>${money.format(item.price)} × ${item.quantity}</span>
       </div>
       <div class="cart-controls">
-        <button type="button" data-cart-minus="${item.id}">−</button>
-        <button type="button" data-cart-plus="${item.id}">＋</button>
-        <button type="button" data-cart-remove="${item.id}">移除</button>
+        <button type="button" data-cart-minus="${escapeHtml(item.key)}">−</button>
+        <button type="button" data-cart-plus="${escapeHtml(item.key)}">＋</button>
+        <button type="button" data-cart-remove="${escapeHtml(item.key)}">移除</button>
       </div>
     </div>
   `).join("");
 }
 
-function addToCart(productId) {
+function addToCart(productId, card) {
   const product = currentProducts.find((item) => Number(item.id) === Number(productId));
   if (!product || Number(product.stock || 0) <= 0) return;
-  const existing = cart.find((item) => Number(item.id) === Number(product.id));
+  const options = productSelection(product);
+  const allAddOns = addOnsFor(product);
+  const selectedAddOns = card
+    ? [...card.querySelectorAll("[data-addon-index]:checked")].map((input) => allAddOns[Number(input.dataset.addonIndex)]).filter(Boolean)
+    : [];
+  const basePrice = effectivePrice(product);
+  const unitPrice = basePrice + addonsSubtotal(selectedAddOns);
+  const key = itemKey(product.id, options, selectedAddOns);
+  const existing = cart.find((item) => item.key === key);
   if (existing) existing.quantity += 1;
   else {
     cart.push({
+      key,
       id: product.id,
       sku: product.sku,
       name: product.name,
-      price: effectivePrice(product),
+      price: unitPrice,
+      basePrice,
       originalPrice: Number(product.price || 0),
+      options,
+      addOns: selectedAddOns,
       quantity: 1
     });
   }
@@ -559,11 +785,11 @@ function addToCart(productId) {
   cartPanel.hidden = false;
 }
 
-function updateCartItem(productId, delta) {
-  const item = cart.find((entry) => Number(entry.id) === Number(productId));
+function updateCartItem(cartKey, delta) {
+  const item = cart.find((entry) => entry.key === cartKey);
   if (!item) return;
   item.quantity += delta;
-  if (item.quantity <= 0) cart = cart.filter((entry) => Number(entry.id) !== Number(productId));
+  if (item.quantity <= 0) cart = cart.filter((entry) => entry.key !== cartKey);
   saveCart();
   renderCart();
 }
@@ -579,9 +805,25 @@ categoryTabs?.addEventListener("click", (event) => {
 });
 
 productList?.addEventListener("click", (event) => {
+  const optionButton = event.target.closest("[data-option-value]");
+  if (optionButton) {
+    const card = optionButton.closest("[data-product-card]");
+    const group = optionButton.closest("[data-option-group]");
+    if (!card || !group) return;
+    const productId = card.dataset.productCard;
+    selectedProductOptions[productId] = {
+      ...(selectedProductOptions[productId] || {}),
+      [group.dataset.optionGroup]: optionButton.dataset.optionValue
+    };
+    group.querySelectorAll("[data-option-value]").forEach((button) => {
+      button.classList.toggle("is-active", button === optionButton);
+    });
+    return;
+  }
+
   const button = event.target.closest("[data-add-product]");
   if (!button) return;
-  addToCart(button.dataset.addProduct);
+  addToCart(button.dataset.addProduct, button.closest("[data-product-card]"));
 });
 
 cartToggle?.addEventListener("click", () => {
@@ -605,6 +847,14 @@ cartPanel?.addEventListener("click", (event) => {
   if (remove) updateCartItem(remove.dataset.cartRemove, -999);
 });
 
+checkoutForm?.addEventListener("change", (event) => {
+  if (event.target.name !== "deliveryMethod" || !shippingAddress) return;
+  const isShipping = event.target.value === "shipping";
+  shippingAddress.hidden = !isShipping;
+  const input = shippingAddress.querySelector("input");
+  if (input) input.required = isShipping;
+});
+
 checkoutForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!cart.length) {
@@ -624,9 +874,17 @@ checkoutForm?.addEventListener("submit", async (event) => {
           name: String(form.get("name") || "").trim(),
           phone: String(form.get("phone") || "").trim(),
           line: String(form.get("line") || "").trim(),
+          deliveryMethod: String(form.get("deliveryMethod") || "pickup"),
+          paymentMethod: String(form.get("paymentMethod") || "linepay"),
+          shippingAddress: String(form.get("shippingAddress") || "").trim(),
           note: String(form.get("note") || "").trim()
         },
-        items: cart.map((item) => ({ id: item.id, quantity: item.quantity }))
+        items: cart.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          options: item.options || {},
+          addOns: item.addOns || []
+        }))
       })
     });
     const payload = await response.json().catch(() => ({}));
@@ -662,6 +920,17 @@ async function loadOffers() {
     renderOffers(payload.offers?.length ? payload.offers : defaultOffers);
   } catch {
     renderOffers(defaultOffers);
+  }
+}
+
+async function loadSettings() {
+  try {
+    const response = await fetch("./api/settings", { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("Settings API unavailable");
+    const payload = await response.json();
+    renderSettings(payload.settings || defaultSettings);
+  } catch {
+    renderSettings(defaultSettings);
   }
 }
 
@@ -756,6 +1025,7 @@ setupReveal();
 applyLanguage(language);
 loadOffers();
 loadProducts();
+loadSettings();
 updateScrollHud();
 
 window.addEventListener("resize", resizeCanvas);

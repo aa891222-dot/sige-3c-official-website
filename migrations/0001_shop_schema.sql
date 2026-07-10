@@ -14,6 +14,12 @@ CREATE TABLE IF NOT EXISTS products (
   sale_price INTEGER,
   stock INTEGER NOT NULL DEFAULT 0,
   description TEXT NOT NULL DEFAULT '',
+  image_url TEXT NOT NULL DEFAULT '',
+  gallery TEXT NOT NULL DEFAULT '[]',
+  colors TEXT NOT NULL DEFAULT '[]',
+  models TEXT NOT NULL DEFAULT '[]',
+  specs TEXT NOT NULL DEFAULT '[]',
+  add_ons TEXT NOT NULL DEFAULT '[]',
   active INTEGER NOT NULL DEFAULT 1,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -23,6 +29,9 @@ CREATE TABLE IF NOT EXISTS orders (
   customer_name TEXT NOT NULL,
   customer_phone TEXT NOT NULL,
   customer_line TEXT NOT NULL DEFAULT '',
+  delivery_method TEXT NOT NULL DEFAULT 'pickup',
+  payment_method TEXT NOT NULL DEFAULT 'linepay',
+  shipping_address TEXT NOT NULL DEFAULT '',
   note TEXT NOT NULL DEFAULT '',
   total INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'new',
@@ -40,5 +49,13 @@ CREATE TABLE IF NOT EXISTS order_items (
   original_price INTEGER NOT NULL,
   quantity INTEGER NOT NULL,
   subtotal INTEGER NOT NULL,
+  selected_options TEXT NOT NULL DEFAULT '{}',
+  add_ons TEXT NOT NULL DEFAULT '[]',
   FOREIGN KEY(order_id) REFERENCES orders(id)
+);
+
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

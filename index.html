@@ -41,6 +41,7 @@
         <a href="#top" class="is-active" data-i18n="navHome">首頁</a>
         <a href="#products" data-i18n="navProducts">現場商品</a>
         <a href="#shop" data-i18n="navShop">線上購物</a>
+        <a href="#announcement" data-i18n="navAnnouncement">公告</a>
         <a href="#offers" data-i18n="navOffers">優惠</a>
         <a href="#reviews" data-i18n="navReviews">Google 評論</a>
         <a href="#store" data-i18n="navStore">門市資訊</a>
@@ -95,6 +96,7 @@
         <aside class="quick-rail" aria-label="快捷功能">
           <a href="#products"><span data-i18n="railProducts">現場商品</span></a>
           <a href="#shop"><span data-i18n="railShop">線上購物</span></a>
+          <a href="#announcement"><span data-i18n="railAnnouncement">公告</span></a>
           <a href="#offers"><span data-i18n="railOffers">最新優惠</span></a>
           <a href="#reviews"><span data-i18n="railReviews">Google 評論</span></a>
         </aside>
@@ -115,6 +117,17 @@
           <span data-i18n="featureInstall">專業安裝</span>
           <span data-i18n="featureWrap">專業包膜</span>
           <span data-i18n="featureCare">貼心服務</span>
+        </div>
+      </section>
+
+      <section class="section announcement" id="announcement" aria-labelledby="announcement-title" data-announcement>
+        <div class="announcement-card reveal-card">
+          <div>
+            <p class="eyebrow">SIGE NOTICE</p>
+            <h2 id="announcement-title" data-announcement-title>門市公告</h2>
+            <p data-announcement-text>歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。</p>
+          </div>
+          <a class="primary-button pulse-button" href="#store" target="_blank" rel="noreferrer" data-line-link data-line-label>加入 LINE 詢問</a>
         </div>
       </section>
 
@@ -181,6 +194,17 @@
               <label><span data-i18n="orderName">姓名</span><input name="name" autocomplete="name" required /></label>
               <label><span data-i18n="orderPhone">電話</span><input name="phone" inputmode="tel" autocomplete="tel" required /></label>
               <label><span data-i18n="orderLine">LINE ID（選填）</span><input name="line" autocomplete="off" /></label>
+              <fieldset class="checkout-options">
+                <legend data-i18n="deliveryMethod">送貨方式</legend>
+                <label><input type="radio" name="deliveryMethod" value="pickup" checked /> <span data-i18n="deliveryPickup">到門市領取</span></label>
+                <label><input type="radio" name="deliveryMethod" value="shipping" /> <span data-i18n="deliveryShipping">寄貨</span></label>
+              </fieldset>
+              <label data-shipping-address hidden><span data-i18n="shippingAddress">寄送地址</span><input name="shippingAddress" autocomplete="street-address" /></label>
+              <fieldset class="checkout-options">
+                <legend data-i18n="paymentMethod">付款方式</legend>
+                <label><input type="radio" name="paymentMethod" value="linepay" checked /> <span data-i18n="paymentLinePay">LINE Pay</span></label>
+                <label><input type="radio" name="paymentMethod" value="transfer" /> <span data-i18n="paymentTransfer">轉帳</span></label>
+              </fieldset>
               <label><span data-i18n="orderNote">備註（選填）</span><textarea name="note" rows="3"></textarea></label>
               <button class="primary-button pulse-button" type="submit" data-i18n="orderSubmit">送出訂單</button>
               <p class="checkout-status" data-checkout-status aria-live="polite"></p>
@@ -251,6 +275,7 @@
         <div class="store-grid" data-stagger>
           <a class="reveal-card" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noreferrer" data-google-map-link><b data-i18n="storeMapTitle">Google 地圖</b><span data-i18n="storeMap">一鍵導航到店</span></a>
           <a class="reveal-card" href="tel:+88633639939"><b>03-363-9939</b><span data-i18n="storePhone">立即來電詢問</span></a>
+          <a class="reveal-card" href="#store" target="_blank" rel="noreferrer" data-line-link><b>LINE</b><span data-line-label>加入 LINE 詢問</span></a>
           <a class="reveal-card" href="https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr" target="_blank" rel="noreferrer" data-facebook-link><b>Facebook</b><span data-i18n="storeFacebook">追蹤最新活動</span></a>
           <a class="reveal-card" href="https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96" target="_blank" rel="noreferrer" data-google-review-link><b data-i18n="storeGoogleTitle">Google 評論</b><span data-i18n="storeGoogle">查看與留下評論</span></a>
         </div>

@@ -6,6 +6,8 @@ const productForm = document.querySelector("[data-product-form]");
 const productFields = document.querySelector("[data-product-fields]");
 const productStatus = document.querySelector("[data-product-status]");
 const addProductRow = document.querySelector("[data-add-product-row]");
+const settingsForm = document.querySelector("[data-settings-form]");
+const settingsStatus = document.querySelector("[data-settings-status]");
 const loadOrdersButton = document.querySelector("[data-load-orders]");
 const orderStatus = document.querySelector("[data-order-status]");
 const ordersList = document.querySelector("[data-orders-list]");
@@ -19,13 +21,21 @@ const defaultOffers = [
 ];
 
 const defaultProducts = [
-  { id: 1, sku: "CB-C2C-60W", name: "Type-C to Type-C 快充線 60W", category: "cable", price: 290, salePrice: 250, stock: 12, description: "支援快充，適合 Android、iPad 與 Type-C 裝置。", active: 1 },
-  { id: 2, sku: "CB-LTG-USB", name: "Lightning 充電線", category: "cable", price: 250, salePrice: null, stock: 10, description: "iPhone 常用備用線，居家、公司、車上都方便。", active: 1 },
-  { id: 3, sku: "CH-20W-PD", name: "PD 20W 快充頭", category: "charger", price: 390, salePrice: 350, stock: 8, description: "小體積快充頭，適合日常快速補電。", active: 1 },
-  { id: 4, sku: "CH-35W-DUAL", name: "雙孔 35W 充電頭", category: "charger", price: 590, salePrice: null, stock: 6, description: "雙裝置同時充電，手機與耳機一起補電。", active: 1 },
-  { id: 5, sku: "PB-10000", name: "10000mAh 行動電源", category: "powerbank", price: 790, salePrice: 690, stock: 5, description: "通勤與外出常備容量，輕巧好攜帶。", active: 1 },
-  { id: 6, sku: "PB-20000", name: "20000mAh 大容量行動電源", category: "powerbank", price: 1190, salePrice: null, stock: 3, description: "旅行與長時間外出適用，續航更安心。", active: 1 }
+  { id: 1, sku: "CB-C2C-60W", name: "Type-C to Type-C 快充線 60W", category: "cable", price: 290, salePrice: 250, stock: 12, description: "支援快充，適合 Android、iPad 與 Type-C 裝置。", imageUrl: "./assets/images/concept-design.jpeg", gallery: ["./assets/images/concept-design.jpeg"], colors: ["黑色", "鈦色", "藍色"], models: ["Type-C to Type-C", "Type-C to Lightning"], specs: ["60公分", "120公分"], addOns: [{ name: "線材保護套", price: 49 }], active: 1 },
+  { id: 2, sku: "CB-LTG-USB", name: "Lightning 充電線", category: "cable", price: 250, salePrice: null, stock: 10, description: "iPhone 常用備用線，居家、公司、車上都方便。", imageUrl: "./assets/images/homepage-visual.jpg", gallery: ["./assets/images/homepage-visual.jpg"], colors: ["白色", "黑色"], models: ["Lightning to USB"], specs: ["1米", "2米"], addOns: [{ name: "線材保護套", price: 49 }], active: 1 },
+  { id: 3, sku: "CH-20W-PD", name: "PD 20W 快充頭", category: "charger", price: 390, salePrice: 350, stock: 8, description: "小體積快充頭，適合日常快速補電。", imageUrl: "./assets/images/hero-main.jpg", gallery: ["./assets/images/hero-main.jpg"], colors: ["白色", "黑色"], models: ["單孔 PD"], specs: ["20W"], addOns: [{ name: "Type-C 快充線加購", price: 199 }], active: 1 },
+  { id: 4, sku: "CH-35W-DUAL", name: "雙孔 35W 充電頭", category: "charger", price: 590, salePrice: null, stock: 6, description: "雙裝置同時充電，手機與耳機一起補電。", imageUrl: "./assets/images/hero-store-bg.webp", gallery: ["./assets/images/hero-store-bg.webp"], colors: ["白色", "黑色"], models: ["雙孔 USB-C"], specs: ["35W"], addOns: [{ name: "快充線組合價", price: 250 }], active: 1 },
+  { id: 5, sku: "PB-10000", name: "10000mAh 行動電源", category: "powerbank", price: 790, salePrice: 690, stock: 5, description: "通勤與外出常備容量，輕巧好攜帶。", imageUrl: "./assets/images/homepage-visual-hq.jpg", gallery: ["./assets/images/homepage-visual-hq.jpg"], colors: ["黑色", "白色"], models: ["標準版", "磁吸版"], specs: ["10000mAh"], addOns: [{ name: "短線加購", price: 99 }], active: 1 },
+  { id: 6, sku: "PB-20000", name: "20000mAh 大容量行動電源", category: "powerbank", price: 1190, salePrice: null, stock: 3, description: "旅行與長時間外出適用，續航更安心。", imageUrl: "./assets/images/homepage-visual-original.jpg", gallery: ["./assets/images/homepage-visual-original.jpg"], colors: ["黑色", "白色"], models: ["標準版"], specs: ["20000mAh"], addOns: [{ name: "快充頭加購", price: 299 }], active: 1 }
 ];
+
+const defaultSettings = {
+  announcementActive: 1,
+  announcementTitle: "門市公告",
+  announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
+  lineLabel: "加入 LINE 詢問",
+  lineUrl: "https://line.me/R/ti/p/@sige3c"
+};
 
 const categories = {
   cable: "充電線",
@@ -39,6 +49,16 @@ const orderStatuses = {
   ready: "可取貨",
   completed: "已完成",
   cancelled: "已取消"
+};
+
+const deliveryLabels = {
+  pickup: "到門市領取",
+  shipping: "寄貨"
+};
+
+const paymentLabels = {
+  linepay: "LINE Pay",
+  transfer: "轉帳"
 };
 
 let products = [];
@@ -60,6 +80,46 @@ function setStatus(element, message, isError = false) {
   if (!element) return;
   element.textContent = message;
   element.style.color = isError ? "#ff6b72" : "";
+}
+
+function asList(value) {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return String(value).split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+  }
+}
+
+function listText(value) {
+  return asList(value).join("\n");
+}
+
+function addOnsText(value) {
+  return asList(value).map((item) => {
+    if (typeof item === "string") return item;
+    return `${item.name || ""}|${Number(item.price || 0)}`;
+  }).filter(Boolean).join("\n");
+}
+
+function readLines(value) {
+  return String(value || "").split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+}
+
+function readAddOns(value) {
+  return readLines(value).map((line) => {
+    const [name, price = "0"] = line.split("|").map((item) => item.trim());
+    return { name, price: Number(price || 0) };
+  }).filter((item) => item.name);
+}
+
+function optionSummary(options = {}) {
+  return Object.entries(options)
+    .filter(([, value]) => value)
+    .map(([key, value]) => `${{ color: "顏色", model: "型號", spec: "規格" }[key] || key}：${value}`)
+    .join(" / ");
 }
 
 function adminHeaders(extra = {}) {
@@ -99,6 +159,37 @@ async function loadOffers() {
   }
 }
 
+function fillSettings(settings = defaultSettings) {
+  settingsForm.elements.announcementTitle.value = settings.announcementTitle || "";
+  settingsForm.elements.announcementText.value = settings.announcementText || "";
+  settingsForm.elements.lineLabel.value = settings.lineLabel || "";
+  settingsForm.elements.lineUrl.value = settings.lineUrl || "";
+  settingsForm.elements.announcementActive.checked = Number(settings.announcementActive ?? 1) === 1;
+}
+
+function readSettings() {
+  return {
+    announcementTitle: settingsForm.elements.announcementTitle.value.trim(),
+    announcementText: settingsForm.elements.announcementText.value.trim(),
+    lineLabel: settingsForm.elements.lineLabel.value.trim(),
+    lineUrl: settingsForm.elements.lineUrl.value.trim(),
+    announcementActive: settingsForm.elements.announcementActive.checked ? 1 : 0
+  };
+}
+
+async function loadSettings() {
+  try {
+    const response = await fetch("./api/settings", { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("讀取公告設定失敗");
+    const payload = await response.json();
+    fillSettings(payload.settings || defaultSettings);
+    setStatus(settingsStatus, "已載入公告與 LINE 設定。");
+  } catch {
+    fillSettings(defaultSettings);
+    setStatus(settingsStatus, "目前無法讀取公告設定，已顯示預設內容。", true);
+  }
+}
+
 function productRow(product, index) {
   const salePrice = product.salePrice ?? product.sale_price ?? "";
   const categoryOptions = Object.entries(categories).map(([value, label]) => (
@@ -122,7 +213,23 @@ function productRow(product, index) {
         <input data-product-field="active" type="checkbox" ${Number(product.active ?? 1) === 1 ? "checked" : ""} />
         <span>上架顯示</span>
       </label>
+      <label><span>主圖片網址</span><input data-product-field="imageUrl" value="${escapeHtml(product.imageUrl || product.image_url || "")}" placeholder="./assets/images/product.jpg" /></label>
+      <label class="product-admin-upload">
+        <span>上傳主圖片到 R2</span>
+        <input data-image-upload="main" type="file" accept="image/*" />
+        <small>選一張圖片，上傳後會自動填入主圖片欄位。</small>
+      </label>
+      <label class="product-admin-upload">
+        <span>上傳多張圖片到 R2</span>
+        <input data-image-upload="gallery" type="file" accept="image/*" multiple />
+        <small>可一次選多張，上傳後會加到多張圖片欄位。</small>
+      </label>
       <label class="product-admin-desc"><span>商品描述</span><textarea data-product-field="description" rows="3">${escapeHtml(product.description || "")}</textarea></label>
+      <label class="product-admin-desc"><span>多張圖片網址（一行一張）</span><textarea data-product-field="gallery" rows="3" placeholder="./assets/images/product-1.jpg">${escapeHtml(listText(product.gallery))}</textarea></label>
+      <label><span>顏色（一行一個）</span><textarea data-product-field="colors" rows="4">${escapeHtml(listText(product.colors))}</textarea></label>
+      <label><span>型號（一行一個）</span><textarea data-product-field="models" rows="4">${escapeHtml(listText(product.models))}</textarea></label>
+      <label><span>規格（一行一個）</span><textarea data-product-field="specs" rows="4">${escapeHtml(listText(product.specs))}</textarea></label>
+      <label class="product-admin-desc"><span>加購商品（一行一筆：名稱|價格）</span><textarea data-product-field="addOns" rows="4" placeholder="線材保護套|49">${escapeHtml(addOnsText(product.addOns || product.add_ons))}</textarea></label>
     </article>
   `;
 }
@@ -144,7 +251,13 @@ function readProductRows() {
       price: Number(read("price").value || 0),
       salePrice: saleValue ? Number(saleValue) : null,
       stock: Number(read("stock").value || 0),
+      imageUrl: read("imageUrl").value.trim(),
       description: read("description").value.trim(),
+      gallery: readLines(read("gallery").value),
+      colors: readLines(read("colors").value),
+      models: readLines(read("models").value),
+      specs: readLines(read("specs").value),
+      addOns: readAddOns(read("addOns").value),
       active: read("active").checked ? 1 : 0
     };
   });
@@ -185,6 +298,19 @@ async function saveProducts() {
   setStatus(productStatus, "商品已儲存。前台會顯示最新價格、折扣與庫存。");
 }
 
+async function uploadImage(file) {
+  const form = new FormData();
+  form.append("image", file);
+  const response = await fetch("./api/upload-image", {
+    method: "POST",
+    headers: adminHeaders(),
+    body: form
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || "圖片上傳失敗");
+  return payload.url;
+}
+
 function renderOrders(orders) {
   if (!orders.length) {
     ordersList.innerHTML = `<p class="admin-empty">目前沒有訂單。</p>`;
@@ -193,7 +319,11 @@ function renderOrders(orders) {
 
   ordersList.innerHTML = orders.map((order) => {
     const items = order.items.map((item) => (
-      `<li>${escapeHtml(item.name)} × ${item.quantity} <strong>${money.format(item.subtotal)}</strong></li>`
+      `<li>
+        ${escapeHtml(item.name)} × ${item.quantity} <strong>${money.format(item.subtotal)}</strong>
+        ${item.selectedOptions ? `<small>${escapeHtml(optionSummary(item.selectedOptions))}</small>` : ""}
+        ${item.addOns?.length ? `<small>加購：${escapeHtml(item.addOns.map((addOn) => `${addOn.name} +${money.format(addOn.price)}`).join("、"))}</small>` : ""}
+      </li>`
     )).join("");
     const options = Object.entries(orderStatuses).map(([value, label]) => (
       `<option value="${value}" ${order.status === value ? "selected" : ""}>${label}</option>`
@@ -210,6 +340,8 @@ function renderOrders(orders) {
           <strong>${money.format(order.total)}</strong>
         </div>
         <ul>${items}</ul>
+        <p>送貨方式：${deliveryLabels[order.deliveryMethod] || order.deliveryMethod || "到門市領取"}｜付款方式：${paymentLabels[order.paymentMethod] || order.paymentMethod || "LINE Pay"}</p>
+        ${order.shippingAddress ? `<p>寄送地址：${escapeHtml(order.shippingAddress)}</p>` : ""}
         ${order.customerLine ? `<p>LINE：${escapeHtml(order.customerLine)}</p>` : ""}
         ${order.note ? `<p>備註：${escapeHtml(order.note)}</p>` : ""}
         <div class="order-card-actions">
@@ -261,6 +393,24 @@ productForm?.addEventListener("submit", async (event) => {
   }
 });
 
+settingsForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  setStatus(settingsStatus, "正在儲存公告與 LINE...");
+  try {
+    const response = await fetch("./api/settings", {
+      method: "PUT",
+      headers: adminHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ settings: readSettings() })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "公告設定儲存失敗");
+    fillSettings(payload.settings || readSettings());
+    setStatus(settingsStatus, "公告與 LINE 已儲存。");
+  } catch (error) {
+    setStatus(settingsStatus, error.message || "公告設定儲存失敗，請確認密碼。", true);
+  }
+});
+
 addProductRow?.addEventListener("click", () => {
   const rows = readProductRows();
   const nextId = rows.reduce((max, product) => Math.max(max, Number(product.id || 0)), 0) + 1;
@@ -272,6 +422,12 @@ addProductRow?.addEventListener("click", () => {
     price: 0,
     salePrice: null,
     stock: 0,
+    imageUrl: "",
+    gallery: [],
+    colors: [],
+    models: [],
+    specs: [],
+    addOns: [],
     description: "",
     active: 0
   });
@@ -284,6 +440,47 @@ productFields?.addEventListener("click", (event) => {
   const index = Number(button.dataset.removeProduct || -1);
   const rows = readProductRows().filter((_, rowIndex) => rowIndex !== index);
   renderProducts(rows);
+});
+
+productFields?.addEventListener("change", async (event) => {
+  const input = event.target.closest("[data-image-upload]");
+  if (!input) return;
+  const files = [...(input.files || [])];
+  if (!files.length) return;
+  if (!password()) {
+    setStatus(productStatus, "請先輸入管理密碼，再上傳圖片。", true);
+    input.value = "";
+    return;
+  }
+
+  const row = input.closest("[data-product-index]");
+  const mode = input.dataset.imageUpload;
+  const imageUrlInput = row.querySelector('[data-product-field="imageUrl"]');
+  const galleryInput = row.querySelector('[data-product-field="gallery"]');
+
+  try {
+    setStatus(productStatus, `正在上傳 ${files.length} 張圖片到 R2...`);
+    const urls = [];
+    for (const file of files) {
+      urls.push(await uploadImage(file));
+    }
+
+    if (mode === "main") {
+      imageUrlInput.value = urls[0];
+      const galleryLines = readLines(galleryInput.value);
+      if (!galleryLines.includes(urls[0])) galleryInput.value = [urls[0], ...galleryLines].join("\n");
+    } else {
+      const galleryLines = readLines(galleryInput.value);
+      galleryInput.value = [...galleryLines, ...urls].filter(Boolean).join("\n");
+      if (!imageUrlInput.value && urls[0]) imageUrlInput.value = urls[0];
+    }
+
+    setStatus(productStatus, "圖片已上傳並填入欄位，記得按「儲存商品」。");
+  } catch (error) {
+    setStatus(productStatus, error.message || "圖片上傳失敗，請確認 R2 綁定與管理密碼。", true);
+  } finally {
+    input.value = "";
+  }
 });
 
 loadOrdersButton?.addEventListener("click", async () => {
@@ -319,8 +516,10 @@ ordersList?.addEventListener("click", async (event) => {
 refreshButton?.addEventListener("click", () => {
   loadOffers();
   loadProducts();
+  loadSettings();
   if (password()) loadOrders().catch((error) => setStatus(orderStatus, error.message || "訂單讀取失敗。", true));
 });
 
 loadOffers();
 loadProducts();
+loadSettings();

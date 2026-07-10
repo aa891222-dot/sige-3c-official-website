@@ -8,6 +8,8 @@ const defaultProducts = [
 ];
 
 const validStatuses = new Set(["new", "confirmed", "ready", "completed", "cancelled"]);
+const validDeliveryMethods = new Set(["pickup", "shipping"]);
+const validPaymentMethods = new Set(["linepay", "transfer"]);
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -35,6 +37,49 @@ function productPrice(product) {
   return salePrice > 0 && salePrice < price ? salePrice : price;
 }
 
+function parseJsonArray(value, fallback = []) {
+  if (Array.isArray(value)) return value;
+  if (!value) return fallback;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function cleanOptions(value) {
+  const options = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  return {
+    color: clean(options.color, 60),
+    model: clean(options.model, 80),
+    spec: clean(options.spec, 80)
+  };
+}
+
+function cleanAddOns(value) {
+  const source = Array.isArray(value) ? value : [];
+  return source.map((item) => ({
+    name: clean(item.name, 80),
+    price: Math.max(0, Math.round(Number(item.price || 0)))
+  })).filter((item) => item.name);
+}
+
+function parseJsonObject(value) {
+  if (value && typeof value === "object" && !Array.isArray(value)) return value;
+  if (!value) return {};
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function addOnsSubtotal(addOns) {
+  return addOns.reduce((sum, item) => sum + Number(item.price || 0), 0);
+}
+
 function normalizeProduct(row) {
   return {
     id: Number(row.id),
@@ -45,6 +90,12 @@ function normalizeProduct(row) {
     salePrice: row.sale_price === null || row.sale_price === undefined ? null : Number(row.sale_price),
     stock: Number(row.stock || 0),
     description: row.description || "",
+    imageUrl: row.image_url || "",
+    gallery: parseJsonArray(row.gallery),
+    colors: parseJsonArray(row.colors),
+    models: parseJsonArray(row.models),
+    specs: parseJsonArray(row.specs),
+    addOns: parseJsonArray(row.add_ons),
     active: Number(row.active ?? 1)
   };
 }
@@ -60,6 +111,12 @@ async function ensureSchemas(env) {
       sale_price INTEGER,
       stock INTEGER NOT NULL DEFAULT 0,
       description TEXT NOT NULL DEFAULT '',
+      image_url TEXT NOT NULL DEFAULT '',
+      gallery TEXT NOT NULL DEFAULT '[]',
+      colors TEXT NOT NULL DEFAULT '[]',
+      models TEXT NOT NULL DEFAULT '[]',
+      specs TEXT NOT NULL DEFAULT '[]',
+      add_ons TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -71,6 +128,12 @@ async function ensureSchemas(env) {
     ["sale_price", "sale_price INTEGER"],
     ["stock", "stock INTEGER NOT NULL DEFAULT 0"],
     ["description", "description TEXT NOT NULL DEFAULT ''"],
+    ["image_url", "image_url TEXT NOT NULL DEFAULT ''"],
+    ["gallery", "gallery TEXT NOT NULL DEFAULT '[]'"],
+    ["colors", "colors TEXT NOT NULL DEFAULT '[]'"],
+    ["models", "models TEXT NOT NULL DEFAULT '[]'"],
+    ["specs", "specs TEXT NOT NULL DEFAULT '[]'"],
+    ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"],
     ["active", "active INTEGER NOT NULL DEFAULT 1"],
     ["updated_at", "updated_at TEXT"]
   ];
@@ -86,6 +149,9 @@ async function ensureSchemas(env) {
       customer_name TEXT NOT NULL,
       customer_phone TEXT NOT NULL,
       customer_line TEXT NOT NULL DEFAULT '',
+      delivery_method TEXT NOT NULL DEFAULT 'pickup',
+      payment_method TEXT NOT NULL DEFAULT 'linepay',
+      shipping_address TEXT NOT NULL DEFAULT '',
       note TEXT NOT NULL DEFAULT '',
       total INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'new',
@@ -105,9 +171,37 @@ async function ensureSchemas(env) {
       original_price INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
       subtotal INTEGER NOT NULL,
+      selected_options TEXT NOT NULL DEFAULT '{}',
+      add_ons TEXT NOT NULL DEFAULT '[]',
       FOREIGN KEY(order_id) REFERENCES orders(id)
     )
   `).run();
+
+  const orderColumns = await env.DB.prepare("PRAGMA table_info(orders)").all();
+  const orderExisting = new Set((orderColumns.results || []).map((column) => column.name));
+  const orderAdditions = [
+    ["delivery_method", "delivery_method TEXT NOT NULL DEFAULT 'pickup'"],
+    ["payment_method", "payment_method TEXT NOT NULL DEFAULT 'linepay'"],
+    ["shipping_address", "shipping_address TEXT NOT NULL DEFAULT ''"],
+    ["updated_at", "updated_at TEXT"]
+  ];
+  for (const [name, definition] of orderAdditions) {
+    if (!orderExisting.has(name)) {
+      await env.DB.prepare(`ALTER TABLE orders ADD COLUMN ${definition}`).run();
+    }
+  }
+
+  const itemColumns = await env.DB.prepare("PRAGMA table_info(order_items)").all();
+  const itemExisting = new Set((itemColumns.results || []).map((column) => column.name));
+  const itemAdditions = [
+    ["selected_options", "selected_options TEXT NOT NULL DEFAULT '{}'"],
+    ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"]
+  ];
+  for (const [name, definition] of itemAdditions) {
+    if (!itemExisting.has(name)) {
+      await env.DB.prepare(`ALTER TABLE order_items ADD COLUMN ${definition}`).run();
+    }
+  }
 }
 
 async function seedProducts(env) {
@@ -136,7 +230,9 @@ async function readOrderItems(env, orderId) {
     unitPrice: Number(item.unit_price || 0),
     originalPrice: Number(item.original_price || 0),
     quantity: Number(item.quantity || 0),
-    subtotal: Number(item.subtotal || 0)
+    subtotal: Number(item.subtotal || 0),
+    selectedOptions: parseJsonObject(item.selected_options),
+    addOns: parseJsonArray(item.add_ons)
   })) || [];
 }
 
@@ -154,6 +250,9 @@ export async function onRequestGet({ request, env }) {
       customerName: row.customer_name,
       customerPhone: row.customer_phone,
       customerLine: row.customer_line,
+      deliveryMethod: row.delivery_method || "pickup",
+      paymentMethod: row.payment_method || "linepay",
+      shippingAddress: row.shipping_address || "",
       note: row.note,
       total: Number(row.total || 0),
       status: row.status,
@@ -179,10 +278,14 @@ export async function onRequestPost({ request, env }) {
   const name = clean(customer.name, 60);
   const phone = clean(customer.phone, 40);
   const line = clean(customer.line, 60);
+  const deliveryMethod = validDeliveryMethods.has(customer.deliveryMethod) ? customer.deliveryMethod : "pickup";
+  const paymentMethod = validPaymentMethods.has(customer.paymentMethod) ? customer.paymentMethod : "linepay";
+  const shippingAddress = deliveryMethod === "shipping" ? clean(customer.shippingAddress, 220) : "";
   const note = clean(customer.note, 240);
   const items = Array.isArray(body.items) ? body.items : [];
 
   if (!name || !phone) return json({ error: "請填寫姓名與電話" }, 400);
+  if (deliveryMethod === "shipping" && !shippingAddress) return json({ error: "請填寫寄送地址" }, 400);
   if (!items.length) return json({ error: "請先加入商品" }, 400);
 
   await ensureSchemas(env);
@@ -194,26 +297,31 @@ export async function onRequestPost({ request, env }) {
   for (const item of items) {
     const productId = Number(item.id || item.productId || 0);
     const quantity = Math.max(1, Math.min(20, Math.round(Number(item.quantity || 1))));
+    const selectedOptions = cleanOptions(item.options);
     const product = await env.DB.prepare("SELECT * FROM products WHERE id = ? AND active = 1").bind(productId).first();
     if (!product) return json({ error: "商品不存在或已下架" }, 400);
     if (Number(product.stock || 0) < quantity) return json({ error: `${product.name} 庫存不足` }, 400);
 
-    const unitPrice = productPrice(product);
+    const availableAddOns = parseJsonArray(product.add_ons);
+    const addOns = cleanAddOns(item.addOns).map((requested) => {
+      return availableAddOns.find((available) => available.name === requested.name) || requested;
+    });
+    const unitPrice = productPrice(product) + addOnsSubtotal(addOns);
     const subtotal = unitPrice * quantity;
     total += subtotal;
-    orderItems.push({ product, quantity, unitPrice, subtotal });
+    orderItems.push({ product, quantity, unitPrice, subtotal, selectedOptions, addOns });
   }
 
   const created = await env.DB.prepare(`
-    INSERT INTO orders (customer_name, customer_phone, customer_line, note, total, status)
-    VALUES (?, ?, ?, ?, ?, 'new')
-  `).bind(name, phone, line, note, total).run();
+    INSERT INTO orders (customer_name, customer_phone, customer_line, delivery_method, payment_method, shipping_address, note, total, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'new')
+  `).bind(name, phone, line, deliveryMethod, paymentMethod, shippingAddress, note, total).run();
   const orderId = Number(created.meta?.last_row_id || 0);
 
   for (const item of orderItems) {
     await env.DB.prepare(`
-      INSERT INTO order_items (order_id, product_id, sku, name, unit_price, original_price, quantity, subtotal)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO order_items (order_id, product_id, sku, name, unit_price, original_price, quantity, subtotal, selected_options, add_ons)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       orderId,
       item.product.id,
@@ -222,7 +330,9 @@ export async function onRequestPost({ request, env }) {
       item.unitPrice,
       Number(item.product.price || 0),
       item.quantity,
-      item.subtotal
+      item.subtotal,
+      JSON.stringify(item.selectedOptions || {}),
+      JSON.stringify(item.addOns || [])
     ).run();
     await env.DB.prepare("UPDATE products SET stock = stock - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
       .bind(item.quantity, item.product.id)

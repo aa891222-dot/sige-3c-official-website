@@ -26,6 +26,33 @@
         </div>
       </section>
 
+      <form class="admin-form admin-wide reveal-card is-visible" data-settings-form>
+        <div class="admin-section-title">
+          <p class="eyebrow">NOTICE & LINE</p>
+          <h2>公告與 LINE 詢問</h2>
+          <p>這裡會更新首頁公告，以及 LINE 詢問按鈕的文字和連結。</p>
+        </div>
+
+        <div class="admin-grid">
+          <label><span>公告標題</span><input name="announcementTitle" value="門市公告" required /></label>
+          <label><span>LINE 按鈕文字</span><input name="lineLabel" value="加入 LINE 詢問" required /></label>
+          <label><span>LINE 連結</span><input name="lineUrl" value="https://line.me/R/ti/p/@sige3c" required /></label>
+          <label class="admin-checkbox">
+            <input name="announcementActive" type="checkbox" checked />
+            <span>顯示公告</span>
+          </label>
+        </div>
+        <label>
+          <span>公告內容</span>
+          <textarea name="announcementText" rows="3" required>歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。</textarea>
+        </label>
+
+        <div class="admin-actions">
+          <button class="primary-button pulse-button" type="submit">儲存公告與 LINE</button>
+        </div>
+        <p class="admin-status" data-settings-status aria-live="polite">正在讀取公告設定...</p>
+      </form>
+
       <form class="admin-form reveal-card is-visible" data-admin-form>
         <div class="admin-section-title">
           <p class="eyebrow">PROMOTIONS</p>
@@ -55,7 +82,7 @@
         <div class="admin-section-title">
           <p class="eyebrow">PRODUCTS</p>
           <h2>商品價格與折扣</h2>
-          <p>原價是商品定價；優惠價可留空。若優惠價低於原價，前台會自動顯示折扣。</p>
+          <p>原價是商品定價；優惠價可留空。也可以設定商品圖片、顏色、型號、規格與加購商品。</p>
         </div>
 
         <div class="product-admin-list" data-product-fields></div>
