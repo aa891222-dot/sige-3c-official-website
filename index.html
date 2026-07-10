@@ -40,6 +40,7 @@
       <nav class="nav-links" aria-label="主要導覽">
         <a href="#top" class="is-active" data-i18n="navHome">首頁</a>
         <a href="#products" data-i18n="navProducts">現場商品</a>
+        <a href="#shop" data-i18n="navShop">線上購物</a>
         <a href="#offers" data-i18n="navOffers">優惠</a>
         <a href="#reviews" data-i18n="navReviews">Google 評論</a>
         <a href="#store" data-i18n="navStore">門市資訊</a>
@@ -77,7 +78,7 @@
           </div>
           <div class="hero-cta">
             <a class="primary-button pulse-button" href="#reviews" data-i18n="heroReviewCta">Google 高評價 4.9</a>
-            <a class="secondary-button pulse-button" href="#offers" data-i18n="heroOfferCta">查看最新優惠</a>
+            <a class="secondary-button pulse-button" href="#shop" data-i18n="heroShopCta">線上預訂商品</a>
           </div>
         </div>
 
@@ -93,9 +94,9 @@
 
         <aside class="quick-rail" aria-label="快捷功能">
           <a href="#products"><span data-i18n="railProducts">現場商品</span></a>
+          <a href="#shop"><span data-i18n="railShop">線上購物</span></a>
           <a href="#offers"><span data-i18n="railOffers">最新優惠</span></a>
           <a href="#reviews"><span data-i18n="railReviews">Google 評論</span></a>
-          <a href="#top"><span>TOP</span></a>
         </aside>
 
         <div class="hero-category-strip" aria-label="精選分類">
@@ -121,7 +122,7 @@
         <div class="section-heading reveal-card">
           <p class="eyebrow">IN-STORE GOODS & SERVICES</p>
           <h2 id="products-title" data-i18n="productsTitle">現場有賣什麼商品</h2>
-          <p class="section-note" data-i18n="productsNote">本網站不做線上購物，歡迎到店挑選、詢問與體驗。</p>
+          <p class="section-note" data-i18n="productsNote">可先線上預訂充電線、充電頭與行動電源；其他配件歡迎到店挑選、詢問與體驗。</p>
         </div>
         <div class="service-grid" data-stagger>
           <article class="service-card reveal-card"><span>01</span><h3 data-i18n="serviceRepair">維修服務</h3><p data-i18n="serviceRepairDesc">現場評估手機狀況，提供維修與處理建議。</p></article>
@@ -134,6 +135,58 @@
           <article class="service-card reveal-card"><span>08</span><h3 data-i18n="serviceWired">有線耳機</h3><p data-i18n="serviceWiredDesc">有線耳機、轉接頭與音訊周邊。</p></article>
           <article class="service-card reveal-card"><span>09</span><h3 data-i18n="serviceWatch">Apple Watch 配件</h3><p data-i18n="serviceWatchDesc">錶帶、保護殼、保護貼與充電周邊。</p></article>
         </div>
+      </section>
+
+      <section class="section shop" id="shop" aria-labelledby="shop-title">
+        <div class="section-heading reveal-card">
+          <p class="eyebrow">ONLINE PRE-ORDER</p>
+          <h2 id="shop-title" data-i18n="shopTitle">線上預訂商品</h2>
+          <p class="section-note" data-i18n="shopNote">目前先開放充電線、充電頭、行動電源。送出訂單後，門市會依資料與你確認。</p>
+        </div>
+
+        <div class="shop-toolbar reveal-card" aria-label="商品分類與購物車">
+          <div class="category-tabs" data-category-tabs>
+            <button type="button" class="is-active" data-category="all" data-i18n="catAll">全部</button>
+            <button type="button" data-category="cable" data-i18n="shopCatCable">充電線</button>
+            <button type="button" data-category="charger" data-i18n="shopCatCharger">充電頭</button>
+            <button type="button" data-category="powerbank" data-i18n="shopCatPowerbank">行動電源</button>
+          </div>
+          <button class="cart-toggle pulse-button" type="button" data-cart-toggle>
+            <span data-i18n="cartOpen">購物車</span>
+            <b data-cart-count>0</b>
+          </button>
+        </div>
+
+        <div class="product-grid" data-product-list data-stagger>
+          <article class="product-card reveal-card">
+            <span class="product-tag">LOADING</span>
+            <h3 data-i18n="productsLoading">正在載入商品...</h3>
+            <p data-i18n="productsLoadingNote">請稍候，系統正在讀取最新庫存與價格。</p>
+          </article>
+        </div>
+
+        <aside class="cart-panel" data-cart-panel aria-label="購物車" hidden>
+          <div class="cart-card">
+            <button class="cart-close" type="button" data-cart-close aria-label="關閉購物車">×</button>
+            <div class="cart-heading">
+              <p class="eyebrow">SHOPPING CART</p>
+              <h3 data-i18n="cartTitle">購物車</h3>
+            </div>
+            <div class="cart-items" data-cart-items></div>
+            <div class="cart-total">
+              <span data-i18n="cartTotal">總計</span>
+              <strong data-cart-total>NT$0</strong>
+            </div>
+            <form class="checkout-form" data-checkout-form>
+              <label><span data-i18n="orderName">姓名</span><input name="name" autocomplete="name" required /></label>
+              <label><span data-i18n="orderPhone">電話</span><input name="phone" inputmode="tel" autocomplete="tel" required /></label>
+              <label><span data-i18n="orderLine">LINE ID（選填）</span><input name="line" autocomplete="off" /></label>
+              <label><span data-i18n="orderNote">備註（選填）</span><textarea name="note" rows="3"></textarea></label>
+              <button class="primary-button pulse-button" type="submit" data-i18n="orderSubmit">送出訂單</button>
+              <p class="checkout-status" data-checkout-status aria-live="polite"></p>
+            </form>
+          </div>
+        </aside>
       </section>
 
       <section class="section offers" id="offers" aria-labelledby="offers-title">
@@ -171,7 +224,7 @@
             <strong>4.9</strong>
             <span>★★★★★</span>
             <p data-i18n="reviewsCount">來自 300+ 則評論</p>
-            <a class="primary-button pulse-button" href="https://www.google.com/maps/search/?api=1&query=%E5%9B%9B%E5%93%A53C" target="_blank" rel="noreferrer" data-i18n="googleReviewButton">前往 Google 評論</a>
+            <a class="primary-button pulse-button" href="https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96" target="_blank" rel="noreferrer" data-google-review-link data-i18n="googleReviewButton">前往 Google 評論</a>
           </div>
           <div class="review-list">
             <article><b data-i18n="reviewOneName">林先生</b><span>★★★★★</span><p data-i18n="reviewOneText">服務超棒，手機殼款式很多，店員很專業！</p></article>
@@ -196,10 +249,10 @@
           <p data-i18n="storeText">歡迎來店挑選手機配件、保護貼、包膜與充電周邊。</p>
         </div>
         <div class="store-grid" data-stagger>
-          <a class="reveal-card" href="https://www.google.com/maps/search/?api=1&query=%E5%9B%9B%E5%93%A53C" target="_blank" rel="noreferrer"><b data-i18n="storeMapTitle">Google 地圖</b><span data-i18n="storeMap">一鍵導航到店</span></a>
+          <a class="reveal-card" href="https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic" target="_blank" rel="noreferrer" data-google-map-link><b data-i18n="storeMapTitle">Google 地圖</b><span data-i18n="storeMap">一鍵導航到店</span></a>
           <a class="reveal-card" href="tel:+88633639939"><b>03-363-9939</b><span data-i18n="storePhone">立即來電詢問</span></a>
-          <a class="reveal-card" href="https://www.facebook.com/" target="_blank" rel="noreferrer"><b>Facebook</b><span data-i18n="storeFacebook">追蹤最新活動</span></a>
-          <a class="reveal-card" href="#reviews"><b data-i18n="storeGoogleTitle">Google 評論</b><span data-i18n="storeGoogle">查看與留下評論</span></a>
+          <a class="reveal-card" href="https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr" target="_blank" rel="noreferrer" data-facebook-link><b>Facebook</b><span data-i18n="storeFacebook">追蹤最新活動</span></a>
+          <a class="reveal-card" href="https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96" target="_blank" rel="noreferrer" data-google-review-link><b data-i18n="storeGoogleTitle">Google 評論</b><span data-i18n="storeGoogle">查看與留下評論</span></a>
         </div>
       </section>
     </main>

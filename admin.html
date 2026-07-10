@@ -4,22 +4,34 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
-    <title>四哥3C｜優惠後台</title>
+    <title>四哥3C｜後台管理</title>
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
   <body class="admin-page">
     <main class="section admin-panel" aria-labelledby="admin-title">
       <div class="section-heading reveal-card is-visible">
         <p class="eyebrow">CLOUDFLARE D1 ADMIN</p>
-        <h1 id="admin-title">優惠後台</h1>
-        <p class="section-note">這裡會直接更新 Cloudflare D1，儲存後所有訪客都會看到最新優惠。</p>
+        <h1 id="admin-title">四哥3C 後台管理</h1>
+        <p class="section-note">管理首頁優惠、商品價格折扣與客人預訂單。輸入同一組管理密碼即可儲存。</p>
       </div>
 
-      <form class="admin-form reveal-card is-visible" data-admin-form>
+      <section class="admin-form admin-password-card reveal-card is-visible" aria-label="管理密碼">
         <label>
           <span>管理密碼</span>
-          <input name="password" type="password" autocomplete="current-password" required />
+          <input data-shared-password type="password" autocomplete="current-password" required />
         </label>
+        <div class="admin-actions">
+          <a class="secondary-button" href="./">回到首頁</a>
+          <button class="secondary-button" type="button" data-refresh-admin>重新讀取資料</button>
+        </div>
+      </section>
+
+      <form class="admin-form reveal-card is-visible" data-admin-form>
+        <div class="admin-section-title">
+          <p class="eyebrow">PROMOTIONS</p>
+          <h2>首頁優惠</h2>
+          <p>這裡會更新首頁「最新優惠」區塊。</p>
+        </div>
 
         <div class="admin-grid">
           <label><span>優惠 1 標籤</span><input name="label0" value="WRAP" required /></label>
@@ -34,11 +46,40 @@
         </div>
 
         <div class="admin-actions">
-          <button class="primary-button pulse-button" type="submit">儲存到雲端</button>
-          <a class="secondary-button" href="./">回到首頁</a>
+          <button class="primary-button pulse-button" type="submit">儲存優惠</button>
         </div>
         <p class="admin-status" data-admin-status aria-live="polite">正在讀取目前優惠...</p>
       </form>
+
+      <form class="admin-form admin-wide reveal-card is-visible" data-product-form>
+        <div class="admin-section-title">
+          <p class="eyebrow">PRODUCTS</p>
+          <h2>商品價格與折扣</h2>
+          <p>原價是商品定價；優惠價可留空。若優惠價低於原價，前台會自動顯示折扣。</p>
+        </div>
+
+        <div class="product-admin-list" data-product-fields></div>
+
+        <div class="admin-actions">
+          <button class="secondary-button" type="button" data-add-product-row>新增商品</button>
+          <button class="primary-button pulse-button" type="submit">儲存商品</button>
+        </div>
+        <p class="admin-status" data-product-status aria-live="polite">正在讀取商品...</p>
+      </form>
+
+      <section class="admin-form admin-wide reveal-card is-visible" data-orders-panel>
+        <div class="admin-section-title">
+          <p class="eyebrow">ORDERS</p>
+          <h2>客人訂單</h2>
+          <p>查看線上預訂單，並更新處理狀態。</p>
+        </div>
+
+        <div class="admin-actions">
+          <button class="primary-button pulse-button" type="button" data-load-orders>讀取訂單</button>
+        </div>
+        <p class="admin-status" data-order-status aria-live="polite">輸入管理密碼後即可讀取訂單。</p>
+        <div class="orders-list" data-orders-list></div>
+      </section>
     </main>
 
     <script src="./assets/js/admin.js" defer></script>

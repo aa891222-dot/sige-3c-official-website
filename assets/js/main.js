@@ -9,8 +9,21 @@ const progressBar = document.querySelector("[data-scroll-progress]");
 const reviewForm = document.querySelector("[data-review-form]");
 const thankYou = document.querySelector("[data-thank-you]");
 const closeThankYou = document.querySelector("[data-close-thank-you]");
+const productList = document.querySelector("[data-product-list]");
+const categoryTabs = document.querySelector("[data-category-tabs]");
+const cartPanel = document.querySelector("[data-cart-panel]");
+const cartToggle = document.querySelector("[data-cart-toggle]");
+const cartClose = document.querySelector("[data-cart-close]");
+const cartCount = document.querySelector("[data-cart-count]");
+const cartItems = document.querySelector("[data-cart-items]");
+const cartTotal = document.querySelector("[data-cart-total]");
+const checkoutForm = document.querySelector("[data-checkout-form]");
+const checkoutStatus = document.querySelector("[data-checkout-status]");
 
-const googleReviewUrl = "https://www.google.com/maps/search/?api=1&query=%E5%9B%9B%E5%93%A53C";
+const googleReviewUrl = "https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96";
+const googleMapUrl = "https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic";
+const facebookUrl = "https://www.facebook.com/share/1BZJysJbQC/?mibextid=wwXIfr";
+const money = new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", maximumFractionDigits: 0 });
 
 const translations = {
   zh: {
@@ -18,6 +31,7 @@ const translations = {
     brand: "四哥3C",
     navHome: "首頁",
     navProducts: "現場商品",
+    navShop: "線上購物",
     navOffers: "優惠",
     navReviews: "Google 評論",
     navStore: "門市資訊",
@@ -29,10 +43,11 @@ const translations = {
     featureWrap: "專業包膜",
     featureCare: "貼心服務",
     heroReviewCta: "Google 高評價 4.9",
-    heroOfferCta: "查看最新優惠",
+    heroShopCta: "線上預訂商品",
     bubbleCat: "喵～現場看看！",
     bubbleDog: "包膜優惠中！",
     railProducts: "現場商品",
+    railShop: "線上購物",
     railOffers: "最新優惠",
     railReviews: "Google 評論",
     catWrap: "專業包膜",
@@ -42,7 +57,31 @@ const translations = {
     catPower: "充電配件",
     catAudio: "耳機配件",
     productsTitle: "現場有賣什麼商品",
-    productsNote: "本網站不做線上購物，歡迎到店挑選、詢問與體驗。",
+    productsNote: "可先線上預訂充電線、充電頭與行動電源；其他配件歡迎到店挑選、詢問與體驗。",
+    shopTitle: "線上預訂商品",
+    shopNote: "目前先開放充電線、充電頭、行動電源。送出訂單後，門市會依資料與你確認。",
+    catAll: "全部",
+    shopCatCable: "充電線",
+    shopCatCharger: "充電頭",
+    shopCatPowerbank: "行動電源",
+    cartOpen: "購物車",
+    cartTitle: "購物車",
+    cartTotal: "總計",
+    orderName: "姓名",
+    orderPhone: "電話",
+    orderLine: "LINE ID（選填）",
+    orderNote: "備註（選填）",
+    orderSubmit: "送出訂單",
+    productsLoading: "正在載入商品...",
+    productsLoadingNote: "請稍候，系統正在讀取最新庫存與價格。",
+    addToCart: "加入購物車",
+    soldOut: "暫無庫存",
+    emptyCart: "購物車是空的。",
+    orderSuccess: "訂單已送出，門市會再與你確認。",
+    orderEmpty: "請先加入商品。",
+    stockLabel: "庫存",
+    saleLabel: "優惠",
+    checkoutSending: "訂單送出中...",
     serviceRepair: "維修服務",
     serviceRepairDesc: "現場評估手機狀況，提供維修與處理建議。",
     serviceWrap: "專業包膜",
@@ -100,6 +139,7 @@ const translations = {
     brand: "Sige 3C",
     navHome: "Home",
     navProducts: "In-store Goods",
+    navShop: "Shop",
     navOffers: "Offers",
     navReviews: "Google Reviews",
     navStore: "Store Info",
@@ -111,10 +151,11 @@ const translations = {
     featureWrap: "Device Wraps",
     featureCare: "Friendly Care",
     heroReviewCta: "Google Rating 4.9",
-    heroOfferCta: "View Latest Offers",
+    heroShopCta: "Pre-order Online",
     bubbleCat: "Meow, come browse!",
     bubbleDog: "Wrap offers now!",
     railProducts: "Goods",
+    railShop: "Shop",
     railOffers: "Offers",
     railReviews: "Reviews",
     catWrap: "Wraps",
@@ -124,7 +165,31 @@ const translations = {
     catPower: "Charging",
     catAudio: "Audio",
     productsTitle: "What We Sell In Store",
-    productsNote: "No online shopping here. Visit the store to browse, ask, and try products.",
+    productsNote: "Charging cables, chargers, and power banks can be pre-ordered online. Visit us for other accessories.",
+    shopTitle: "Online Pre-order",
+    shopNote: "We currently accept pre-orders for charging cables, chargers, and power banks. The store will confirm after submission.",
+    catAll: "All",
+    shopCatCable: "Cables",
+    shopCatCharger: "Chargers",
+    shopCatPowerbank: "Power Banks",
+    cartOpen: "Cart",
+    cartTitle: "Cart",
+    cartTotal: "Total",
+    orderName: "Name",
+    orderPhone: "Phone",
+    orderLine: "LINE ID (optional)",
+    orderNote: "Note (optional)",
+    orderSubmit: "Submit Order",
+    productsLoading: "Loading products...",
+    productsLoadingNote: "Please wait while we load the latest prices and stock.",
+    addToCart: "Add to Cart",
+    soldOut: "Sold Out",
+    emptyCart: "Your cart is empty.",
+    orderSuccess: "Order submitted. The store will contact you for confirmation.",
+    orderEmpty: "Please add a product first.",
+    stockLabel: "Stock",
+    saleLabel: "Sale",
+    checkoutSending: "Submitting order...",
     serviceRepair: "Repair Service",
     serviceRepairDesc: "On-site checkup with repair and handling suggestions.",
     serviceWrap: "Professional Wraps",
@@ -212,6 +277,69 @@ const defaultOffers = [
   }
 ];
 
+const defaultProducts = [
+  {
+    id: 1,
+    sku: "CB-C2C-60W",
+    name: "Type-C to Type-C 快充線 60W",
+    category: "cable",
+    price: 290,
+    salePrice: 250,
+    stock: 12,
+    description: "支援快充，適合 Android、iPad 與 Type-C 裝置。"
+  },
+  {
+    id: 2,
+    sku: "CB-LTG-USB",
+    name: "Lightning 充電線",
+    category: "cable",
+    price: 250,
+    salePrice: null,
+    stock: 10,
+    description: "iPhone 常用備用線，居家、公司、車上都方便。"
+  },
+  {
+    id: 3,
+    sku: "CH-20W-PD",
+    name: "PD 20W 快充頭",
+    category: "charger",
+    price: 390,
+    salePrice: 350,
+    stock: 8,
+    description: "小體積快充頭，適合日常快速補電。"
+  },
+  {
+    id: 4,
+    sku: "CH-35W-DUAL",
+    name: "雙孔 35W 充電頭",
+    category: "charger",
+    price: 590,
+    salePrice: null,
+    stock: 6,
+    description: "雙裝置同時充電，手機與耳機一起補電。"
+  },
+  {
+    id: 5,
+    sku: "PB-10000",
+    name: "10000mAh 行動電源",
+    category: "powerbank",
+    price: 790,
+    salePrice: 690,
+    stock: 5,
+    description: "通勤與外出常備容量，輕巧好攜帶。"
+  },
+  {
+    id: 6,
+    sku: "PB-20000",
+    name: "20000mAh 大容量行動電源",
+    category: "powerbank",
+    price: 1190,
+    salePrice: null,
+    stock: 3,
+    description: "旅行與長時間外出適用，續航更安心。"
+  }
+];
+
 const offerTranslations = {
   "包膜優惠": "Wrap Offer",
   "手機包膜與保護服務，歡迎到店詢問。": "Phone wrap and protection service. Ask us in store.",
@@ -225,6 +353,9 @@ let language = localStorage.getItem("sige3c-lang") || "zh";
 let chatIndex = 0;
 let particles = [];
 let currentOffers = defaultOffers;
+let currentProducts = defaultProducts;
+let activeCategory = "all";
+let cart = JSON.parse(localStorage.getItem("sige3c-cart") || "[]");
 
 menuButton?.addEventListener("click", () => {
   body.classList.toggle("menu-open");
@@ -247,6 +378,31 @@ function textFor(value) {
   return value;
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function effectivePrice(product) {
+  const price = Number(product.price || 0);
+  const salePrice = product.salePrice ?? product.sale_price;
+  const normalizedSale = salePrice === "" || salePrice === null || salePrice === undefined
+    ? 0
+    : Number(salePrice || 0);
+  return normalizedSale > 0 && normalizedSale < price ? normalizedSale : price;
+}
+
+function discountPercent(product) {
+  const price = Number(product.price || 0);
+  const finalPrice = effectivePrice(product);
+  if (!price || finalPrice >= price) return 0;
+  return Math.max(1, Math.round((1 - finalPrice / price) * 100));
+}
+
 function applyLanguage(nextLanguage) {
   language = nextLanguage;
   document.documentElement.lang = language === "zh" ? "zh-Hant-TW" : "en";
@@ -261,6 +417,8 @@ function applyLanguage(nextLanguage) {
   if (langToggle) langToggle.textContent = language === "zh" ? "EN" : "中";
   if (chatBubble) chatBubble.textContent = chatLines[language][chatIndex % chatLines[language].length];
   renderOffers(currentOffers);
+  renderProducts(currentProducts);
+  renderCart();
   localStorage.setItem("sige3c-lang", language);
 }
 
@@ -294,6 +452,206 @@ function renderOffers(offers) {
     if (title) title.textContent = textFor(offer.title);
     if (desc) desc.textContent = textFor(offer.desc || offer.description);
   });
+}
+
+function categoryName(category) {
+  const labels = {
+    cable: translations[language].shopCatCable,
+    charger: translations[language].shopCatCharger,
+    powerbank: translations[language].shopCatPowerbank
+  };
+  return labels[category] || category;
+}
+
+function renderProducts(products = currentProducts) {
+  if (!productList) return;
+  currentProducts = products?.length ? products : defaultProducts;
+  const visibleProducts = currentProducts.filter((product) => {
+    const isActive = product.active === undefined || Number(product.active) === 1;
+    return isActive && (activeCategory === "all" || product.category === activeCategory);
+  });
+
+  productList.innerHTML = visibleProducts.map((product, index) => {
+    const stock = Number(product.stock || 0);
+    const price = Number(product.price || 0);
+    const finalPrice = effectivePrice(product);
+    const discount = discountPercent(product);
+    const disabled = stock <= 0 ? "disabled" : "";
+    const buttonText = stock <= 0 ? translations[language].soldOut : translations[language].addToCart;
+    return `
+      <article class="product-card reveal-card is-visible" style="--delay:${index * 60}ms">
+        <span class="product-tag">${categoryName(product.category)}</span>
+        <h3>${escapeHtml(product.name)}</h3>
+        <p>${escapeHtml(product.description || "")}</p>
+        <div class="product-meta">
+          <div class="price-row">
+            <strong>${money.format(finalPrice)}</strong>
+            ${discount ? `<s>${money.format(price)}</s><em>${translations[language].saleLabel} -${discount}%</em>` : ""}
+          </div>
+          <span>${translations[language].stockLabel} ${stock}</span>
+        </div>
+        <button class="secondary-button" type="button" data-add-product="${product.id}" ${disabled}>${buttonText}</button>
+      </article>
+    `;
+  }).join("") || `
+    <article class="product-card reveal-card is-visible">
+      <span class="product-tag">EMPTY</span>
+      <h3>目前沒有商品</h3>
+      <p>請到後台新增或開啟商品。</p>
+    </article>
+  `;
+}
+
+function saveCart() {
+  localStorage.setItem("sige3c-cart", JSON.stringify(cart));
+}
+
+function cartQuantity() {
+  return cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+}
+
+function cartSubtotal() {
+  return cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
+}
+
+function renderCart() {
+  if (!cartItems || !cartCount || !cartTotal) return;
+  cartCount.textContent = String(cartQuantity());
+  cartTotal.textContent = money.format(cartSubtotal());
+
+  if (!cart.length) {
+    cartItems.innerHTML = `<p class="cart-empty">${translations[language].emptyCart}</p>`;
+    return;
+  }
+
+  cartItems.innerHTML = cart.map((item) => `
+    <div class="cart-item">
+      <div>
+        <strong>${escapeHtml(item.name)}</strong>
+        <span>${money.format(item.price)} × ${item.quantity}</span>
+      </div>
+      <div class="cart-controls">
+        <button type="button" data-cart-minus="${item.id}">−</button>
+        <button type="button" data-cart-plus="${item.id}">＋</button>
+        <button type="button" data-cart-remove="${item.id}">移除</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function addToCart(productId) {
+  const product = currentProducts.find((item) => Number(item.id) === Number(productId));
+  if (!product || Number(product.stock || 0) <= 0) return;
+  const existing = cart.find((item) => Number(item.id) === Number(product.id));
+  if (existing) existing.quantity += 1;
+  else {
+    cart.push({
+      id: product.id,
+      sku: product.sku,
+      name: product.name,
+      price: effectivePrice(product),
+      originalPrice: Number(product.price || 0),
+      quantity: 1
+    });
+  }
+  saveCart();
+  renderCart();
+  cartPanel.hidden = false;
+}
+
+function updateCartItem(productId, delta) {
+  const item = cart.find((entry) => Number(entry.id) === Number(productId));
+  if (!item) return;
+  item.quantity += delta;
+  if (item.quantity <= 0) cart = cart.filter((entry) => Number(entry.id) !== Number(productId));
+  saveCart();
+  renderCart();
+}
+
+categoryTabs?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-category]");
+  if (!button) return;
+  activeCategory = button.dataset.category || "all";
+  categoryTabs.querySelectorAll("[data-category]").forEach((tab) => {
+    tab.classList.toggle("is-active", tab === button);
+  });
+  renderProducts(currentProducts);
+});
+
+productList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-add-product]");
+  if (!button) return;
+  addToCart(button.dataset.addProduct);
+});
+
+cartToggle?.addEventListener("click", () => {
+  cartPanel.hidden = false;
+});
+
+cartClose?.addEventListener("click", () => {
+  cartPanel.hidden = true;
+});
+
+cartPanel?.addEventListener("click", (event) => {
+  if (event.target === cartPanel) {
+    cartPanel.hidden = true;
+    return;
+  }
+  const minus = event.target.closest("[data-cart-minus]");
+  const plus = event.target.closest("[data-cart-plus]");
+  const remove = event.target.closest("[data-cart-remove]");
+  if (minus) updateCartItem(minus.dataset.cartMinus, -1);
+  if (plus) updateCartItem(plus.dataset.cartPlus, 1);
+  if (remove) updateCartItem(remove.dataset.cartRemove, -999);
+});
+
+checkoutForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!cart.length) {
+    if (checkoutStatus) checkoutStatus.textContent = translations[language].orderEmpty;
+    return;
+  }
+
+  if (checkoutStatus) checkoutStatus.textContent = translations[language].checkoutSending;
+  const form = new FormData(checkoutForm);
+
+  try {
+    const response = await fetch("./api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customer: {
+          name: String(form.get("name") || "").trim(),
+          phone: String(form.get("phone") || "").trim(),
+          line: String(form.get("line") || "").trim(),
+          note: String(form.get("note") || "").trim()
+        },
+        items: cart.map((item) => ({ id: item.id, quantity: item.quantity }))
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "訂單送出失敗");
+    cart = [];
+    saveCart();
+    renderCart();
+    checkoutForm.reset();
+    if (checkoutStatus) checkoutStatus.textContent = translations[language].orderSuccess;
+    if (payload.products?.length) renderProducts(payload.products);
+  } catch (error) {
+    if (checkoutStatus) checkoutStatus.textContent = error.message || "訂單送出失敗，請改用電話聯絡門市。";
+  }
+});
+
+async function loadProducts() {
+  try {
+    const response = await fetch("./api/products", { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("Product API unavailable");
+    const payload = await response.json();
+    renderProducts(payload.products?.length ? payload.products : defaultProducts);
+  } catch {
+    renderProducts(defaultProducts);
+  }
+  renderCart();
 }
 
 async function loadOffers() {
@@ -380,8 +738,16 @@ thankYou?.addEventListener("click", (event) => {
   if (event.target === thankYou) thankYou.hidden = true;
 });
 
-document.querySelectorAll('a[href*="google.com/maps"]').forEach((link) => {
+document.querySelectorAll("[data-google-review-link]").forEach((link) => {
   link.href = googleReviewUrl;
+});
+
+document.querySelectorAll("[data-google-map-link]").forEach((link) => {
+  link.href = googleMapUrl;
+});
+
+document.querySelectorAll("[data-facebook-link]").forEach((link) => {
+  link.href = facebookUrl;
 });
 
 resizeCanvas();
@@ -389,6 +755,7 @@ drawParticles();
 setupReveal();
 applyLanguage(language);
 loadOffers();
+loadProducts();
 updateScrollHud();
 
 window.addEventListener("resize", resizeCanvas);
