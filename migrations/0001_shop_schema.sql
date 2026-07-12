@@ -19,8 +19,10 @@ CREATE TABLE IF NOT EXISTS products (
   colors TEXT NOT NULL DEFAULT '[]',
   models TEXT NOT NULL DEFAULT '[]',
   specs TEXT NOT NULL DEFAULT '[]',
+  variant_prices TEXT NOT NULL DEFAULT '[]',
   add_ons TEXT NOT NULL DEFAULT '[]',
   active INTEGER NOT NULL DEFAULT 1,
+  deleted_at TEXT,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

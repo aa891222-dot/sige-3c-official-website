@@ -2235,6 +2235,20 @@ img { display: block; max-width: 100%; }
   gap: 1rem;
 }
 
+.category-admin-box {
+  border: 1px solid rgba(255, 214, 10, .22);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, rgba(255, 214, 10, .08), rgba(255, 38, 56, .06));
+}
+
+.admin-help {
+  color: var(--muted);
+  line-height: 1.65;
+  margin: .65rem 0 0;
+}
+
 .product-admin-row {
   display: grid;
   grid-template-columns: .7fr 1.4fr .85fr .75fr .75fr .65fr .75fr;

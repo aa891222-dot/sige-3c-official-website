@@ -82,8 +82,20 @@
         <div class="admin-section-title">
           <p class="eyebrow">PRODUCTS</p>
           <h2>商品價格與折扣</h2>
-          <p>原價是商品定價；優惠價可留空。也可以設定商品圖片、顏色、型號、規格與加購商品。</p>
+          <p>原價是商品定價；優惠價可留空。也可以設定商品種類、圖片、顏色、型號、規格與加購商品。</p>
         </div>
+
+        <section class="category-admin-box" aria-label="商品種類列表">
+          <label class="product-admin-desc">
+            <span>商品種類列表（一行一種：代碼|名稱）</span>
+            <textarea data-category-list rows="5">cable|充電線
+charger|充電頭
+powerbank|行動電源
+protector|保護貼
+phonecase|手機殼</textarea>
+          </label>
+          <p class="admin-help">例：protector|保護貼、phonecase|手機殼。按「儲存商品」後，前台分類按鈕也會更新。</p>
+        </section>
 
         <div class="product-admin-list" data-product-fields></div>
 

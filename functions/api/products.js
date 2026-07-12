@@ -13,6 +13,14 @@ const defaultProducts = [
     colors: ["黑色", "鈦色", "藍色"],
     models: ["Type-C to Type-C", "Type-C to Lightning", "Lightning to USB"],
     specs: ["60公分", "120公分"],
+    variantPrices: [
+      { model: "Lightning to USB", spec: "60公分", price: 290 },
+      { model: "Lightning to USB", spec: "120公分", price: 590 },
+      { model: "Type-C to Type-C", spec: "60公分", price: 290 },
+      { model: "Type-C to Type-C", spec: "120公分", price: 490 },
+      { model: "Type-C to Lightning", spec: "60公分", price: 350 },
+      { model: "Type-C to Lightning", spec: "120公分", price: 590 }
+    ],
     addOns: [{ name: "線材保護套", price: 49 }, { name: "收納束帶", price: 29 }],
     active: 1
   },
@@ -103,8 +111,6 @@ const defaultProducts = [
   }
 ];
 
-const categories = new Set(["cable", "charger", "powerbank"]);
-
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -150,6 +156,44 @@ function cleanAddOns(value) {
   }).filter((item) => item.name);
 }
 
+function cleanVariantPrices(value) {
+  const source = Array.isArray(value) ? value : parseJsonArray(value);
+  return source.map((item) => {
+    if (typeof item === "string") {
+      const parts = item.split("|").map((part) => part.trim());
+      if (parts.length >= 5) {
+        return {
+          color: parts[0],
+          model: parts[1],
+          spec: parts[2],
+          price: Math.max(0, Math.round(Number(parts[3] || 0))),
+          salePrice: parts[4] ? Math.max(0, Math.round(Number(parts[4]))) : null
+        };
+      }
+      return {
+        color: "",
+        model: parts[0] || "",
+        spec: parts[1] || "",
+        price: Math.max(0, Math.round(Number(parts[2] || 0))),
+        salePrice: parts[3] ? Math.max(0, Math.round(Number(parts[3]))) : null
+      };
+    }
+
+    const price = Math.max(0, Math.round(Number(item.price || 0)));
+    const rawSale = item.salePrice ?? item.sale_price;
+    const salePrice = rawSale === "" || rawSale === null || rawSale === undefined
+      ? null
+      : Math.max(0, Math.round(Number(rawSale || 0)));
+    return {
+      color: String(item.color || "").trim().slice(0, 60),
+      model: String(item.model || "").trim().slice(0, 80),
+      spec: String(item.spec || "").trim().slice(0, 80),
+      price,
+      salePrice: salePrice && salePrice < price ? salePrice : null
+    };
+  }).filter((item) => (item.color || item.model || item.spec) && item.price > 0);
+}
+
 function defaultFor(id) {
   return defaultProducts.find((product) => Number(product.id) === Number(id)) || {};
 }
@@ -170,6 +214,7 @@ function normalizeProduct(row) {
     colors: parseJsonArray(row.colors, fallback.colors || []),
     models: parseJsonArray(row.models, fallback.models || []),
     specs: parseJsonArray(row.specs, fallback.specs || []),
+    variantPrices: parseJsonArray(row.variant_prices, fallback.variantPrices || []),
     addOns: parseJsonArray(row.add_ons, fallback.addOns || []),
     active: Number(row.active ?? 1)
   };
@@ -192,10 +237,11 @@ function sanitizeProduct(product, fallbackId) {
   const colors = cleanList(product.colors).slice(0, 12);
   const models = cleanList(product.models).slice(0, 12);
   const specs = cleanList(product.specs).slice(0, 12);
+  const variantPrices = cleanVariantPrices(product.variantPrices ?? product.variant_prices).slice(0, 80);
   const addOns = cleanAddOns(product.addOns ?? product.add_ons).slice(0, 12);
   const active = product.active === false || Number(product.active) === 0 ? 0 : 1;
 
-  if (!id || !sku || !name || !categories.has(category) || !price) {
+  if (!id || !sku || !name || !category || !price) {
     throw new Error("商品資料不完整，請確認 SKU、名稱、分類與原價。");
   }
 
@@ -213,6 +259,7 @@ function sanitizeProduct(product, fallbackId) {
     colors,
     models,
     specs,
+    variantPrices,
     addOns,
     active
   };
@@ -234,8 +281,10 @@ async function ensureProductSchema(env) {
       colors TEXT NOT NULL DEFAULT '[]',
       models TEXT NOT NULL DEFAULT '[]',
       specs TEXT NOT NULL DEFAULT '[]',
+      variant_prices TEXT NOT NULL DEFAULT '[]',
       add_ons TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
+      deleted_at TEXT,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
@@ -251,8 +300,10 @@ async function ensureProductSchema(env) {
     ["colors", "colors TEXT NOT NULL DEFAULT '[]'"],
     ["models", "models TEXT NOT NULL DEFAULT '[]'"],
     ["specs", "specs TEXT NOT NULL DEFAULT '[]'"],
+    ["variant_prices", "variant_prices TEXT NOT NULL DEFAULT '[]'"],
     ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"],
     ["active", "active INTEGER NOT NULL DEFAULT 1"],
+    ["deleted_at", "deleted_at TEXT"],
     ["updated_at", "updated_at TEXT"]
   ];
 
@@ -268,8 +319,8 @@ async function seedDefaultProducts(env) {
   if (Number(row?.count || 0) > 0) return;
   for (const product of defaultProducts) {
     await env.DB.prepare(`
-      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, add_ons, active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, add_ons, active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       product.id,
       product.sku,
@@ -284,6 +335,7 @@ async function seedDefaultProducts(env) {
       JSON.stringify(product.colors || []),
       JSON.stringify(product.models || []),
       JSON.stringify(product.specs || []),
+      JSON.stringify(product.variantPrices || []),
       JSON.stringify(product.addOns || []),
       product.active
     ).run();
@@ -295,10 +347,10 @@ async function readProducts(env, includeInactive = false) {
   await ensureProductSchema(env);
   await seedDefaultProducts(env);
   const sql = includeInactive
-    ? "SELECT * FROM products ORDER BY id ASC"
-    : "SELECT * FROM products WHERE active = 1 ORDER BY id ASC";
+    ? "SELECT * FROM products WHERE deleted_at IS NULL ORDER BY id ASC"
+    : "SELECT * FROM products WHERE active = 1 AND deleted_at IS NULL ORDER BY id ASC";
   const result = await env.DB.prepare(sql).all();
-  return result.results?.length ? result.results.map(normalizeProduct) : defaultProducts;
+  return (result.results || []).map(normalizeProduct);
 }
 
 export async function onRequestGet({ request, env }) {
@@ -327,11 +379,23 @@ export async function onRequestPut({ request, env }) {
 
   try {
     await ensureProductSchema(env);
-    for (const [index, product] of products.entries()) {
-      const item = sanitizeProduct(product, index + 1);
+    const items = products.map((product, index) => sanitizeProduct(product, index + 1));
+    const ids = items.map((item) => item.id);
+    if (new Set(ids).size !== ids.length) {
+      throw new Error("商品 ID 重複，請重新整理後再儲存。");
+    }
+
+    const placeholders = ids.map(() => "?").join(", ");
+    await env.DB.prepare(`
+      UPDATE products
+      SET active = 0, deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+      WHERE deleted_at IS NULL AND id NOT IN (${placeholders})
+    `).bind(...ids).run();
+
+    for (const item of items) {
       await env.DB.prepare(`
-        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, add_ons, active, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, add_ons, active, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(id) DO UPDATE SET
           sku = excluded.sku,
           name = excluded.name,
@@ -345,8 +409,10 @@ export async function onRequestPut({ request, env }) {
           colors = excluded.colors,
           models = excluded.models,
           specs = excluded.specs,
+          variant_prices = excluded.variant_prices,
           add_ons = excluded.add_ons,
           active = excluded.active,
+          deleted_at = NULL,
           updated_at = CURRENT_TIMESTAMP
       `).bind(
         item.id,
@@ -362,6 +428,7 @@ export async function onRequestPut({ request, env }) {
         JSON.stringify(item.colors || []),
         JSON.stringify(item.models || []),
         JSON.stringify(item.specs || []),
+        JSON.stringify(item.variantPrices || []),
         JSON.stringify(item.addOns || []),
         item.active
       ).run();

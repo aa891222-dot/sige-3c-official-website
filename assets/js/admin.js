@@ -6,6 +6,7 @@ const productForm = document.querySelector("[data-product-form]");
 const productFields = document.querySelector("[data-product-fields]");
 const productStatus = document.querySelector("[data-product-status]");
 const addProductRow = document.querySelector("[data-add-product-row]");
+const categoryListInput = document.querySelector("[data-category-list]");
 const settingsForm = document.querySelector("[data-settings-form]");
 const settingsStatus = document.querySelector("[data-settings-status]");
 const loadOrdersButton = document.querySelector("[data-load-orders]");
@@ -21,7 +22,7 @@ const defaultOffers = [
 ];
 
 const defaultProducts = [
-  { id: 1, sku: "CB-C2C-60W", name: "Type-C to Type-C 快充線 60W", category: "cable", price: 290, salePrice: 250, stock: 12, description: "支援快充，適合 Android、iPad 與 Type-C 裝置。", imageUrl: "./assets/images/concept-design.jpeg", gallery: ["./assets/images/concept-design.jpeg"], colors: ["黑色", "鈦色", "藍色"], models: ["Type-C to Type-C", "Type-C to Lightning"], specs: ["60公分", "120公分"], addOns: [{ name: "線材保護套", price: 49 }], active: 1 },
+  { id: 1, sku: "CB-C2C-60W", name: "Type-C to Type-C 快充線 60W", category: "cable", price: 290, salePrice: 250, stock: 12, description: "支援快充，適合 Android、iPad 與 Type-C 裝置。", imageUrl: "./assets/images/concept-design.jpeg", gallery: ["./assets/images/concept-design.jpeg"], colors: ["黑色", "鈦色", "藍色"], models: ["Type-C to Type-C", "Type-C to Lightning", "Lightning to USB"], specs: ["60公分", "120公分"], variantPrices: [{ model: "Lightning to USB", spec: "60公分", price: 290 }, { model: "Lightning to USB", spec: "120公分", price: 590 }], addOns: [{ name: "線材保護套", price: 49 }], active: 1 },
   { id: 2, sku: "CB-LTG-USB", name: "Lightning 充電線", category: "cable", price: 250, salePrice: null, stock: 10, description: "iPhone 常用備用線，居家、公司、車上都方便。", imageUrl: "./assets/images/homepage-visual.jpg", gallery: ["./assets/images/homepage-visual.jpg"], colors: ["白色", "黑色"], models: ["Lightning to USB"], specs: ["1米", "2米"], addOns: [{ name: "線材保護套", price: 49 }], active: 1 },
   { id: 3, sku: "CH-20W-PD", name: "PD 20W 快充頭", category: "charger", price: 390, salePrice: 350, stock: 8, description: "小體積快充頭，適合日常快速補電。", imageUrl: "./assets/images/hero-main.jpg", gallery: ["./assets/images/hero-main.jpg"], colors: ["白色", "黑色"], models: ["單孔 PD"], specs: ["20W"], addOns: [{ name: "Type-C 快充線加購", price: 199 }], active: 1 },
   { id: 4, sku: "CH-35W-DUAL", name: "雙孔 35W 充電頭", category: "charger", price: 590, salePrice: null, stock: 6, description: "雙裝置同時充電，手機與耳機一起補電。", imageUrl: "./assets/images/hero-store-bg.webp", gallery: ["./assets/images/hero-store-bg.webp"], colors: ["白色", "黑色"], models: ["雙孔 USB-C"], specs: ["35W"], addOns: [{ name: "快充線組合價", price: 250 }], active: 1 },
@@ -34,14 +35,17 @@ const defaultSettings = {
   announcementTitle: "門市公告",
   announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
   lineLabel: "加入 LINE 詢問",
-  lineUrl: "https://line.me/R/ti/p/@sige3c"
+  lineUrl: "https://line.me/R/ti/p/@sige3c",
+  productCategories: [
+    { id: "cable", label: "充電線", labelEn: "Cables" },
+    { id: "charger", label: "充電頭", labelEn: "Chargers" },
+    { id: "powerbank", label: "行動電源", labelEn: "Power Banks" },
+    { id: "protector", label: "保護貼", labelEn: "Screen Protectors" },
+    { id: "phonecase", label: "手機殼", labelEn: "Phone Cases" }
+  ]
 };
 
-const categories = {
-  cable: "充電線",
-  charger: "充電頭",
-  powerbank: "行動電源"
-};
+let categories = [...defaultSettings.productCategories];
 
 const orderStatuses = {
   new: "新訂單",
@@ -104,6 +108,14 @@ function addOnsText(value) {
   }).filter(Boolean).join("\n");
 }
 
+function variantPricesText(value) {
+  return asList(value).map((item) => {
+    if (typeof item === "string") return item;
+    const salePrice = item.salePrice ?? item.sale_price ?? "";
+    return `${item.model || ""}|${item.spec || ""}|${Number(item.price || 0)}|${salePrice}`;
+  }).filter(Boolean).join("\n");
+}
+
 function readLines(value) {
   return String(value || "").split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
 }
@@ -112,11 +124,84 @@ function uniqueLines(lines) {
   return [...new Set(lines.map((line) => String(line || "").trim()).filter(Boolean))];
 }
 
+function normalizeCategory(item) {
+  if (typeof item === "string") {
+    const [rawId = "", rawLabel = "", rawLabelEn = ""] = item.split("|").map((part) => part.trim());
+    return {
+      id: rawId,
+      label: rawLabel || rawId,
+      labelEn: rawLabelEn
+    };
+  }
+
+  return {
+    id: String(item?.id || item?.value || "").trim(),
+    label: String(item?.label || item?.name || item?.id || "").trim(),
+    labelEn: String(item?.labelEn || item?.label_en || "").trim()
+  };
+}
+
+function normalizeCategories(value) {
+  const seen = new Set();
+  const normalized = asList(value).map(normalizeCategory).filter((item) => {
+    if (!item.id || !item.label || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+  return normalized.length ? normalized : [...defaultSettings.productCategories];
+}
+
+function categoriesText(value = categories) {
+  return normalizeCategories(value)
+    .map((item) => `${item.id}|${item.label}${item.labelEn ? `|${item.labelEn}` : ""}`)
+    .join("\n");
+}
+
+function readCategories(value) {
+  return normalizeCategories(readLines(value));
+}
+
+function setCategories(nextCategories) {
+  categories = normalizeCategories(nextCategories);
+  if (categoryListInput) categoryListInput.value = categoriesText(categories);
+}
+
+function categoryEntries(extraCategory = "") {
+  const entries = [...categories];
+  if (extraCategory && !entries.some((item) => item.id === extraCategory)) {
+    entries.push({ id: extraCategory, label: extraCategory, labelEn: "" });
+  }
+  return entries;
+}
+
 function readAddOns(value) {
   return readLines(value).map((line) => {
     const [name, price = "0"] = line.split("|").map((item) => item.trim());
     return { name, price: Number(price || 0) };
   }).filter((item) => item.name);
+}
+
+function readVariantPrices(value) {
+  return readLines(value).map((line) => {
+    const parts = line.split("|").map((item) => item.trim());
+    let color = "";
+    let model = "";
+    let spec = "";
+    let price = 0;
+    let salePrice = null;
+
+    if (parts.length >= 5) {
+      [color, model, spec] = parts;
+      price = Number(parts[3] || 0);
+      salePrice = parts[4] ? Number(parts[4]) : null;
+    } else {
+      [model, spec] = parts;
+      price = Number(parts[2] || 0);
+      salePrice = parts[3] ? Number(parts[3]) : null;
+    }
+
+    return { color, model, spec, price, salePrice };
+  }).filter((item) => (item.model || item.spec || item.color) && item.price > 0);
 }
 
 function optionSummary(options = {}) {
@@ -169,6 +254,8 @@ function fillSettings(settings = defaultSettings) {
   settingsForm.elements.lineLabel.value = settings.lineLabel || "";
   settingsForm.elements.lineUrl.value = settings.lineUrl || "";
   settingsForm.elements.announcementActive.checked = Number(settings.announcementActive ?? 1) === 1;
+  setCategories(settings.productCategories || settings.product_categories || categories);
+  if (products.length) renderProducts(products);
 }
 
 function readSettings() {
@@ -177,7 +264,8 @@ function readSettings() {
     announcementText: settingsForm.elements.announcementText.value.trim(),
     lineLabel: settingsForm.elements.lineLabel.value.trim(),
     lineUrl: settingsForm.elements.lineUrl.value.trim(),
-    announcementActive: settingsForm.elements.announcementActive.checked ? 1 : 0
+    announcementActive: settingsForm.elements.announcementActive.checked ? 1 : 0,
+    productCategories: readCategories(categoryListInput?.value || categoriesText(categories))
   };
 }
 
@@ -196,8 +284,8 @@ async function loadSettings() {
 
 function productRow(product, index) {
   const salePrice = product.salePrice ?? product.sale_price ?? "";
-  const categoryOptions = Object.entries(categories).map(([value, label]) => (
-    `<option value="${value}" ${product.category === value ? "selected" : ""}>${label}</option>`
+  const categoryOptions = categoryEntries(product.category).map((category) => (
+    `<option value="${escapeHtml(category.id)}" ${product.category === category.id ? "selected" : ""}>${escapeHtml(category.label)}</option>`
   )).join("");
 
   return `
@@ -233,6 +321,7 @@ function productRow(product, index) {
       <label><span>顏色（一行一個）</span><textarea data-product-field="colors" rows="4">${escapeHtml(listText(product.colors))}</textarea></label>
       <label><span>型號（一行一個）</span><textarea data-product-field="models" rows="4">${escapeHtml(listText(product.models))}</textarea></label>
       <label><span>規格（一行一個）</span><textarea data-product-field="specs" rows="4">${escapeHtml(listText(product.specs))}</textarea></label>
+      <label class="product-admin-desc"><span>規格組合價格（一行一筆：型號|規格|原價|優惠價）</span><textarea data-product-field="variantPrices" rows="4" placeholder="Lightning to USB|60公分|290&#10;Lightning to USB|120公分|590">${escapeHtml(variantPricesText(product.variantPrices || product.variant_prices))}</textarea></label>
       <label class="product-admin-desc"><span>加購商品（一行一筆：名稱|價格）</span><textarea data-product-field="addOns" rows="4" placeholder="線材保護套|49">${escapeHtml(addOnsText(product.addOns || product.add_ons))}</textarea></label>
     </article>
   `;
@@ -261,6 +350,7 @@ function readProductRows() {
       colors: readLines(read("colors").value),
       models: readLines(read("models").value),
       specs: readLines(read("specs").value),
+      variantPrices: readVariantPrices(read("variantPrices").value),
       addOns: readAddOns(read("addOns").value),
       active: read("active").checked ? 1 : 0
     };
@@ -283,6 +373,7 @@ async function loadProducts() {
 }
 
 async function saveProducts() {
+  setCategories(readCategories(categoryListInput?.value || categoriesText(categories)));
   const nextProducts = readProductRows();
   const invalidDiscount = nextProducts.find((product) => product.salePrice && product.salePrice >= product.price);
   if (invalidDiscount) {
@@ -298,8 +389,17 @@ async function saveProducts() {
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.error || "商品儲存失敗");
+
+  const settingsResponse = await fetch("./api/settings", {
+    method: "PUT",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ settings: readSettings() })
+  });
+  const settingsPayload = await settingsResponse.json().catch(() => ({}));
+  if (!settingsResponse.ok) throw new Error(settingsPayload.error || "商品種類儲存失敗");
+
   renderProducts(payload.products || nextProducts);
-  setStatus(productStatus, "商品已儲存。前台會顯示最新價格、折扣與庫存。");
+  setStatus(productStatus, "商品與種類已儲存。前台會顯示最新分類、價格、折扣與庫存。");
 }
 
 async function uploadImage(file) {
@@ -399,7 +499,7 @@ productForm?.addEventListener("submit", async (event) => {
 
 settingsForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  setStatus(settingsStatus, "正在儲存公告與 LINE...");
+  setStatus(settingsStatus, "正在儲存公告、LINE 與商品種類...");
   try {
     const response = await fetch("./api/settings", {
       method: "PUT",
@@ -409,10 +509,17 @@ settingsForm?.addEventListener("submit", async (event) => {
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "公告設定儲存失敗");
     fillSettings(payload.settings || readSettings());
-    setStatus(settingsStatus, "公告與 LINE 已儲存。");
+    setStatus(settingsStatus, "公告、LINE 與商品種類已儲存。");
   } catch (error) {
     setStatus(settingsStatus, error.message || "公告設定儲存失敗，請確認密碼。", true);
   }
+});
+
+categoryListInput?.addEventListener("change", () => {
+  const rows = productFields?.children.length ? readProductRows() : products;
+  setCategories(readCategories(categoryListInput.value));
+  renderProducts(rows);
+  setStatus(productStatus, "商品種類列表已套用，記得按「儲存商品」。");
 });
 
 addProductRow?.addEventListener("click", () => {
@@ -422,7 +529,7 @@ addProductRow?.addEventListener("click", () => {
     id: nextId,
     sku: `NEW-${nextId}`,
     name: "新商品",
-    category: "cable",
+    category: categories[0]?.id || "cable",
     price: 0,
     salePrice: null,
     stock: 0,
@@ -431,6 +538,7 @@ addProductRow?.addEventListener("click", () => {
     colors: [],
     models: [],
     specs: [],
+    variantPrices: [],
     addOns: [],
     description: "",
     active: 0
@@ -444,6 +552,7 @@ productFields?.addEventListener("click", (event) => {
   const index = Number(button.dataset.removeProduct || -1);
   const rows = readProductRows().filter((_, rowIndex) => rowIndex !== index);
   renderProducts(rows);
+  setStatus(productStatus, "商品已從畫面移除，請按「儲存商品」才會正式刪除。");
 });
 
 productFields?.addEventListener("change", async (event) => {

@@ -31,9 +31,45 @@ function clean(value, max = 160) {
   return String(value || "").trim().slice(0, max);
 }
 
-function productPrice(product) {
-  const price = Number(product.price || 0);
-  const salePrice = product.sale_price === null || product.sale_price === undefined ? 0 : Number(product.sale_price || 0);
+function parseVariantPrices(product) {
+  return parseJsonArray(product.variantPrices ?? product.variant_prices).map((variant) => {
+    const rawSale = variant.salePrice ?? variant.sale_price;
+    return {
+      color: clean(variant.color, 60),
+      model: clean(variant.model, 80),
+      spec: clean(variant.spec, 80),
+      price: Math.max(0, Math.round(Number(variant.price || 0))),
+      salePrice: rawSale === "" || rawSale === null || rawSale === undefined
+        ? null
+        : Math.max(0, Math.round(Number(rawSale || 0)))
+    };
+  }).filter((variant) => (variant.color || variant.model || variant.spec) && variant.price > 0);
+}
+
+function matchingVariant(product, options = {}) {
+  const selected = cleanOptions(options);
+  return parseVariantPrices(product)
+    .filter((variant) => {
+      return (!variant.color || variant.color === selected.color)
+        && (!variant.model || variant.model === selected.model)
+        && (!variant.spec || variant.spec === selected.spec);
+    })
+    .sort((a, b) => {
+      const score = (variant) => Number(Boolean(variant.color)) + Number(Boolean(variant.model)) + Number(Boolean(variant.spec));
+      return score(b) - score(a);
+    })[0] || null;
+}
+
+function regularProductPrice(product, options = {}) {
+  const variant = matchingVariant(product, options);
+  return Number(variant?.price || product.price || 0);
+}
+
+function productPrice(product, options = {}) {
+  const variant = matchingVariant(product, options);
+  const price = Number(variant?.price || product.price || 0);
+  const rawSale = variant ? variant.salePrice : (product.salePrice ?? product.sale_price);
+  const salePrice = rawSale === null || rawSale === undefined ? 0 : Number(rawSale || 0);
   return salePrice > 0 && salePrice < price ? salePrice : price;
 }
 
@@ -95,6 +131,7 @@ function normalizeProduct(row) {
     colors: parseJsonArray(row.colors),
     models: parseJsonArray(row.models),
     specs: parseJsonArray(row.specs),
+    variantPrices: parseJsonArray(row.variant_prices),
     addOns: parseJsonArray(row.add_ons),
     active: Number(row.active ?? 1)
   };
@@ -116,6 +153,7 @@ async function ensureSchemas(env) {
       colors TEXT NOT NULL DEFAULT '[]',
       models TEXT NOT NULL DEFAULT '[]',
       specs TEXT NOT NULL DEFAULT '[]',
+      variant_prices TEXT NOT NULL DEFAULT '[]',
       add_ons TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -133,6 +171,7 @@ async function ensureSchemas(env) {
     ["colors", "colors TEXT NOT NULL DEFAULT '[]'"],
     ["models", "models TEXT NOT NULL DEFAULT '[]'"],
     ["specs", "specs TEXT NOT NULL DEFAULT '[]'"],
+    ["variant_prices", "variant_prices TEXT NOT NULL DEFAULT '[]'"],
     ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"],
     ["active", "active INTEGER NOT NULL DEFAULT 1"],
     ["updated_at", "updated_at TEXT"]
@@ -306,10 +345,11 @@ export async function onRequestPost({ request, env }) {
     const addOns = cleanAddOns(item.addOns).map((requested) => {
       return availableAddOns.find((available) => available.name === requested.name) || requested;
     });
-    const unitPrice = productPrice(product) + addOnsSubtotal(addOns);
+    const originalPrice = regularProductPrice(product, selectedOptions);
+    const unitPrice = productPrice(product, selectedOptions) + addOnsSubtotal(addOns);
     const subtotal = unitPrice * quantity;
     total += subtotal;
-    orderItems.push({ product, quantity, unitPrice, subtotal, selectedOptions, addOns });
+    orderItems.push({ product, quantity, unitPrice, originalPrice, subtotal, selectedOptions, addOns });
   }
 
   const created = await env.DB.prepare(`
@@ -328,7 +368,7 @@ export async function onRequestPost({ request, env }) {
       item.product.sku,
       item.product.name,
       item.unitPrice,
-      Number(item.product.price || 0),
+      item.originalPrice,
       item.quantity,
       item.subtotal,
       JSON.stringify(item.selectedOptions || {}),

@@ -1,9 +1,18 @@
+const defaultProductCategories = [
+  { id: "cable", label: "充電線", labelEn: "Cables" },
+  { id: "charger", label: "充電頭", labelEn: "Chargers" },
+  { id: "powerbank", label: "行動電源", labelEn: "Power Banks" },
+  { id: "protector", label: "保護貼", labelEn: "Screen Protectors" },
+  { id: "phonecase", label: "手機殼", labelEn: "Phone Cases" }
+];
+
 const defaultSettings = {
   announcementActive: 1,
   announcementTitle: "門市公告",
   announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
   lineLabel: "加入 LINE 詢問",
-  lineUrl: "https://line.me/R/ti/p/@sige3c"
+  lineUrl: "https://line.me/R/ti/p/@sige3c",
+  productCategories: defaultProductCategories
 };
 
 const keys = {
@@ -11,7 +20,8 @@ const keys = {
   announcement_title: "announcementTitle",
   announcement_text: "announcementText",
   line_label: "lineLabel",
-  line_url: "lineUrl"
+  line_url: "lineUrl",
+  product_categories: "productCategories"
 };
 
 function json(data, status = 200) {
@@ -28,6 +38,40 @@ function requireAdmin(request, env) {
   if (!env.ADMIN_PASSWORD) return "ADMIN_PASSWORD is missing";
   const password = request.headers.get("X-Admin-Password") || "";
   return password === env.ADMIN_PASSWORD ? "" : "管理密碼錯誤";
+}
+
+function parseJsonArray(value, fallback = []) {
+  if (Array.isArray(value)) return value;
+  if (!value) return fallback;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function sanitizeProductCategories(value) {
+  const source = parseJsonArray(value, defaultProductCategories);
+  const seen = new Set();
+  const categories = source.map((item) => {
+    if (typeof item === "string") {
+      const [id = "", label = "", labelEn = ""] = item.split("|").map((part) => part.trim());
+      return { id, label: label || id, labelEn };
+    }
+
+    return {
+      id: String(item.id || item.value || "").trim().slice(0, 40),
+      label: String(item.label || item.name || item.id || "").trim().slice(0, 40),
+      labelEn: String(item.labelEn || item.label_en || "").trim().slice(0, 60)
+    };
+  }).filter((item) => {
+    if (!item.id || !item.label || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+
+  return categories.length ? categories : defaultProductCategories;
 }
 
 async function ensureSettingsSchema(env) {
@@ -48,7 +92,13 @@ async function readSettings(env) {
   for (const row of result.results || []) {
     const mapped = keys[row.key];
     if (!mapped) continue;
-    settings[mapped] = mapped === "announcementActive" ? Number(row.value) : row.value;
+    if (mapped === "announcementActive") {
+      settings[mapped] = Number(row.value);
+    } else if (mapped === "productCategories") {
+      settings[mapped] = sanitizeProductCategories(row.value);
+    } else {
+      settings[mapped] = row.value;
+    }
   }
   return settings;
 }
@@ -59,7 +109,8 @@ function sanitizeSettings(settings = {}) {
     announcementTitle: String(settings.announcementTitle || settings.announcement_title || "").trim().slice(0, 80),
     announcementText: String(settings.announcementText || settings.announcement_text || "").trim().slice(0, 260),
     lineLabel: String(settings.lineLabel || settings.line_label || "").trim().slice(0, 40),
-    lineUrl: String(settings.lineUrl || settings.line_url || "").trim().slice(0, 320)
+    lineUrl: String(settings.lineUrl || settings.line_url || "").trim().slice(0, 320),
+    productCategories: sanitizeProductCategories(settings.productCategories ?? settings.product_categories)
   };
 }
 
@@ -94,7 +145,8 @@ export async function onRequestPut({ request, env }) {
     ["announcement_title", settings.announcementTitle],
     ["announcement_text", settings.announcementText],
     ["line_label", settings.lineLabel],
-    ["line_url", settings.lineUrl]
+    ["line_url", settings.lineUrl],
+    ["product_categories", JSON.stringify(settings.productCategories)]
   ];
 
   for (const [key, value] of rows) {

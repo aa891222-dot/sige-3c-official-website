@@ -66,9 +66,9 @@ const translations = {
     catPower: "充電配件",
     catAudio: "耳機配件",
     productsTitle: "現場有賣什麼商品",
-    productsNote: "可先線上預訂充電線、充電頭與行動電源；其他配件歡迎到店挑選、詢問與體驗。",
+    productsNote: "可先線上預訂已上架商品；其他配件歡迎到店挑選、詢問與體驗。",
     shopTitle: "線上預訂商品",
-    shopNote: "目前先開放充電線、充電頭、行動電源。送出訂單後，門市會依資料與你確認。",
+    shopNote: "線上商品種類可由後台更新。送出訂單後，門市會依資料與你確認。",
     catAll: "全部",
     shopCatCable: "充電線",
     shopCatCharger: "充電頭",
@@ -187,9 +187,9 @@ const translations = {
     catPower: "Charging",
     catAudio: "Audio",
     productsTitle: "What We Sell In Store",
-    productsNote: "Charging cables, chargers, and power banks can be pre-ordered online. Visit us for other accessories.",
+    productsNote: "Available products can be pre-ordered online. Visit us for other accessories.",
     shopTitle: "Online Pre-order",
-    shopNote: "We currently accept pre-orders for charging cables, chargers, and power banks. The store will confirm after submission.",
+    shopNote: "Online categories can be updated in the admin. The store will confirm after submission.",
     catAll: "All",
     shopCatCable: "Cables",
     shopCatCharger: "Chargers",
@@ -325,6 +325,14 @@ const defaultProducts = [
     colors: ["黑色", "鈦色", "藍色"],
     models: ["Type-C to Type-C", "Type-C to Lightning", "Lightning to USB"],
     specs: ["60公分", "120公分"],
+    variantPrices: [
+      { model: "Lightning to USB", spec: "60公分", price: 290 },
+      { model: "Lightning to USB", spec: "120公分", price: 590 },
+      { model: "Type-C to Type-C", spec: "60公分", price: 290 },
+      { model: "Type-C to Type-C", spec: "120公分", price: 490 },
+      { model: "Type-C to Lightning", spec: "60公分", price: 350 },
+      { model: "Type-C to Lightning", spec: "120公分", price: 590 }
+    ],
     addOns: [{ name: "線材保護套", price: 49 }, { name: "收納束帶", price: 29 }]
   },
   {
@@ -418,12 +426,21 @@ const offerTranslations = {
   "會員最高 88 折扣。": "Members can receive up to 12% off."
 };
 
+const defaultProductCategories = [
+  { id: "cable", label: "充電線", labelEn: "Cables" },
+  { id: "charger", label: "充電頭", labelEn: "Chargers" },
+  { id: "powerbank", label: "行動電源", labelEn: "Power Banks" },
+  { id: "protector", label: "保護貼", labelEn: "Screen Protectors" },
+  { id: "phonecase", label: "手機殼", labelEn: "Phone Cases" }
+];
+
 const defaultSettings = {
   announcementActive: 1,
   announcementTitle: "門市公告",
   announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
   lineLabel: "加入 LINE 詢問",
-  lineUrl: defaultLineUrl
+  lineUrl: defaultLineUrl,
+  productCategories: defaultProductCategories
 };
 
 let language = localStorage.getItem("sige3c-lang") || "zh";
@@ -432,6 +449,7 @@ let particles = [];
 let currentOffers = defaultOffers;
 let currentProducts = defaultProducts;
 let currentSettings = defaultSettings;
+let currentProductCategories = defaultProductCategories;
 let activeCategory = "all";
 let selectedProductOptions = {};
 let cart = JSON.parse(localStorage.getItem("sige3c-cart") || "[]");
@@ -466,18 +484,56 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-function effectivePrice(product) {
-  const price = Number(product.price || 0);
-  const salePrice = product.salePrice ?? product.sale_price;
+function variantPricesFor(product) {
+  const value = product.variantPrices ?? product.variant_prices;
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {}
+  return [];
+}
+
+function matchingVariant(product, options = {}) {
+  const variants = variantPricesFor(product).map((variant) => ({
+    color: String(variant.color || "").trim(),
+    model: String(variant.model || "").trim(),
+    spec: String(variant.spec || "").trim(),
+    price: Number(variant.price || 0),
+    salePrice: variant.salePrice ?? variant.sale_price
+  })).filter((variant) => variant.price > 0);
+
+  return variants
+    .filter((variant) => {
+      return (!variant.color || variant.color === options.color)
+        && (!variant.model || variant.model === options.model)
+        && (!variant.spec || variant.spec === options.spec);
+    })
+    .sort((a, b) => {
+      const score = (variant) => Number(Boolean(variant.color)) + Number(Boolean(variant.model)) + Number(Boolean(variant.spec));
+      return score(b) - score(a);
+    })[0] || null;
+}
+
+function regularPrice(product, options = {}) {
+  const variant = matchingVariant(product, options);
+  return Number(variant?.price || product.price || 0);
+}
+
+function effectivePrice(product, options = {}) {
+  const variant = matchingVariant(product, options);
+  const price = regularPrice(product, options);
+  const salePrice = variant ? (variant.salePrice ?? variant.sale_price) : (product.salePrice ?? product.sale_price);
   const normalizedSale = salePrice === "" || salePrice === null || salePrice === undefined
     ? 0
     : Number(salePrice || 0);
   return normalizedSale > 0 && normalizedSale < price ? normalizedSale : price;
 }
 
-function discountPercent(product) {
-  const price = Number(product.price || 0);
-  const finalPrice = effectivePrice(product);
+function discountPercent(product, options = {}) {
+  const price = regularPrice(product, options);
+  const finalPrice = effectivePrice(product, options);
   if (!price || finalPrice >= price) return 0;
   return Math.max(1, Math.round((1 - finalPrice / price) * 100));
 }
@@ -490,6 +546,48 @@ function ensureArray(value) {
     if (Array.isArray(parsed)) return parsed.filter(Boolean);
   } catch {}
   return String(value).split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+}
+
+function normalizeProductCategories(value) {
+  const seen = new Set();
+  const categories = ensureArray(value).map((item) => {
+    if (typeof item === "string") {
+      const [id = "", label = "", labelEn = ""] = item.split("|").map((part) => part.trim());
+      return { id, label: label || id, labelEn };
+    }
+
+    return {
+      id: String(item.id || item.value || "").trim(),
+      label: String(item.label || item.name || item.id || "").trim(),
+      labelEn: String(item.labelEn || item.label_en || "").trim()
+    };
+  }).filter((item) => {
+    if (!item.id || !item.label || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+
+  return categories.length ? categories : defaultProductCategories;
+}
+
+function categoryLabel(category) {
+  const matched = currentProductCategories.find((item) => item.id === category);
+  if (!matched) return category;
+  return language === "en" ? (matched.labelEn || matched.label) : matched.label;
+}
+
+function renderCategoryTabs() {
+  if (!categoryTabs) return;
+  const hasActiveCategory = activeCategory === "all" || currentProductCategories.some((item) => item.id === activeCategory);
+  if (!hasActiveCategory) activeCategory = "all";
+
+  const tabs = [
+    `<button type="button" class="${activeCategory === "all" ? "is-active" : ""}" data-category="all">${translations[language].catAll}</button>`,
+    ...currentProductCategories.map((category) => (
+      `<button type="button" class="${activeCategory === category.id ? "is-active" : ""}" data-category="${escapeHtml(category.id)}">${escapeHtml(categoryLabel(category.id))}</button>`
+    ))
+  ];
+  categoryTabs.innerHTML = tabs.join("");
 }
 
 function addOnsFor(product) {
@@ -563,6 +661,7 @@ function addonsSubtotal(addOns = []) {
 
 function renderSettings(settings = currentSettings) {
   currentSettings = { ...defaultSettings, ...(settings || {}) };
+  currentProductCategories = normalizeProductCategories(currentSettings.productCategories || currentSettings.product_categories);
   const active = Number(currentSettings.announcementActive ?? currentSettings.announcement_active ?? 1) === 1;
   if (announcement) announcement.hidden = !active;
   if (announcementTitle) announcementTitle.textContent = currentSettings.announcementTitle || currentSettings.announcement_title || defaultSettings.announcementTitle;
@@ -577,6 +676,8 @@ function renderSettings(settings = currentSettings) {
   lineLabels.forEach((label) => {
     label.textContent = lineLabel;
   });
+  renderCategoryTabs();
+  renderProducts(currentProducts);
 }
 
 function applyLanguage(nextLanguage) {
@@ -593,6 +694,7 @@ function applyLanguage(nextLanguage) {
   if (langToggle) langToggle.textContent = language === "zh" ? "EN" : "中";
   if (chatBubble) chatBubble.textContent = chatLines[language][chatIndex % chatLines[language].length];
   renderOffers(currentOffers);
+  renderCategoryTabs();
   renderSettings(currentSettings);
   renderProducts(currentProducts);
   renderCart();
@@ -632,16 +734,12 @@ function renderOffers(offers) {
 }
 
 function categoryName(category) {
-  const labels = {
-    cable: translations[language].shopCatCable,
-    charger: translations[language].shopCatCharger,
-    powerbank: translations[language].shopCatPowerbank
-  };
-  return labels[category] || category;
+  return categoryLabel(category);
 }
 
 function renderProducts(products = currentProducts) {
   if (!productList) return;
+  renderCategoryTabs();
   currentProducts = products?.length ? products : defaultProducts;
   const visibleProducts = currentProducts.filter((product) => {
     const isActive = product.active === undefined || Number(product.active) === 1;
@@ -650,13 +748,13 @@ function renderProducts(products = currentProducts) {
 
   productList.innerHTML = visibleProducts.map((product, index) => {
     const stock = Number(product.stock || 0);
-    const price = Number(product.price || 0);
-    const finalPrice = effectivePrice(product);
-    const discount = discountPercent(product);
     const disabled = stock <= 0 ? "disabled" : "";
     const buttonText = stock <= 0 ? translations[language].soldOut : translations[language].addToCart;
     const image = productImage(product);
     const selection = productSelection(product);
+    const price = regularPrice(product, selection);
+    const finalPrice = effectivePrice(product, selection);
+    const discount = discountPercent(product, selection);
     const groups = optionGroups(product);
     const addOns = addOnsFor(product);
     const gallery = [...new Set([image, ...ensureArray(product.gallery).map(imageSrc)].filter(Boolean))];
@@ -764,7 +862,7 @@ function addToCart(productId, card) {
   const selectedAddOns = card
     ? [...card.querySelectorAll("[data-addon-index]:checked")].map((input) => allAddOns[Number(input.dataset.addonIndex)]).filter(Boolean)
     : [];
-  const basePrice = effectivePrice(product);
+  const basePrice = effectivePrice(product, options);
   const unitPrice = basePrice + addonsSubtotal(selectedAddOns);
   const key = itemKey(product.id, options, selectedAddOns);
   const existing = cart.find((item) => item.key === key);
@@ -777,7 +875,7 @@ function addToCart(productId, card) {
       name: product.name,
       price: unitPrice,
       basePrice,
-      originalPrice: Number(product.price || 0),
+      originalPrice: regularPrice(product, options),
       options,
       addOns: selectedAddOns,
       quantity: 1
@@ -818,9 +916,7 @@ productList?.addEventListener("click", (event) => {
       ...(selectedProductOptions[productId] || {}),
       [group.dataset.optionGroup]: optionButton.dataset.optionValue
     };
-    group.querySelectorAll("[data-option-value]").forEach((button) => {
-      button.classList.toggle("is-active", button === optionButton);
-    });
+    renderProducts(currentProducts);
     return;
   }
 
