@@ -513,6 +513,9 @@ function addOnsFor(product) {
 function imageSrc(value) {
   const src = String(value || "").trim();
   if (!src) return "";
+  if (src.startsWith("./api/image") || src.startsWith("/api/image")) return src;
+  if (src.startsWith("api/image")) return `./${src}`;
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:")) return src;
   if (src.startsWith("products/")) return `./api/image?key=${encodeURIComponent(src)}`;
   return src;
 }
@@ -656,7 +659,7 @@ function renderProducts(products = currentProducts) {
     const selection = productSelection(product);
     const groups = optionGroups(product);
     const addOns = addOnsFor(product);
-    const gallery = ensureArray(product.gallery).map(imageSrc);
+    const gallery = [...new Set([image, ...ensureArray(product.gallery).map(imageSrc)].filter(Boolean))];
     return `
       <article class="product-card reveal-card is-visible" data-product-card="${product.id}" style="--delay:${index * 60}ms">
         <div class="product-image">
@@ -825,6 +828,21 @@ productList?.addEventListener("click", (event) => {
   if (!button) return;
   addToCart(button.dataset.addProduct, button.closest("[data-product-card]"));
 });
+
+productList?.addEventListener("error", (event) => {
+  const image = event.target.closest("img");
+  if (!image) return;
+  const thumbList = image.closest(".product-thumbs");
+  if (thumbList) {
+    image.remove();
+    return;
+  }
+  const imageBox = image.closest(".product-image");
+  if (imageBox) {
+    imageBox.classList.add("is-empty");
+    image.remove();
+  }
+}, true);
 
 cartToggle?.addEventListener("click", () => {
   cartPanel.hidden = false;

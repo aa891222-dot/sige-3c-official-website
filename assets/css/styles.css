@@ -1846,6 +1846,8 @@ img { display: block; max-width: 100%; }
   border-radius: 8px;
   min-height: 18rem;
   padding: clamp(1.2rem, 2vw, 1.7rem);
+  display: flex;
+  flex-direction: column;
   background:
     linear-gradient(135deg, rgba(255, 38, 56, .11), transparent 38%),
     rgba(255,255,255,.055);
@@ -1853,9 +1855,10 @@ img { display: block; max-width: 100%; }
 }
 
 .product-image {
+  position: relative;
   display: grid;
   place-items: center;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   width: 100%;
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 8px;
@@ -1869,27 +1872,38 @@ img { display: block; max-width: 100%; }
 .product-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: .55rem;
+  background: rgba(255,255,255,.035);
 }
 
-.product-image span {
+.product-image span,
+.product-image.is-empty::before {
+  content: "SIGE 3C";
   color: var(--gold);
   font-size: 1.4rem;
   font-weight: 950;
 }
 
 .product-thumbs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 3.1rem);
   gap: .4rem;
   margin: -.35rem 0 .75rem;
 }
 
+.product-thumbs:empty {
+  display: none;
+}
+
 .product-thumbs img {
-  width: 3rem;
-  height: 3rem;
+  width: 3.1rem;
+  height: 3.1rem;
   border: 1px solid var(--line);
   border-radius: 6px;
-  object-fit: cover;
+  object-fit: contain;
+  padding: .15rem;
+  background: rgba(255,255,255,.04);
 }
 
 .product-card h3 {
@@ -1996,6 +2010,10 @@ img { display: block; max-width: 100%; }
   justify-content: space-between;
   gap: 1rem;
   margin: 1.1rem 0;
+}
+
+.product-card > .secondary-button {
+  margin-top: auto;
 }
 
 .price-row {

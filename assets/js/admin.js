@@ -108,6 +108,10 @@ function readLines(value) {
   return String(value || "").split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
 }
 
+function uniqueLines(lines) {
+  return [...new Set(lines.map((line) => String(line || "").trim()).filter(Boolean))];
+}
+
 function readAddOns(value) {
   return readLines(value).map((line) => {
     const [name, price = "0"] = line.split("|").map((item) => item.trim());
@@ -468,10 +472,10 @@ productFields?.addEventListener("change", async (event) => {
     if (mode === "main") {
       imageUrlInput.value = urls[0];
       const galleryLines = readLines(galleryInput.value);
-      if (!galleryLines.includes(urls[0])) galleryInput.value = [urls[0], ...galleryLines].join("\n");
+      galleryInput.value = uniqueLines([urls[0], ...galleryLines]).join("\n");
     } else {
       const galleryLines = readLines(galleryInput.value);
-      galleryInput.value = [...galleryLines, ...urls].filter(Boolean).join("\n");
+      galleryInput.value = uniqueLines([...galleryLines, ...urls]).join("\n");
       if (!imageUrlInput.value && urls[0]) imageUrlInput.value = urls[0];
     }
 
