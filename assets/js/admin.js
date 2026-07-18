@@ -186,8 +186,14 @@ function parseMoneyToken(value) {
   return normalized ? Number(normalized) : 0;
 }
 
+function looksLikeSpecToken(value) {
+  const text = String(value || "").trim().toLowerCase();
+  return /\d/.test(text) && /(cm|公分|厘米|mm|毫米|mah|w|瓦|米|公尺|m$)/i.test(text);
+}
+
 function looksLikeMoney(value) {
-  return parseMoneyToken(value) > 0 && /^[^\d]*\d/.test(String(value || ""));
+  const text = String(value || "").trim();
+  return !looksLikeSpecToken(text) && parseMoneyToken(text) > 0 && /^[^\d]*\d/.test(text);
 }
 
 function parseLooseVariantLine(line) {
