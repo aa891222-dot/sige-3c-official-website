@@ -34,6 +34,7 @@ const adMarqueeTexts = [...document.querySelectorAll("[data-ad-marquee-text]")];
 const lineLinks = [...document.querySelectorAll("[data-line-link]")];
 const lineLabels = [...document.querySelectorAll("[data-line-label]")];
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const saveData = navigator.connection?.saveData === true;
 
 const googleReviewUrl = "https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96";
 const googleMapUrl = "https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic";
@@ -471,13 +472,14 @@ let particleFrame = 0;
 let scrollFrame = 0;
 let promoIndex = 0;
 let promoTimer = 0;
+let promoInView = false;
 
 menuButton?.addEventListener("click", () => {
   body.classList.toggle("menu-open");
 });
 
 function useHeavyEffects() {
-  return !reduceMotion && window.innerWidth >= 920;
+  return !reduceMotion && !saveData && window.innerWidth >= 1100;
 }
 
 function applyPerformanceMode() {
@@ -786,11 +788,20 @@ function updatePromoCarousel() {
 function startPromoAutoplay() {
   window.clearInterval(promoTimer);
   const slideCount = promoTrack?.querySelectorAll(".promo-slide").length || 0;
-  if (reduceMotion || slideCount <= 1) return;
+  if (reduceMotion || !promoInView || slideCount <= 1) return;
   promoTimer = window.setInterval(() => {
     promoIndex += 1;
     updatePromoCarousel();
   }, 5200);
+}
+
+function schedulePromoRender(products = currentProducts) {
+  const run = () => renderPromoCarousel(products);
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(run, { timeout: 1400 });
+    return;
+  }
+  window.setTimeout(run, 260);
 }
 
 function renderPromoCarousel(products = currentProducts) {
@@ -824,7 +835,7 @@ function renderPromoCarousel(products = currentProducts) {
           <a class="primary-button pulse-button" href="#shop">查看線上商品</a>
         </div>
         <div class="promo-visual">
-          <img src="${escapeHtml(image)}" alt="${escapeHtml(product.name || "四哥3C 精選商品")}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async" />
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(product.name || "四哥3C 精選商品")}" loading="lazy" decoding="async" />
         </div>
       </article>
     `;
@@ -939,7 +950,6 @@ function renderSettings(settings = currentSettings) {
   lineLabels.forEach((label) => {
     label.textContent = lineLabel;
   });
-  renderPromoCarousel(currentProducts);
   renderProducts(currentProducts);
 }
 
@@ -1354,7 +1364,7 @@ async function loadProducts() {
   } catch {
     renderProducts(defaultProducts);
   }
-  renderPromoCarousel(currentProducts);
+  schedulePromoRender(currentProducts);
   renderCart();
 }
 
@@ -1389,11 +1399,11 @@ function resizeCanvas() {
     return;
   }
   canvas.hidden = false;
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
   canvas.width = Math.floor(canvas.clientWidth * ratio);
   canvas.height = Math.floor(canvas.clientHeight * ratio);
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  particles = Array.from({ length: Math.min(42, Math.floor(window.innerWidth / 34)) }, () => ({
+  particles = Array.from({ length: Math.min(18, Math.floor(window.innerWidth / 84)) }, () => ({
     x: Math.random() * canvas.clientWidth,
     y: Math.random() * canvas.clientHeight,
     speed: 0.18 + Math.random() * 0.45,
@@ -1452,11 +1462,29 @@ function setupReveal() {
 
   document.querySelectorAll("[data-stagger]").forEach((group) => {
     [...group.children].forEach((child, index) => {
-      child.style.setProperty("--delay", `${index * 80}ms`);
+      child.style.setProperty("--delay", `${index * 45}ms`);
     });
   });
 
   cards.forEach((card) => observer.observe(card));
+}
+
+function setupPromoVisibility() {
+  if (!promoCarousel) return;
+  if (!("IntersectionObserver" in window)) {
+    promoInView = true;
+    startPromoAutoplay();
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    promoInView = entries.some((entry) => entry.isIntersecting);
+    if (promoInView) {
+      startPromoAutoplay();
+      return;
+    }
+    window.clearInterval(promoTimer);
+  }, { rootMargin: "180px 0px" });
+  observer.observe(promoCarousel);
 }
 
 reviewForm?.addEventListener("submit", (event) => {
@@ -1485,13 +1513,14 @@ document.querySelectorAll("[data-facebook-link]").forEach((link) => {
   link.href = facebookUrl;
 });
 
-resizeCanvas();
 setupReveal();
+setupPromoVisibility();
 applyLanguage(language);
 loadOffers();
 loadProducts();
 loadSettings();
 updateScrollHud();
+window.setTimeout(resizeCanvas, 420);
 
 window.addEventListener("resize", resizeCanvas);
 window.addEventListener("scroll", requestScrollHudUpdate, { passive: true });
