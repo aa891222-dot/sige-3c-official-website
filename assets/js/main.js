@@ -9,6 +9,11 @@ const progressBar = document.querySelector("[data-scroll-progress]");
 const reviewForm = document.querySelector("[data-review-form]");
 const thankYou = document.querySelector("[data-thank-you]");
 const closeThankYou = document.querySelector("[data-close-thank-you]");
+const promoCarousel = document.querySelector("[data-promo-carousel]");
+const promoTrack = document.querySelector("[data-promo-track]");
+const promoPrev = document.querySelector("[data-promo-prev]");
+const promoNext = document.querySelector("[data-promo-next]");
+const promoDots = document.querySelector("[data-promo-dots]");
 const productList = document.querySelector("[data-product-list]");
 const categoryTabs = document.querySelector("[data-category-tabs]");
 const cartPanel = document.querySelector("[data-cart-panel]");
@@ -464,6 +469,8 @@ let pointerFrame = 0;
 let pendingPointer = null;
 let particleFrame = 0;
 let scrollFrame = 0;
+let promoIndex = 0;
+let promoTimer = 0;
 
 menuButton?.addEventListener("click", () => {
   body.classList.toggle("menu-open");
@@ -745,6 +752,93 @@ function productQuantityDealLabel(product) {
   return deal ? `任選 ${deal.quantity} 件 ${money.format(deal.price)}` : "";
 }
 
+function promoProducts(products = currentProducts) {
+  const active = (products || []).filter((product) => {
+    return (product.active === undefined || Number(product.active) === 1) && productImage(product);
+  });
+  const byFeaturedOrder = (a, b) => {
+    const orderA = Number(a.featuredOrder ?? a.featured_order ?? 0) || 9999;
+    const orderB = Number(b.featuredOrder ?? b.featured_order ?? 0) || 9999;
+    return orderA - orderB || Number(a.id || 0) - Number(b.id || 0);
+  };
+  const featured = active
+    .filter((product) => Number(product.featured ?? product.carouselFeatured ?? product.carousel_featured ?? 0) === 1)
+    .sort(byFeaturedOrder);
+  return (featured.length ? featured : (active.length ? active.sort(byFeaturedOrder) : defaultProducts)).slice(0, 6);
+}
+
+function updatePromoCarousel() {
+  if (!promoTrack) return;
+  const slides = [...promoTrack.querySelectorAll(".promo-slide")];
+  if (!slides.length) return;
+  promoIndex = (promoIndex + slides.length) % slides.length;
+  promoTrack.style.transform = `translateX(${-promoIndex * 100}%)`;
+  slides.forEach((slide, index) => {
+    slide.classList.toggle("is-active", index === promoIndex);
+    slide.setAttribute("aria-hidden", index === promoIndex ? "false" : "true");
+  });
+  promoDots?.querySelectorAll("button").forEach((dot, index) => {
+    dot.classList.toggle("is-active", index === promoIndex);
+    dot.setAttribute("aria-current", index === promoIndex ? "true" : "false");
+  });
+}
+
+function startPromoAutoplay() {
+  window.clearInterval(promoTimer);
+  const slideCount = promoTrack?.querySelectorAll(".promo-slide").length || 0;
+  if (reduceMotion || slideCount <= 1) return;
+  promoTimer = window.setInterval(() => {
+    promoIndex += 1;
+    updatePromoCarousel();
+  }, 5200);
+}
+
+function renderPromoCarousel(products = currentProducts) {
+  if (!promoCarousel || !promoTrack) return;
+  const slides = promoProducts(products);
+  if (!slides.length) {
+    promoCarousel.hidden = true;
+    return;
+  }
+
+  promoCarousel.hidden = false;
+  if (promoIndex >= slides.length) promoIndex = 0;
+  promoTrack.innerHTML = slides.map((product, index) => {
+    const selection = productSelection(product);
+    const price = regularPrice(product, selection);
+    const finalPrice = effectivePrice(product, selection);
+    const discount = discountPercent(product, selection);
+    const image = productImage(product);
+    const deal = productQuantityDealLabel(product);
+    return `
+      <article class="promo-slide ${index === promoIndex ? "is-active" : ""}" aria-hidden="${index === promoIndex ? "false" : "true"}">
+        <div class="promo-copy">
+          <p class="eyebrow">${escapeHtml(categoryName(product.category))}</p>
+          <h2>${escapeHtml(product.name || "四哥3C 精選商品")}</h2>
+          <p>${escapeHtml(product.description || "精選手機配件，歡迎線上預訂或加官方 LINE 詢問。")}</p>
+          ${deal ? `<span class="promo-deal">${escapeHtml(deal)}</span>` : ""}
+          <div class="promo-price">
+            <strong>${money.format(finalPrice)}</strong>
+            ${discount ? `<s>${money.format(price)}</s><em>優惠 -${discount}%</em>` : ""}
+          </div>
+          <a class="primary-button pulse-button" href="#shop">查看線上商品</a>
+        </div>
+        <div class="promo-visual">
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(product.name || "四哥3C 精選商品")}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async" />
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  if (promoDots) {
+    promoDots.innerHTML = slides.map((_, index) => (
+      `<button type="button" class="${index === promoIndex ? "is-active" : ""}" data-promo-dot="${index}" aria-label="第 ${index + 1} 張商品"></button>`
+    )).join("");
+  }
+  updatePromoCarousel();
+  startPromoAutoplay();
+}
+
 function imageSrc(value) {
   const src = String(value || "").trim();
   if (!src) return "";
@@ -845,6 +939,7 @@ function renderSettings(settings = currentSettings) {
   lineLabels.forEach((label) => {
     label.textContent = lineLabel;
   });
+  renderPromoCarousel(currentProducts);
   renderProducts(currentProducts);
 }
 
@@ -935,7 +1030,7 @@ function renderProducts(products = currentProducts) {
         <h3>${escapeHtml(product.name)}</h3>
         <small class="product-sku">${translations[language].productCode}：${escapeHtml(product.sku || "")}</small>
         <p>${escapeHtml(product.description || "")}</p>
-        ${quantityDeal ? `<div class="quantity-deal-row">${escapeHtml(quantityDeal)}</div>` : ""}
+        ${quantityDeal ? `<div class="quantity-deal-row" data-quantity-deal>${escapeHtml(quantityDeal)}</div>` : ""}
         ${groups.length ? `
           <div class="product-options">
             <strong>${translations[language].chooseOptions}</strong>
@@ -977,6 +1072,35 @@ function renderProducts(products = currentProducts) {
       <p>新品整理中，請再等等。也可以先加官方 LINE 詢問。</p>
     </article>
   `;
+}
+
+function updateProductCardPricing(card, product) {
+  if (!card || !product) return;
+  const selection = productSelection(product);
+  const price = regularPrice(product, selection);
+  const finalPrice = effectivePrice(product, selection);
+  const discount = discountPercent(product, selection);
+  const priceRow = card.querySelector(".price-row");
+  if (priceRow) {
+    priceRow.innerHTML = `
+      <strong>${money.format(finalPrice)}</strong>
+      ${discount ? `<s>${money.format(price)}</s><em>${translations[language].saleLabel} -${discount}%</em>` : ""}
+    `;
+  }
+
+  const quantityDeal = productQuantityDealLabel(product);
+  let dealRow = card.querySelector("[data-quantity-deal]");
+  if (quantityDeal && !dealRow) {
+    dealRow = document.createElement("div");
+    dealRow.className = "quantity-deal-row";
+    dealRow.dataset.quantityDeal = "";
+    const anchor = card.querySelector(".product-options, .add-on-group, .product-meta");
+    card.insertBefore(dealRow, anchor || null);
+  }
+  if (dealRow) {
+    dealRow.textContent = quantityDeal;
+    dealRow.hidden = !quantityDeal;
+  }
 }
 
 function saveCart() {
@@ -1080,6 +1204,29 @@ categoryTabs?.addEventListener("click", (event) => {
   renderProducts(currentProducts);
 });
 
+promoPrev?.addEventListener("click", () => {
+  promoIndex -= 1;
+  updatePromoCarousel();
+  startPromoAutoplay();
+});
+
+promoNext?.addEventListener("click", () => {
+  promoIndex += 1;
+  updatePromoCarousel();
+  startPromoAutoplay();
+});
+
+promoDots?.addEventListener("click", (event) => {
+  const dot = event.target.closest("[data-promo-dot]");
+  if (!dot) return;
+  promoIndex = Number(dot.dataset.promoDot || 0);
+  updatePromoCarousel();
+  startPromoAutoplay();
+});
+
+promoCarousel?.addEventListener("mouseenter", () => window.clearInterval(promoTimer));
+promoCarousel?.addEventListener("mouseleave", startPromoAutoplay);
+
 productList?.addEventListener("click", (event) => {
   const optionButton = event.target.closest("[data-option-value]");
   if (optionButton) {
@@ -1095,13 +1242,12 @@ productList?.addEventListener("click", (event) => {
       ...(selectedProductOptions[productId] || {}),
       [group.dataset.optionGroup]: optionButton.dataset.optionValue
     };
-    renderProducts(currentProducts);
-    const restoreScroll = () => window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "auto" });
-    restoreScroll();
-    requestAnimationFrame(() => {
-      restoreScroll();
-      requestAnimationFrame(restoreScroll);
+    group.querySelectorAll("[data-option-value]").forEach((button) => {
+      button.classList.toggle("is-active", button === optionButton);
     });
+    const product = currentProducts.find((item) => Number(item.id) === Number(productId));
+    updateProductCardPricing(card, product);
+    window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "auto" });
     return;
   }
 
@@ -1208,6 +1354,7 @@ async function loadProducts() {
   } catch {
     renderProducts(defaultProducts);
   }
+  renderPromoCarousel(currentProducts);
   renderCart();
 }
 

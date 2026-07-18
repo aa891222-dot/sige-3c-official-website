@@ -363,6 +363,11 @@ function productRow(product, index) {
         <input data-product-field="active" type="checkbox" ${Number(product.active ?? 1) === 1 ? "checked" : ""} />
         <span>上架顯示</span>
       </label>
+      <label class="admin-checkbox">
+        <input data-product-field="featured" type="checkbox" ${Number(product.featured ?? product.carouselFeatured ?? product.carousel_featured ?? 0) === 1 ? "checked" : ""} />
+        <span>首頁輪播顯示</span>
+      </label>
+      <label><span>輪播排序</span><input data-product-field="featuredOrder" type="number" min="0" step="1" value="${Number(product.featuredOrder ?? product.featured_order ?? 0)}" placeholder="例：1" /></label>
       <label><span>主圖片網址</span><input data-product-field="imageUrl" value="${escapeHtml(product.imageUrl || product.image_url || "")}" placeholder="./assets/images/product.jpg" /></label>
       <label class="product-admin-upload">
         <span>上傳主圖片到 R2</span>
@@ -412,7 +417,9 @@ function readProductRows() {
       variantPrices: readVariantPrices(read("variantPrices").value),
       quantityDeals: readQuantityDeals(read("quantityDeals").value),
       addOns: readAddOns(read("addOns").value),
-      active: read("active").checked ? 1 : 0
+      active: read("active").checked ? 1 : 0,
+      featured: read("featured").checked ? 1 : 0,
+      featuredOrder: Number(read("featuredOrder").value || 0)
     };
   });
 }
@@ -602,7 +609,9 @@ addProductRow?.addEventListener("click", () => {
     quantityDeals: [],
     addOns: [],
     description: "",
-    active: 0
+    active: 0,
+    featured: 0,
+    featuredOrder: 0
   });
   renderProducts(rows);
 });

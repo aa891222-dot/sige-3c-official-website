@@ -266,7 +266,9 @@ function normalizeProduct(row) {
     variantPrices: parseJsonArray(row.variant_prices, fallback.variantPrices || []),
     quantityDeals: parseJsonArray(row.quantity_deals, fallback.quantityDeals || []),
     addOns: parseJsonArray(row.add_ons, fallback.addOns || []),
-    active: Number(row.active ?? 1)
+    active: Number(row.active ?? 1),
+    featured: Number(row.featured ?? fallback.featured ?? 0),
+    featuredOrder: Number(row.featured_order ?? fallback.featuredOrder ?? 0)
   };
 }
 
@@ -291,6 +293,8 @@ function sanitizeProduct(product, fallbackId) {
   const quantityDeals = cleanQuantityDeals(product.quantityDeals ?? product.quantity_deals).slice(0, 12);
   const addOns = cleanAddOns(product.addOns ?? product.add_ons).slice(0, 12);
   const active = product.active === false || Number(product.active) === 0 ? 0 : 1;
+  const featured = product.featured === true || Number(product.featured ?? product.carouselFeatured ?? product.carousel_featured ?? 0) === 1 ? 1 : 0;
+  const featuredOrder = Math.max(0, Math.round(Number(product.featuredOrder ?? product.featured_order ?? 0)));
 
   if (!id || !sku || !name || !category || !price) {
     throw new Error("商品資料不完整，請確認 SKU、名稱、分類與原價。");
@@ -313,7 +317,9 @@ function sanitizeProduct(product, fallbackId) {
     variantPrices,
     quantityDeals,
     addOns,
-    active
+    active,
+    featured,
+    featuredOrder
   };
 }
 
@@ -337,6 +343,8 @@ async function ensureProductSchema(env) {
       quantity_deals TEXT NOT NULL DEFAULT '[]',
       add_ons TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
+      featured INTEGER NOT NULL DEFAULT 0,
+      featured_order INTEGER NOT NULL DEFAULT 0,
       deleted_at TEXT,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -357,6 +365,8 @@ async function ensureProductSchema(env) {
     ["quantity_deals", "quantity_deals TEXT NOT NULL DEFAULT '[]'"],
     ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"],
     ["active", "active INTEGER NOT NULL DEFAULT 1"],
+    ["featured", "featured INTEGER NOT NULL DEFAULT 0"],
+    ["featured_order", "featured_order INTEGER NOT NULL DEFAULT 0"],
     ["deleted_at", "deleted_at TEXT"],
     ["updated_at", "updated_at TEXT"]
   ];
@@ -373,8 +383,8 @@ async function seedDefaultProducts(env) {
   if (Number(row?.count || 0) > 0) return;
   for (const product of defaultProducts) {
     await env.DB.prepare(`
-      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active, featured, featured_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       product.id,
       product.sku,
@@ -392,7 +402,9 @@ async function seedDefaultProducts(env) {
       JSON.stringify(product.variantPrices || []),
       JSON.stringify(product.quantityDeals || []),
       JSON.stringify(product.addOns || []),
-      product.active
+      product.active,
+      product.featured || 0,
+      product.featuredOrder || 0
     ).run();
   }
 }
@@ -449,8 +461,8 @@ export async function onRequestPut({ request, env }) {
 
     for (const item of items) {
       await env.DB.prepare(`
-        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active, featured, featured_order, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(id) DO UPDATE SET
           sku = excluded.sku,
           name = excluded.name,
@@ -468,6 +480,8 @@ export async function onRequestPut({ request, env }) {
           quantity_deals = excluded.quantity_deals,
           add_ons = excluded.add_ons,
           active = excluded.active,
+          featured = excluded.featured,
+          featured_order = excluded.featured_order,
           deleted_at = NULL,
           updated_at = CURRENT_TIMESTAMP
       `).bind(
@@ -487,7 +501,9 @@ export async function onRequestPut({ request, env }) {
         JSON.stringify(item.variantPrices || []),
         JSON.stringify(item.quantityDeals || []),
         JSON.stringify(item.addOns || []),
-        item.active
+        item.active,
+        item.featured,
+        item.featuredOrder
       ).run();
     }
     return json({ products: await readProducts(env, true) });
