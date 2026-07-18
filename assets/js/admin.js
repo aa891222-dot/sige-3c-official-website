@@ -356,6 +356,7 @@ function productRow(product, index) {
       <label><span>SKU</span><input data-product-field="sku" value="${escapeHtml(product.sku || "")}" required /></label>
       <label><span>商品名稱</span><input data-product-field="name" value="${escapeHtml(product.name || "")}" required /></label>
       <label><span>分類</span><select data-product-field="category">${categoryOptions}</select></label>
+      <label><span>前台排序</span><input data-product-field="displayOrder" type="number" min="0" step="1" value="${Number(product.displayOrder ?? product.display_order ?? index + 1)}" placeholder="例：1" /></label>
       <label><span>原價</span><input data-product-field="price" type="number" min="0" step="1" value="${Number(product.price || 0)}" required /></label>
       <label><span>優惠價</span><input data-product-field="salePrice" type="number" min="0" step="1" value="${salePrice === null ? "" : salePrice}" placeholder="可留空" /></label>
       <label><span>庫存</span><input data-product-field="stock" type="number" min="0" step="1" value="${Number(product.stock || 0)}" required /></label>
@@ -408,6 +409,7 @@ function readProductRows() {
       price: Number(read("price").value || 0),
       salePrice: saleValue ? Number(saleValue) : null,
       stock: Number(read("stock").value || 0),
+      displayOrder: Number(read("displayOrder").value || 0),
       imageUrl: read("imageUrl").value.trim(),
       description: read("description").value.trim(),
       gallery: readLines(read("gallery").value),
@@ -432,7 +434,7 @@ async function loadProducts() {
     if (!response.ok) throw new Error("讀取商品失敗");
     const payload = await response.json();
     renderProducts(payload.products?.length ? payload.products : defaultProducts);
-    setStatus(productStatus, "已載入目前商品。可在此設定原價、優惠價與庫存。");
+    setStatus(productStatus, "已載入目前商品。可設定排序、價格、折扣與庫存。");
   } catch {
     renderProducts(defaultProducts);
     setStatus(productStatus, "目前無法讀取雲端商品，已顯示預設內容。", true);
@@ -466,7 +468,7 @@ async function saveProducts() {
   if (!settingsResponse.ok) throw new Error(settingsPayload.error || "商品種類儲存失敗");
 
   renderProducts(payload.products || nextProducts);
-  setStatus(productStatus, "商品與種類已儲存。前台會顯示最新分類、價格、折扣與庫存。");
+  setStatus(productStatus, "商品與種類已儲存。前台會依排序顯示最新分類、價格、折扣與庫存。");
 }
 
 async function uploadImage(file) {
@@ -600,6 +602,7 @@ addProductRow?.addEventListener("click", () => {
     price: 0,
     salePrice: null,
     stock: 0,
+    displayOrder: rows.length + 1,
     imageUrl: "",
     gallery: [],
     colors: [],

@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS products (
   quantity_deals TEXT NOT NULL DEFAULT '[]',
   add_ons TEXT NOT NULL DEFAULT '[]',
   active INTEGER NOT NULL DEFAULT 1,
+  display_order INTEGER NOT NULL DEFAULT 0,
   featured INTEGER NOT NULL DEFAULT 0,
   featured_order INTEGER NOT NULL DEFAULT 0,
   deleted_at TEXT,

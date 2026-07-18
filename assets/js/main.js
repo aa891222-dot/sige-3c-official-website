@@ -754,6 +754,18 @@ function productQuantityDealLabel(product) {
   return deal ? `任選 ${deal.quantity} 件 ${money.format(deal.price)}` : "";
 }
 
+function productDisplayOrder(product) {
+  const order = Math.round(Number(product.displayOrder ?? product.display_order ?? 0));
+  return order > 0 ? order : 999999;
+}
+
+function sortProductsForDisplay(products = []) {
+  return [...products].sort((a, b) => {
+    return productDisplayOrder(a) - productDisplayOrder(b)
+      || Number(a.id || 0) - Number(b.id || 0);
+  });
+}
+
 function promoProducts(products = currentProducts) {
   const active = (products || []).filter((product) => {
     return (product.active === undefined || Number(product.active) === 1) && productImage(product);
@@ -761,7 +773,7 @@ function promoProducts(products = currentProducts) {
   const byFeaturedOrder = (a, b) => {
     const orderA = Number(a.featuredOrder ?? a.featured_order ?? 0) || 9999;
     const orderB = Number(b.featuredOrder ?? b.featured_order ?? 0) || 9999;
-    return orderA - orderB || Number(a.id || 0) - Number(b.id || 0);
+    return orderA - orderB || productDisplayOrder(a) - productDisplayOrder(b) || Number(a.id || 0) - Number(b.id || 0);
   };
   const featured = active
     .filter((product) => Number(product.featured ?? product.carouselFeatured ?? product.carousel_featured ?? 0) === 1)
@@ -1011,7 +1023,7 @@ function categoryName(category) {
 function renderProducts(products = currentProducts) {
   if (!productList) return;
   renderCategoryTabs();
-  currentProducts = products?.length ? products : defaultProducts;
+  currentProducts = sortProductsForDisplay(products?.length ? products : defaultProducts);
   const visibleProducts = currentProducts.filter((product) => {
     const isActive = product.active === undefined || Number(product.active) === 1;
     return isActive && (activeCategory === "all" || product.category === activeCategory);
