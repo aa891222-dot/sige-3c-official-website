@@ -10,6 +10,9 @@ const defaultSettings = {
   announcementActive: 1,
   announcementTitle: "門市公告",
   announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
+  marqueeActive: 1,
+  marqueeLabel: "暑假限定",
+  marqueeText: "手持風扇優惠準備開跑，炎炎夏日一起涼一下。歡迎加官方 LINE 詢問現貨與活動內容。",
   lineLabel: "加入 LINE 詢問",
   lineUrl: "https://line.me/R/ti/p/@sige3c",
   productCategories: defaultProductCategories
@@ -19,6 +22,9 @@ const keys = {
   announcement_active: "announcementActive",
   announcement_title: "announcementTitle",
   announcement_text: "announcementText",
+  marquee_active: "marqueeActive",
+  marquee_label: "marqueeLabel",
+  marquee_text: "marqueeText",
   line_label: "lineLabel",
   line_url: "lineUrl",
   product_categories: "productCategories"
@@ -92,7 +98,7 @@ async function readSettings(env) {
   for (const row of result.results || []) {
     const mapped = keys[row.key];
     if (!mapped) continue;
-    if (mapped === "announcementActive") {
+    if (mapped === "announcementActive" || mapped === "marqueeActive") {
       settings[mapped] = Number(row.value);
     } else if (mapped === "productCategories") {
       settings[mapped] = sanitizeProductCategories(row.value);
@@ -106,10 +112,13 @@ async function readSettings(env) {
 function sanitizeSettings(settings = {}) {
   return {
     announcementActive: Number(settings.announcementActive ?? settings.announcement_active ?? 1) === 1 ? 1 : 0,
-    announcementTitle: String(settings.announcementTitle || settings.announcement_title || "").trim().slice(0, 80),
-    announcementText: String(settings.announcementText || settings.announcement_text || "").trim().slice(0, 260),
-    lineLabel: String(settings.lineLabel || settings.line_label || "").trim().slice(0, 40),
-    lineUrl: String(settings.lineUrl || settings.line_url || "").trim().slice(0, 320),
+    announcementTitle: String(settings.announcementTitle || settings.announcement_title || defaultSettings.announcementTitle).trim().slice(0, 80),
+    announcementText: String(settings.announcementText || settings.announcement_text || defaultSettings.announcementText).trim().slice(0, 260),
+    marqueeActive: Number(settings.marqueeActive ?? settings.marquee_active ?? 1) === 1 ? 1 : 0,
+    marqueeLabel: String(settings.marqueeLabel || settings.marquee_label || defaultSettings.marqueeLabel).trim().slice(0, 40),
+    marqueeText: String(settings.marqueeText || settings.marquee_text || defaultSettings.marqueeText).trim().slice(0, 220),
+    lineLabel: String(settings.lineLabel || settings.line_label || defaultSettings.lineLabel).trim().slice(0, 40),
+    lineUrl: String(settings.lineUrl || settings.line_url || defaultSettings.lineUrl).trim().slice(0, 320),
     productCategories: sanitizeProductCategories(settings.productCategories ?? settings.product_categories)
   };
 }
@@ -135,8 +144,8 @@ export async function onRequestPut({ request, env }) {
   }
 
   const settings = sanitizeSettings(body.settings || body);
-  if (!settings.announcementTitle || !settings.announcementText || !settings.lineLabel || !settings.lineUrl) {
-    return json({ error: "公告與 LINE 欄位不可空白" }, 400);
+  if (!settings.announcementTitle || !settings.announcementText || !settings.marqueeLabel || !settings.marqueeText || !settings.lineLabel || !settings.lineUrl) {
+    return json({ error: "公告、跑馬燈與 LINE 欄位不可空白" }, 400);
   }
 
   await ensureSettingsSchema(env);
@@ -144,6 +153,9 @@ export async function onRequestPut({ request, env }) {
     ["announcement_active", String(settings.announcementActive)],
     ["announcement_title", settings.announcementTitle],
     ["announcement_text", settings.announcementText],
+    ["marquee_active", String(settings.marqueeActive)],
+    ["marquee_label", settings.marqueeLabel],
+    ["marquee_text", settings.marqueeText],
     ["line_label", settings.lineLabel],
     ["line_url", settings.lineUrl],
     ["product_categories", JSON.stringify(settings.productCategories)]

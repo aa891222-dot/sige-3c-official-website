@@ -29,26 +29,35 @@
       <form class="admin-form admin-wide reveal-card is-visible" data-settings-form>
         <div class="admin-section-title">
           <p class="eyebrow">NOTICE & LINE</p>
-          <h2>公告與 LINE 詢問</h2>
-          <p>這裡會更新首頁公告，以及 LINE 詢問按鈕的文字和連結。</p>
+          <h2>公告、跑馬燈與 LINE 詢問</h2>
+          <p>這裡會更新首頁公告、進站活動跑馬燈，以及 LINE 詢問按鈕的文字和連結。</p>
         </div>
 
         <div class="admin-grid">
           <label><span>公告標題</span><input name="announcementTitle" value="門市公告" required /></label>
+          <label><span>跑馬燈標籤</span><input name="marqueeLabel" value="暑假限定" required /></label>
           <label><span>LINE 按鈕文字</span><input name="lineLabel" value="加入 LINE 詢問" required /></label>
           <label><span>LINE 連結</span><input name="lineUrl" value="https://line.me/R/ti/p/@sige3c" required /></label>
           <label class="admin-checkbox">
             <input name="announcementActive" type="checkbox" checked />
             <span>顯示公告</span>
           </label>
+          <label class="admin-checkbox">
+            <input name="marqueeActive" type="checkbox" checked />
+            <span>顯示跑馬燈</span>
+          </label>
         </div>
         <label>
           <span>公告內容</span>
           <textarea name="announcementText" rows="3" required>歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。</textarea>
         </label>
+        <label>
+          <span>跑馬燈文字</span>
+          <textarea name="marqueeText" rows="3" required>手持風扇優惠準備開跑，炎炎夏日一起涼一下。歡迎加官方 LINE 詢問現貨與活動內容。</textarea>
+        </label>
 
         <div class="admin-actions">
-          <button class="primary-button pulse-button" type="submit">儲存公告與 LINE</button>
+          <button class="primary-button pulse-button" type="submit">儲存公告、跑馬燈與 LINE</button>
         </div>
         <p class="admin-status" data-settings-status aria-live="polite">正在讀取公告設定...</p>
       </form>

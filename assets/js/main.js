@@ -24,6 +24,7 @@ const announcement = document.querySelector("[data-announcement]");
 const announcementTitle = document.querySelector("[data-announcement-title]");
 const announcementText = document.querySelector("[data-announcement-text]");
 const adMarquee = document.querySelector("[data-ad-marquee]");
+const adMarqueeLabels = [...document.querySelectorAll("[data-ad-marquee-label]")];
 const adMarqueeTexts = [...document.querySelectorAll("[data-ad-marquee-text]")];
 const lineLinks = [...document.querySelectorAll("[data-line-link]")];
 const lineLabels = [...document.querySelectorAll("[data-line-label]")];
@@ -441,6 +442,9 @@ const defaultSettings = {
   announcementActive: 1,
   announcementTitle: "門市公告",
   announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
+  marqueeActive: 1,
+  marqueeLabel: "暑假限定",
+  marqueeText: "手持風扇優惠準備開跑，炎炎夏日一起涼一下。歡迎加官方 LINE 詢問現貨與活動內容。",
   lineLabel: "加入 LINE 詢問",
   lineUrl: defaultLineUrl,
   productCategories: defaultProductCategories
@@ -816,14 +820,20 @@ function renderSettings(settings = currentSettings) {
   currentSettings = { ...defaultSettings, ...(settings || {}) };
   currentProductCategories = normalizeProductCategories(currentSettings.productCategories || currentSettings.product_categories);
   const active = Number(currentSettings.announcementActive ?? currentSettings.announcement_active ?? 1) === 1;
+  const marqueeActive = Number(currentSettings.marqueeActive ?? currentSettings.marquee_active ?? 1) === 1;
   const noticeTitle = currentSettings.announcementTitle || currentSettings.announcement_title || defaultSettings.announcementTitle;
   const noticeText = currentSettings.announcementText || currentSettings.announcement_text || defaultSettings.announcementText;
+  const marqueeLabel = currentSettings.marqueeLabel || currentSettings.marquee_label || defaultSettings.marqueeLabel;
+  const marqueeText = currentSettings.marqueeText || currentSettings.marquee_text || defaultSettings.marqueeText;
   if (announcement) announcement.hidden = !active;
-  if (adMarquee) adMarquee.hidden = !active;
+  if (adMarquee) adMarquee.hidden = !marqueeActive;
   if (announcementTitle) announcementTitle.textContent = noticeTitle;
   if (announcementText) announcementText.textContent = noticeText;
+  adMarqueeLabels.forEach((item) => {
+    item.textContent = marqueeLabel;
+  });
   adMarqueeTexts.forEach((item) => {
-    item.textContent = `${noticeTitle}｜${noticeText}`;
+    item.textContent = marqueeText;
   });
 
   const lineUrl = currentSettings.lineUrl || currentSettings.line_url || defaultLineUrl;

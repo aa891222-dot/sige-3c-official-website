@@ -34,6 +34,9 @@ const defaultSettings = {
   announcementActive: 1,
   announcementTitle: "門市公告",
   announcementText: "歡迎加入 LINE 詢問商品庫存、顏色與取貨方式。",
+  marqueeActive: 1,
+  marqueeLabel: "暑假限定",
+  marqueeText: "手持風扇優惠準備開跑，炎炎夏日一起涼一下。歡迎加官方 LINE 詢問現貨與活動內容。",
   lineLabel: "加入 LINE 詢問",
   lineUrl: "https://line.me/R/ti/p/@sige3c",
   productCategories: [
@@ -300,9 +303,12 @@ async function loadOffers() {
 function fillSettings(settings = defaultSettings) {
   settingsForm.elements.announcementTitle.value = settings.announcementTitle || "";
   settingsForm.elements.announcementText.value = settings.announcementText || "";
+  settingsForm.elements.marqueeLabel.value = settings.marqueeLabel || settings.marquee_label || defaultSettings.marqueeLabel;
+  settingsForm.elements.marqueeText.value = settings.marqueeText || settings.marquee_text || defaultSettings.marqueeText;
   settingsForm.elements.lineLabel.value = settings.lineLabel || "";
   settingsForm.elements.lineUrl.value = settings.lineUrl || "";
   settingsForm.elements.announcementActive.checked = Number(settings.announcementActive ?? 1) === 1;
+  settingsForm.elements.marqueeActive.checked = Number(settings.marqueeActive ?? settings.marquee_active ?? 1) === 1;
   setCategories(settings.productCategories || settings.product_categories || categories);
   if (products.length) renderProducts(products);
 }
@@ -311,9 +317,12 @@ function readSettings() {
   return {
     announcementTitle: settingsForm.elements.announcementTitle.value.trim(),
     announcementText: settingsForm.elements.announcementText.value.trim(),
+    marqueeLabel: settingsForm.elements.marqueeLabel.value.trim(),
+    marqueeText: settingsForm.elements.marqueeText.value.trim(),
     lineLabel: settingsForm.elements.lineLabel.value.trim(),
     lineUrl: settingsForm.elements.lineUrl.value.trim(),
     announcementActive: settingsForm.elements.announcementActive.checked ? 1 : 0,
+    marqueeActive: settingsForm.elements.marqueeActive.checked ? 1 : 0,
     productCategories: readCategories(categoryListInput?.value || categoriesText(categories))
   };
 }

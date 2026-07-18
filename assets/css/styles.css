@@ -205,7 +205,7 @@ img { display: block; max-width: 100%; }
   min-height: 100svh;
   isolation: isolate;
   overflow: hidden;
-  padding: 112px clamp(1rem, 4vw, 4.5rem) 112px;
+  padding: 164px clamp(1rem, 4vw, 4.5rem) 112px;
   display: grid;
   align-items: center;
 }
@@ -873,7 +873,7 @@ img { display: block; max-width: 100%; }
   .menu-button { display: block; }
   .hero {
     min-height: 980px;
-    padding: 104px 2rem 150px;
+    padding: 158px 2rem 150px;
   }
   .hero-bg img { object-position: center bottom; }
   .hero-copy {
@@ -923,6 +923,22 @@ img { display: block; max-width: 100%; }
     min-height: 68px;
     padding-inline: 24px 20px;
   }
+  .site-marquee {
+    inset: 68px 20px auto;
+    min-height: 3.85rem;
+  }
+  .site-marquee-label {
+    min-width: 6.35rem;
+    padding: 0 .75rem;
+    font-size: .82rem;
+  }
+  .site-marquee-track {
+    gap: 3rem;
+    animation-duration: 22s;
+  }
+  .site-marquee-track p {
+    font-size: .98rem;
+  }
   .header-actions { gap: .4rem; }
   .icon-button { display: none; }
   .brand-title { font-size: 1.55rem; }
@@ -934,7 +950,7 @@ img { display: block; max-width: 100%; }
   .hero {
     min-height: 1080px;
     min-height: clamp(1000px, 126svh, 1100px);
-    padding: 96px 24px 172px;
+    padding: 150px 24px 172px;
     align-items: start;
     display: block;
     overflow: hidden;
@@ -1807,24 +1823,28 @@ img { display: block; max-width: 100%; }
   margin: 0;
 }
 
-.shop-marquee {
-  position: relative;
+.site-marquee {
+  position: fixed;
+  inset: 76px clamp(1rem, 4vw, 4.5rem) auto;
+  z-index: 48;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  width: min(72rem, calc(100% - 2rem));
-  min-height: 3.2rem;
-  margin: -1.35rem auto 1.5rem;
+  min-height: 4.35rem;
   border: 1px solid rgba(255, 38, 56, .42);
   border-radius: 8px;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(255,38,56,.22), rgba(255,214,10,.07), rgba(255,38,56,.12)),
-    rgba(0,0,0,.62);
-  box-shadow: 0 18px 48px rgba(255,38,56,.12), inset 0 1px 0 rgba(255,255,255,.1);
+    linear-gradient(90deg, rgba(255,38,56,.3), rgba(255,214,10,.1), rgba(255,38,56,.18)),
+    rgba(0,0,0,.8);
+  box-shadow: 0 18px 54px rgba(255,38,56,.2), inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter: blur(18px);
 }
 
-.shop-marquee::before {
+.site-marquee[hidden] {
+  display: none;
+}
+
+.site-marquee::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1832,22 +1852,23 @@ img { display: block; max-width: 100%; }
   background: linear-gradient(90deg, rgba(255,255,255,.08), transparent 22%, transparent 78%, rgba(255,255,255,.08));
 }
 
-.shop-marquee-label {
+.site-marquee-label {
   position: relative;
   z-index: 1;
   align-self: stretch;
   display: grid;
   place-items: center;
-  min-width: 7rem;
-  padding: 0 .95rem;
+  min-width: 8.75rem;
+  padding: 0 1.15rem;
   color: #111;
   background: var(--gold);
-  font-size: .86rem;
+  font-size: 1rem;
   font-weight: 1000;
   letter-spacing: 0;
+  box-shadow: 12px 0 28px rgba(0,0,0,.28);
 }
 
-.shop-marquee-window {
+.site-marquee-window {
   position: relative;
   z-index: 1;
   flex: 1;
@@ -1856,27 +1877,28 @@ img { display: block; max-width: 100%; }
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
 
-.shop-marquee-track {
+.site-marquee-track {
   display: flex;
   align-items: center;
-  gap: 4rem;
+  gap: 5rem;
   width: max-content;
-  animation: shop-marquee 24s linear infinite;
+  animation: site-marquee 28s linear infinite;
   will-change: transform;
 }
 
-.shop-marquee-track p {
+.site-marquee-track p {
   margin: 0;
   color: rgba(255,255,255,.9);
-  font-size: .98rem;
+  font-size: clamp(1.05rem, 1.5vw, 1.28rem);
   line-height: 1.4;
-  font-weight: 850;
+  font-weight: 950;
   white-space: nowrap;
+  text-shadow: 0 0 18px rgba(255,38,56,.25);
 }
 
-@keyframes shop-marquee {
+@keyframes site-marquee {
   from { transform: translateX(0); }
-  to { transform: translateX(calc(-50% - 2rem)); }
+  to { transform: translateX(calc(-50% - 2.5rem)); }
 }
 
 .shop-toolbar {
@@ -2570,6 +2592,28 @@ img { display: block; max-width: 100%; }
   .announcement-card {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+@media (max-width: 780px) {
+  .site-marquee {
+    inset: 68px 20px auto;
+    min-height: 3.85rem;
+  }
+
+  .site-marquee-label {
+    min-width: 6.35rem;
+    padding: 0 .75rem;
+    font-size: .82rem;
+  }
+
+  .site-marquee-track {
+    gap: 3rem;
+    animation-duration: 22s;
+  }
+
+  .site-marquee-track p {
+    font-size: .98rem;
   }
 }
 
