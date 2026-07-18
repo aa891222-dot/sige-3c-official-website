@@ -4,7 +4,7 @@ const langToggle = document.querySelector("[data-lang-toggle]");
 const chatBubble = document.querySelector("[data-chat-bubble]");
 const layers = [...document.querySelectorAll(".layer")];
 const canvas = document.querySelector("[data-particles]");
-const ctx = canvas.getContext("2d");
+const ctx = canvas?.getContext("2d");
 const progressBar = document.querySelector("[data-scroll-progress]");
 const reviewForm = document.querySelector("[data-review-form]");
 const thankYou = document.querySelector("[data-thank-you]");
@@ -25,6 +25,7 @@ const announcementTitle = document.querySelector("[data-announcement-title]");
 const announcementText = document.querySelector("[data-announcement-text]");
 const lineLinks = [...document.querySelectorAll("[data-line-link]")];
 const lineLabels = [...document.querySelectorAll("[data-line-label]")];
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const googleReviewUrl = "https://www.google.com/search?q=%E5%9B%9B%E5%93%A53C%20%E6%89%8B%E6%A9%9F%E9%85%8D%E4%BB%B6%20%E8%A9%95%E8%AB%96";
 const googleMapUrl = "https://maps.app.goo.gl/wZMD5sJQXV1rrDbW6?g_st=ic";
@@ -453,20 +454,39 @@ let currentProductCategories = defaultProductCategories;
 let activeCategory = "all";
 let selectedProductOptions = {};
 let cart = JSON.parse(localStorage.getItem("sige3c-cart") || "[]");
+let pointerFrame = 0;
+let pendingPointer = null;
+let particleFrame = 0;
+let scrollFrame = 0;
 
 menuButton?.addEventListener("click", () => {
   body.classList.toggle("menu-open");
 });
 
+function useHeavyEffects() {
+  return !reduceMotion && window.innerWidth >= 920;
+}
+
+function applyPerformanceMode() {
+  body.classList.toggle("performance-lite", !useHeavyEffects());
+}
+
 document.addEventListener("pointermove", (event) => {
-  const x = (event.clientX / window.innerWidth - 0.5) * 2;
-  const y = (event.clientY / window.innerHeight - 0.5) * 2;
-  layers.forEach((layer) => {
-    const depth = Number(layer.dataset.depth || 0);
-    layer.style.setProperty("--mx", `${x * depth * 28}px`);
-    layer.style.setProperty("--my", `${y * depth * 20}px`);
+  if (!useHeavyEffects()) return;
+  pendingPointer = { x: event.clientX, y: event.clientY };
+  if (pointerFrame) return;
+
+  pointerFrame = requestAnimationFrame(() => {
+    const x = (pendingPointer.x / window.innerWidth - 0.5) * 2;
+    const y = (pendingPointer.y / window.innerHeight - 0.5) * 2;
+    layers.forEach((layer) => {
+      const depth = Number(layer.dataset.depth || 0);
+      layer.style.setProperty("--mx", `${x * depth * 18}px`);
+      layer.style.setProperty("--my", `${y * depth * 13}px`);
+    });
+    pointerFrame = 0;
   });
-});
+}, { passive: true });
 
 function textFor(value) {
   if (!value) return "";
@@ -482,6 +502,58 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function compactText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
+    .replace(/type\s*[-_ ]?\s*c/g, "typec")
+    .replace(/iphone|ios|蘋果/g, "lightning")
+    .replace(/臺/g, "台")
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9\u4e00-\u9fff]/g, "");
+}
+
+function normalizeModelValue(value) {
+  const text = compactText(value);
+  const typecCount = (text.match(/typec/g) || []).length;
+  const hasTypeC = typecCount > 0;
+  const hasLightning = text.includes("lightning");
+  const hasUsb = text.includes("usb");
+
+  if (typecCount >= 2) return "typec-typec";
+  if (hasTypeC && hasLightning) return "typec-lightning";
+  if (hasLightning && hasUsb) return "lightning-usb";
+  if (hasTypeC && hasUsb) return "typec-usb";
+  return text;
+}
+
+function normalizeSpecValue(value) {
+  let text = String(value || "")
+    .toLowerCase()
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
+    .replace(/公分|厘米/g, "cm")
+    .replace(/公尺|米/g, "m")
+    .replace(/\s+/g, "");
+  const centimeters = text.match(/(\d+(?:\.\d+)?)cm/);
+  if (centimeters) return `${Number(centimeters[1])}cm`;
+  const meters = text.match(/(\d+(?:\.\d+)?)m(?!ah)/);
+  if (meters) return `${Number(meters[1]) * 100}cm`;
+  return compactText(text);
+}
+
+function normalizeVariantValue(key, value) {
+  if (key === "model") return normalizeModelValue(value);
+  if (key === "spec") return normalizeSpecValue(value);
+  return compactText(value);
+}
+
+function variantFieldMatches(key, variantValue, selectedValue) {
+  if (!variantValue) return true;
+  const variant = normalizeVariantValue(key, variantValue);
+  const selected = normalizeVariantValue(key, selectedValue);
+  return Boolean(variant && selected && variant === selected);
 }
 
 function variantPricesFor(product) {
@@ -506,9 +578,9 @@ function matchingVariant(product, options = {}) {
 
   return variants
     .filter((variant) => {
-      return (!variant.color || variant.color === options.color)
-        && (!variant.model || variant.model === options.model)
-        && (!variant.spec || variant.spec === options.spec);
+      return variantFieldMatches("color", variant.color, options.color)
+        && variantFieldMatches("model", variant.model, options.model)
+        && variantFieldMatches("spec", variant.spec, options.spec);
     })
     .sort((a, b) => {
       const score = (variant) => Number(Boolean(variant.color)) + Number(Boolean(variant.model)) + Number(Boolean(variant.spec));
@@ -676,7 +748,6 @@ function renderSettings(settings = currentSettings) {
   lineLabels.forEach((label) => {
     label.textContent = lineLabel;
   });
-  renderCategoryTabs();
   renderProducts(currentProducts);
 }
 
@@ -694,9 +765,7 @@ function applyLanguage(nextLanguage) {
   if (langToggle) langToggle.textContent = language === "zh" ? "EN" : "中";
   if (chatBubble) chatBubble.textContent = chatLines[language][chatIndex % chatLines[language].length];
   renderOffers(currentOffers);
-  renderCategoryTabs();
   renderSettings(currentSettings);
-  renderProducts(currentProducts);
   renderCart();
   localStorage.setItem("sige3c-lang", language);
 }
@@ -1049,20 +1118,33 @@ async function loadSettings() {
 }
 
 function resizeCanvas() {
+  applyPerformanceMode();
+  if (!canvas || !ctx) return;
+  if (!useHeavyEffects()) {
+    particles = [];
+    canvas.hidden = true;
+    return;
+  }
+  canvas.hidden = false;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.floor(canvas.clientWidth * ratio);
   canvas.height = Math.floor(canvas.clientHeight * ratio);
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  particles = Array.from({ length: Math.min(100, Math.floor(window.innerWidth / 16)) }, () => ({
+  particles = Array.from({ length: Math.min(42, Math.floor(window.innerWidth / 34)) }, () => ({
     x: Math.random() * canvas.clientWidth,
     y: Math.random() * canvas.clientHeight,
-    speed: 0.25 + Math.random() * 0.9,
-    size: 1 + Math.random() * 2.4,
-    alpha: 0.18 + Math.random() * 0.55
+    speed: 0.18 + Math.random() * 0.45,
+    size: 1 + Math.random() * 1.8,
+    alpha: 0.16 + Math.random() * 0.36
   }));
+  if (!particleFrame) particleFrame = requestAnimationFrame(drawParticles);
 }
 
 function drawParticles() {
+  if (!canvas || !ctx || !useHeavyEffects()) {
+    particleFrame = 0;
+    return;
+  }
   ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
   particles.forEach((particle) => {
     particle.y -= particle.speed;
@@ -1073,18 +1155,25 @@ function drawParticles() {
     }
     ctx.beginPath();
     ctx.fillStyle = `rgba(255, 38, 56, ${particle.alpha})`;
-    ctx.shadowColor = "rgba(255, 38, 56, .9)";
-    ctx.shadowBlur = 12;
     ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
     ctx.fill();
   });
-  requestAnimationFrame(drawParticles);
+  particleFrame = requestAnimationFrame(drawParticles);
 }
 
 function updateScrollHud() {
+  if (!progressBar) return;
   const max = document.documentElement.scrollHeight - window.innerHeight;
   const progress = max > 0 ? window.scrollY / max : 0;
   progressBar.style.transform = `scaleX(${Math.min(1, Math.max(0, progress))})`;
+}
+
+function requestScrollHudUpdate() {
+  if (scrollFrame) return;
+  scrollFrame = requestAnimationFrame(() => {
+    updateScrollHud();
+    scrollFrame = 0;
+  });
 }
 
 function setupReveal() {
@@ -1134,7 +1223,6 @@ document.querySelectorAll("[data-facebook-link]").forEach((link) => {
 });
 
 resizeCanvas();
-drawParticles();
 setupReveal();
 applyLanguage(language);
 loadOffers();
@@ -1143,7 +1231,7 @@ loadSettings();
 updateScrollHud();
 
 window.addEventListener("resize", resizeCanvas);
-window.addEventListener("scroll", updateScrollHud, { passive: true });
+window.addEventListener("scroll", requestScrollHudUpdate, { passive: true });
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {

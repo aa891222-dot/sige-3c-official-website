@@ -156,10 +156,36 @@ function cleanAddOns(value) {
   }).filter((item) => item.name);
 }
 
+function parseMoneyToken(value) {
+  const normalized = String(value || "").replace(/[^\d.]/g, "");
+  return normalized ? Number(normalized) : 0;
+}
+
+function looksLikeMoney(value) {
+  return parseMoneyToken(value) > 0 && /^[^\d]*\d/.test(String(value || ""));
+}
+
+function parseLooseVariantLine(line) {
+  const tokens = String(line || "").split(/\s+/).map((item) => item.trim()).filter(Boolean);
+  if (tokens.length < 3 || !looksLikeMoney(tokens[tokens.length - 1])) return null;
+
+  let salePrice = null;
+  let price = parseMoneyToken(tokens.pop());
+  if (tokens.length >= 3 && looksLikeMoney(tokens[tokens.length - 1])) {
+    salePrice = price;
+    price = parseMoneyToken(tokens.pop());
+  }
+
+  const spec = tokens.pop() || "";
+  const model = tokens.join(" ");
+  return { color: "", model, spec, price, salePrice };
+}
+
 function cleanVariantPrices(value) {
   const source = Array.isArray(value) ? value : parseJsonArray(value);
   return source.map((item) => {
     if (typeof item === "string") {
+      if (!item.includes("|")) return parseLooseVariantLine(item);
       const parts = item.split("|").map((part) => part.trim());
       if (parts.length >= 5) {
         return {
@@ -191,7 +217,7 @@ function cleanVariantPrices(value) {
       price,
       salePrice: salePrice && salePrice < price ? salePrice : null
     };
-  }).filter((item) => (item.color || item.model || item.spec) && item.price > 0);
+  }).filter((item) => item && (item.color || item.model || item.spec) && item.price > 0);
 }
 
 function defaultFor(id) {

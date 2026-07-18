@@ -49,6 +49,7 @@
 - 型號：一行一個選項，例如 Lightning to USB、Type-C to Type-C
 - 規格：一行一個選項，例如 60公分、120公分
 - 規格組合價格：一行一筆，格式為 型號|規格|原價|優惠價，例如 Lightning to USB|60公分|290 或 Lightning to USB|120公分|590
+- 也可以用空格快速填：USB TO IOS 60cm 290、USB TO IOS 120cm 590；系統會把 IOS/iPhone/Lightning 視為同類，也會把 60cm/60公分 視為同類
 - 若需要同型號同規格但不同顏色也不同價，可用 顏色|型號|規格|原價|優惠價，例如 黑色|Lightning to USB|60公分|290
 - 加購商品：一行一筆，格式為 名稱|價格，例如 線材保護套|49
 

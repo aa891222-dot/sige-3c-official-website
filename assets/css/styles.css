@@ -222,6 +222,29 @@ img { display: block; max-width: 100%; }
 
 .particle-layer { z-index: 4; opacity: .58; pointer-events: none; }
 
+.performance-lite .particle-layer {
+  display: none;
+}
+
+.performance-lite .hero-grid,
+.performance-lite .hud-lines,
+.performance-lite .pulse-button,
+.performance-lite .manager,
+.performance-lite .black-cat,
+.performance-lite .white-poodle,
+.performance-lite .speech-bubble {
+  animation: none !important;
+}
+
+.performance-lite .hero-grid,
+.performance-lite .hud-lines {
+  opacity: .14;
+}
+
+.performance-lite .hero-vignette {
+  box-shadow: inset 0 0 8rem rgba(0,0,0,.82);
+}
+
 .hero-bg {
   z-index: 0;
   transform: scale(1.05);
@@ -250,7 +273,7 @@ img { display: block; max-width: 100%; }
     linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: linear-gradient(180deg, transparent, black 25%, black 80%, transparent);
-  animation: grid-flow 16s linear infinite;
+  animation: grid-flow 24s linear infinite;
 }
 
 .hud-lines {
@@ -260,7 +283,7 @@ img { display: block; max-width: 100%; }
     linear-gradient(115deg, transparent 0 28%, rgba(255,38,56,.35) 29%, transparent 30% 100%),
     linear-gradient(65deg, transparent 0 64%, rgba(243,196,83,.2) 65%, transparent 66% 100%);
   background-size: 260px 180px;
-  animation: hud-flow 9s linear infinite;
+  animation: hud-flow 18s linear infinite;
 }
 
 .hero-vignette {
@@ -363,7 +386,7 @@ img { display: block; max-width: 100%; }
 }
 
 .pulse-button {
-  animation: button-breathe 2.8s ease-in-out infinite;
+  animation: button-breathe 4.2s ease-in-out infinite;
 }
 
 .mobile-hero-flow,
@@ -772,8 +795,19 @@ img { display: block; max-width: 100%; }
 .reveal-card {
   opacity: 0;
   transform: translateY(28px) scale(.98);
-  transition: opacity .7s ease, transform .7s cubic-bezier(.2, .75, .22, 1);
+  transition: opacity .46s ease, transform .46s cubic-bezier(.2, .75, .22, 1);
   transition-delay: var(--delay, 0ms);
+}
+
+.product-card,
+.service-card,
+.offer-grid > article,
+.feature-grid > article,
+.review-layout,
+.local-review-form,
+.store-grid > a {
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
 }
 
 .reveal-ready.is-visible,
@@ -2179,6 +2213,27 @@ img { display: block; max-width: 100%; }
   color: var(--text);
   background: rgba(0,0,0,.42);
   outline: none;
+}
+
+.checkout-form .checkout-options label {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .65rem;
+  min-height: 2.35rem;
+}
+
+.checkout-form .checkout-options input[type="radio"] {
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  padding: 0;
+}
+
+.checkout-form .checkout-options span {
+  line-height: 1.35;
 }
 
 .checkout-form input:focus,

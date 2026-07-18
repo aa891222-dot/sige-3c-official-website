@@ -31,6 +31,58 @@ function clean(value, max = 160) {
   return String(value || "").trim().slice(0, max);
 }
 
+function compactText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
+    .replace(/type\s*[-_ ]?\s*c/g, "typec")
+    .replace(/iphone|ios|蘋果/g, "lightning")
+    .replace(/臺/g, "台")
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9\u4e00-\u9fff]/g, "");
+}
+
+function normalizeModelValue(value) {
+  const text = compactText(value);
+  const typecCount = (text.match(/typec/g) || []).length;
+  const hasTypeC = typecCount > 0;
+  const hasLightning = text.includes("lightning");
+  const hasUsb = text.includes("usb");
+
+  if (typecCount >= 2) return "typec-typec";
+  if (hasTypeC && hasLightning) return "typec-lightning";
+  if (hasLightning && hasUsb) return "lightning-usb";
+  if (hasTypeC && hasUsb) return "typec-usb";
+  return text;
+}
+
+function normalizeSpecValue(value) {
+  let text = String(value || "")
+    .toLowerCase()
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
+    .replace(/公分|厘米/g, "cm")
+    .replace(/公尺|米/g, "m")
+    .replace(/\s+/g, "");
+  const centimeters = text.match(/(\d+(?:\.\d+)?)cm/);
+  if (centimeters) return `${Number(centimeters[1])}cm`;
+  const meters = text.match(/(\d+(?:\.\d+)?)m(?!ah)/);
+  if (meters) return `${Number(meters[1]) * 100}cm`;
+  return compactText(text);
+}
+
+function normalizeVariantValue(key, value) {
+  if (key === "model") return normalizeModelValue(value);
+  if (key === "spec") return normalizeSpecValue(value);
+  return compactText(value);
+}
+
+function variantFieldMatches(key, variantValue, selectedValue) {
+  if (!variantValue) return true;
+  const variant = normalizeVariantValue(key, variantValue);
+  const selected = normalizeVariantValue(key, selectedValue);
+  return Boolean(variant && selected && variant === selected);
+}
+
 function parseVariantPrices(product) {
   return parseJsonArray(product.variantPrices ?? product.variant_prices).map((variant) => {
     const rawSale = variant.salePrice ?? variant.sale_price;
@@ -50,9 +102,9 @@ function matchingVariant(product, options = {}) {
   const selected = cleanOptions(options);
   return parseVariantPrices(product)
     .filter((variant) => {
-      return (!variant.color || variant.color === selected.color)
-        && (!variant.model || variant.model === selected.model)
-        && (!variant.spec || variant.spec === selected.spec);
+      return variantFieldMatches("color", variant.color, selected.color)
+        && variantFieldMatches("model", variant.model, selected.model)
+        && variantFieldMatches("spec", variant.spec, selected.spec);
     })
     .sort((a, b) => {
       const score = (variant) => Number(Boolean(variant.color)) + Number(Boolean(variant.model)) + Number(Boolean(variant.spec));
@@ -156,6 +208,7 @@ async function ensureSchemas(env) {
       variant_prices TEXT NOT NULL DEFAULT '[]',
       add_ons TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
+      deleted_at TEXT,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
@@ -174,6 +227,7 @@ async function ensureSchemas(env) {
     ["variant_prices", "variant_prices TEXT NOT NULL DEFAULT '[]'"],
     ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"],
     ["active", "active INTEGER NOT NULL DEFAULT 1"],
+    ["deleted_at", "deleted_at TEXT"],
     ["updated_at", "updated_at TEXT"]
   ];
   for (const [name, definition] of productAdditions) {
@@ -255,7 +309,7 @@ async function seedProducts(env) {
 }
 
 async function readActiveProducts(env) {
-  const result = await env.DB.prepare("SELECT * FROM products WHERE active = 1 ORDER BY id ASC").all();
+  const result = await env.DB.prepare("SELECT * FROM products WHERE active = 1 AND deleted_at IS NULL ORDER BY id ASC").all();
   return result.results?.map(normalizeProduct) || [];
 }
 
@@ -337,7 +391,7 @@ export async function onRequestPost({ request, env }) {
     const productId = Number(item.id || item.productId || 0);
     const quantity = Math.max(1, Math.min(20, Math.round(Number(item.quantity || 1))));
     const selectedOptions = cleanOptions(item.options);
-    const product = await env.DB.prepare("SELECT * FROM products WHERE id = ? AND active = 1").bind(productId).first();
+    const product = await env.DB.prepare("SELECT * FROM products WHERE id = ? AND active = 1 AND deleted_at IS NULL").bind(productId).first();
     if (!product) return json({ error: "商品不存在或已下架" }, 400);
     if (Number(product.stock || 0) < quantity) return json({ error: `${product.name} 庫存不足` }, 400);
 

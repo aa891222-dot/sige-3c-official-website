@@ -181,8 +181,34 @@ function readAddOns(value) {
   }).filter((item) => item.name);
 }
 
+function parseMoneyToken(value) {
+  const normalized = String(value || "").replace(/[^\d.]/g, "");
+  return normalized ? Number(normalized) : 0;
+}
+
+function looksLikeMoney(value) {
+  return parseMoneyToken(value) > 0 && /^[^\d]*\d/.test(String(value || ""));
+}
+
+function parseLooseVariantLine(line) {
+  const tokens = String(line || "").split(/\s+/).map((item) => item.trim()).filter(Boolean);
+  if (tokens.length < 3 || !looksLikeMoney(tokens[tokens.length - 1])) return null;
+
+  let salePrice = null;
+  let price = parseMoneyToken(tokens.pop());
+  if (tokens.length >= 3 && looksLikeMoney(tokens[tokens.length - 1])) {
+    salePrice = price;
+    price = parseMoneyToken(tokens.pop());
+  }
+
+  const spec = tokens.pop() || "";
+  const model = tokens.join(" ");
+  return { color: "", model, spec, price, salePrice };
+}
+
 function readVariantPrices(value) {
   return readLines(value).map((line) => {
+    if (!line.includes("|")) return parseLooseVariantLine(line);
     const parts = line.split("|").map((item) => item.trim());
     let color = "";
     let model = "";
@@ -201,7 +227,7 @@ function readVariantPrices(value) {
     }
 
     return { color, model, spec, price, salePrice };
-  }).filter((item) => (item.model || item.spec || item.color) && item.price > 0);
+  }).filter((item) => item && (item.model || item.spec || item.color) && item.price > 0);
 }
 
 function optionSummary(options = {}) {
@@ -321,7 +347,7 @@ function productRow(product, index) {
       <label><span>顏色（一行一個）</span><textarea data-product-field="colors" rows="4">${escapeHtml(listText(product.colors))}</textarea></label>
       <label><span>型號（一行一個）</span><textarea data-product-field="models" rows="4">${escapeHtml(listText(product.models))}</textarea></label>
       <label><span>規格（一行一個）</span><textarea data-product-field="specs" rows="4">${escapeHtml(listText(product.specs))}</textarea></label>
-      <label class="product-admin-desc"><span>規格組合價格（一行一筆：型號|規格|原價|優惠價）</span><textarea data-product-field="variantPrices" rows="4" placeholder="Lightning to USB|60公分|290&#10;Lightning to USB|120公分|590">${escapeHtml(variantPricesText(product.variantPrices || product.variant_prices))}</textarea></label>
+      <label class="product-admin-desc"><span>規格組合價格（一行一筆：型號|規格|原價|優惠價，也可填 USB TO IOS 60cm 290）</span><textarea data-product-field="variantPrices" rows="4" placeholder="USB TO IOS 60cm 290&#10;USB TO IOS 120cm 590&#10;Type-C to Type-C|60公分|290">${escapeHtml(variantPricesText(product.variantPrices || product.variant_prices))}</textarea></label>
       <label class="product-admin-desc"><span>加購商品（一行一筆：名稱|價格）</span><textarea data-product-field="addOns" rows="4" placeholder="線材保護套|49">${escapeHtml(addOnsText(product.addOns || product.add_ons))}</textarea></label>
     </article>
   `;
