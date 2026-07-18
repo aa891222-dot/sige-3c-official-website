@@ -23,6 +23,8 @@ const shippingAddress = document.querySelector("[data-shipping-address]");
 const announcement = document.querySelector("[data-announcement]");
 const announcementTitle = document.querySelector("[data-announcement-title]");
 const announcementText = document.querySelector("[data-announcement-text]");
+const adMarquee = document.querySelector("[data-ad-marquee]");
+const adMarqueeTexts = [...document.querySelectorAll("[data-ad-marquee-text]")];
 const lineLinks = [...document.querySelectorAll("[data-line-link]")];
 const lineLabels = [...document.querySelectorAll("[data-line-label]")];
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -69,7 +71,7 @@ const translations = {
     productsTitle: "現場有賣什麼商品",
     productsNote: "可先線上預訂已上架商品；其他配件歡迎到店挑選、詢問與體驗。",
     shopTitle: "線上預訂商品",
-    shopNote: "線上商品種類可由後台更新。送出訂單後，門市會依資料與你確認。",
+    shopNote: "送出訂單後，門市會依資料與你確認；有問題也可以直接加官方 LINE 聯絡。",
     catAll: "全部",
     shopCatCable: "充電線",
     shopCatCharger: "充電頭",
@@ -190,7 +192,7 @@ const translations = {
     productsTitle: "What We Sell In Store",
     productsNote: "Available products can be pre-ordered online. Visit us for other accessories.",
     shopTitle: "Online Pre-order",
-    shopNote: "Online categories can be updated in the admin. The store will confirm after submission.",
+    shopNote: "The store will confirm after submission. You can also contact the official LINE anytime.",
     catAll: "All",
     shopCatCable: "Cables",
     shopCatCharger: "Chargers",
@@ -680,6 +682,65 @@ function addOnsFor(product) {
   }).filter((item) => item.name);
 }
 
+function quantityDealsFor(product) {
+  const value = product.quantityDeals ?? product.quantity_deals;
+  const source = Array.isArray(value) ? value : (() => {
+    if (!value) return [];
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return String(value).split(/\r?\n/);
+    }
+  })();
+
+  return source.map((item) => {
+    if (typeof item === "string") {
+      const parts = (item.includes("|") ? item.split("|") : item.split(/\s+/)).map((part) => part.trim());
+      return {
+        quantity: Math.max(0, Math.round(Number(String(parts[0] || "").replace(/[^\d]/g, "")))),
+        price: Math.max(0, Number(String(parts[1] || "").replace(/[^\d.]/g, "")))
+      };
+    }
+    return {
+      quantity: Math.max(0, Math.round(Number(item.quantity ?? item.qty ?? item.count ?? 0))),
+      price: Math.max(0, Number(item.price || 0))
+    };
+  }).filter((item) => item.quantity >= 2 && item.price > 0);
+}
+
+function subtotalWithQuantityDeals(unitPrice, deals = [], quantity = 1) {
+  const qty = Math.max(0, Math.round(Number(quantity || 0)));
+  const price = Math.max(0, Number(unitPrice || 0));
+  if (!qty || !price) return 0;
+
+  const usableDeals = deals
+    .filter((deal) => deal.quantity >= 2 && deal.price > 0 && deal.price < deal.quantity * price)
+    .sort((a, b) => b.quantity - a.quantity);
+
+  if (!usableDeals.length) return price * qty;
+
+  const best = Array(qty + 1).fill(Infinity);
+  best[0] = 0;
+  for (let count = 1; count <= qty; count += 1) {
+    best[count] = best[count - 1] + price;
+    usableDeals.forEach((deal) => {
+      if (count >= deal.quantity) {
+        best[count] = Math.min(best[count], best[count - deal.quantity] + deal.price);
+      }
+    });
+  }
+  return Math.round(best[qty]);
+}
+
+function productQuantityDealLabel(product) {
+  const basePrice = effectivePrice(product, productSelection(product));
+  const deal = quantityDealsFor(product)
+    .filter((item) => item.price < item.quantity * basePrice)
+    .sort((a, b) => a.quantity - b.quantity)[0];
+  return deal ? `任選 ${deal.quantity} 件 ${money.format(deal.price)}` : "";
+}
+
 function imageSrc(value) {
   const src = String(value || "").trim();
   if (!src) return "";
@@ -731,13 +792,39 @@ function addonsSubtotal(addOns = []) {
   return addOns.reduce((sum, item) => sum + Number(item.price || 0), 0);
 }
 
+function cartItemPricing(item) {
+  const quantity = Math.max(0, Math.round(Number(item.quantity || 0)));
+  const product = currentProducts.find((productItem) => Number(productItem.id) === Number(item.id));
+  const options = item.options || {};
+  const addOnUnitPrice = addonsSubtotal(item.addOns || []);
+  const baseUnitPrice = product
+    ? effectivePrice(product, options)
+    : Math.max(0, Number(item.basePrice || item.price || 0) - addOnUnitPrice);
+  const deals = product ? quantityDealsFor(product) : (item.quantityDeals || []);
+  const regularBaseSubtotal = baseUnitPrice * quantity;
+  const baseSubtotal = subtotalWithQuantityDeals(baseUnitPrice, deals, quantity);
+  const addOnsTotal = addOnUnitPrice * quantity;
+  return {
+    unitPrice: baseUnitPrice + addOnUnitPrice,
+    subtotal: baseSubtotal + addOnsTotal,
+    dealApplied: baseSubtotal < regularBaseSubtotal,
+    saved: Math.max(0, regularBaseSubtotal - baseSubtotal)
+  };
+}
+
 function renderSettings(settings = currentSettings) {
   currentSettings = { ...defaultSettings, ...(settings || {}) };
   currentProductCategories = normalizeProductCategories(currentSettings.productCategories || currentSettings.product_categories);
   const active = Number(currentSettings.announcementActive ?? currentSettings.announcement_active ?? 1) === 1;
+  const noticeTitle = currentSettings.announcementTitle || currentSettings.announcement_title || defaultSettings.announcementTitle;
+  const noticeText = currentSettings.announcementText || currentSettings.announcement_text || defaultSettings.announcementText;
   if (announcement) announcement.hidden = !active;
-  if (announcementTitle) announcementTitle.textContent = currentSettings.announcementTitle || currentSettings.announcement_title || defaultSettings.announcementTitle;
-  if (announcementText) announcementText.textContent = currentSettings.announcementText || currentSettings.announcement_text || defaultSettings.announcementText;
+  if (adMarquee) adMarquee.hidden = !active;
+  if (announcementTitle) announcementTitle.textContent = noticeTitle;
+  if (announcementText) announcementText.textContent = noticeText;
+  adMarqueeTexts.forEach((item) => {
+    item.textContent = `${noticeTitle}｜${noticeText}`;
+  });
 
   const lineUrl = currentSettings.lineUrl || currentSettings.line_url || defaultLineUrl;
   const lineLabel = currentSettings.lineLabel || currentSettings.line_label || defaultSettings.lineLabel;
@@ -826,6 +913,7 @@ function renderProducts(products = currentProducts) {
     const discount = discountPercent(product, selection);
     const groups = optionGroups(product);
     const addOns = addOnsFor(product);
+    const quantityDeal = productQuantityDealLabel(product);
     const gallery = [...new Set([image, ...ensureArray(product.gallery).map(imageSrc)].filter(Boolean))];
     return `
       <article class="product-card reveal-card is-visible" data-product-card="${product.id}" style="--delay:${index * 60}ms">
@@ -837,6 +925,7 @@ function renderProducts(products = currentProducts) {
         <h3>${escapeHtml(product.name)}</h3>
         <small class="product-sku">${translations[language].productCode}：${escapeHtml(product.sku || "")}</small>
         <p>${escapeHtml(product.description || "")}</p>
+        ${quantityDeal ? `<div class="quantity-deal-row">${escapeHtml(quantityDeal)}</div>` : ""}
         ${groups.length ? `
           <div class="product-options">
             <strong>${translations[language].chooseOptions}</strong>
@@ -873,9 +962,9 @@ function renderProducts(products = currentProducts) {
     `;
   }).join("") || `
     <article class="product-card reveal-card is-visible">
-      <span class="product-tag">EMPTY</span>
-      <h3>目前沒有商品</h3>
-      <p>請到後台新增或開啟商品。</p>
+      <span class="product-tag">準備中</span>
+      <h3>暫時還未上架</h3>
+      <p>新品整理中，請再等等。也可以先加官方 LINE 詢問。</p>
     </article>
   `;
 }
@@ -889,7 +978,7 @@ function cartQuantity() {
 }
 
 function cartSubtotal() {
-  return cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
+  return cart.reduce((sum, item) => sum + cartItemPricing(item).subtotal, 0);
 }
 
 function renderCart() {
@@ -906,21 +995,26 @@ function renderCart() {
     return;
   }
 
-  cartItems.innerHTML = cart.map((item) => `
-    <div class="cart-item">
-      <div>
-        <strong>${escapeHtml(item.name)}</strong>
-        ${item.options ? `<small>${escapeHtml(optionsSummary(item.options))}</small>` : ""}
-        ${item.addOns?.length ? `<small>加購：${escapeHtml(item.addOns.map((addOn) => addOn.name).join("、"))}</small>` : ""}
-        <span>${money.format(item.price)} × ${item.quantity}</span>
+  cartItems.innerHTML = cart.map((item) => {
+    const pricing = cartItemPricing(item);
+    return `
+      <div class="cart-item">
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          ${item.options ? `<small>${escapeHtml(optionsSummary(item.options))}</small>` : ""}
+          ${item.addOns?.length ? `<small>加購：${escapeHtml(item.addOns.map((addOn) => addOn.name).join("、"))}</small>` : ""}
+          <span>${money.format(pricing.unitPrice)} × ${item.quantity}</span>
+          ${pricing.dealApplied ? `<small class="cart-deal">數量優惠已套用，省 ${money.format(pricing.saved)}</small>` : ""}
+          <small>小計 ${money.format(pricing.subtotal)}</small>
+        </div>
+        <div class="cart-controls">
+          <button type="button" data-cart-minus="${escapeHtml(item.key)}">−</button>
+          <button type="button" data-cart-plus="${escapeHtml(item.key)}">＋</button>
+          <button type="button" data-cart-remove="${escapeHtml(item.key)}">移除</button>
+        </div>
       </div>
-      <div class="cart-controls">
-        <button type="button" data-cart-minus="${escapeHtml(item.key)}">−</button>
-        <button type="button" data-cart-plus="${escapeHtml(item.key)}">＋</button>
-        <button type="button" data-cart-remove="${escapeHtml(item.key)}">移除</button>
-      </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 function addToCart(productId, card) {
@@ -928,6 +1022,7 @@ function addToCart(productId, card) {
   if (!product || Number(product.stock || 0) <= 0) return;
   const options = productSelection(product);
   const allAddOns = addOnsFor(product);
+  const quantityDeals = quantityDealsFor(product);
   const selectedAddOns = card
     ? [...card.querySelectorAll("[data-addon-index]:checked")].map((input) => allAddOns[Number(input.dataset.addonIndex)]).filter(Boolean)
     : [];
@@ -945,6 +1040,7 @@ function addToCart(productId, card) {
       price: unitPrice,
       basePrice,
       originalPrice: regularPrice(product, options),
+      quantityDeals,
       options,
       addOns: selectedAddOns,
       quantity: 1
@@ -977,15 +1073,25 @@ categoryTabs?.addEventListener("click", (event) => {
 productList?.addEventListener("click", (event) => {
   const optionButton = event.target.closest("[data-option-value]");
   if (optionButton) {
+    event.preventDefault();
     const card = optionButton.closest("[data-product-card]");
     const group = optionButton.closest("[data-option-group]");
     if (!card || !group) return;
     const productId = card.dataset.productCard;
+    const scrollTop = window.scrollY;
+    const scrollLeft = window.scrollX;
+    optionButton.blur();
     selectedProductOptions[productId] = {
       ...(selectedProductOptions[productId] || {}),
       [group.dataset.optionGroup]: optionButton.dataset.optionValue
     };
     renderProducts(currentProducts);
+    const restoreScroll = () => window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "auto" });
+    restoreScroll();
+    requestAnimationFrame(() => {
+      restoreScroll();
+      requestAnimationFrame(restoreScroll);
+    });
     return;
   }
 

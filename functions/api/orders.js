@@ -153,6 +153,43 @@ function cleanAddOns(value) {
   })).filter((item) => item.name);
 }
 
+function parseQuantityDeals(product) {
+  return parseJsonArray(product.quantityDeals ?? product.quantity_deals).map((item) => {
+    if (typeof item === "string") {
+      const parts = (item.includes("|") ? item.split("|") : item.split(/\s+/)).map((part) => part.trim());
+      return {
+        quantity: Math.max(0, Math.round(Number(String(parts[0] || "").replace(/[^\d]/g, "")))),
+        price: Math.max(0, Math.round(Number(String(parts[1] || "").replace(/[^\d.]/g, ""))))
+      };
+    }
+    return {
+      quantity: Math.max(0, Math.round(Number(item.quantity ?? item.qty ?? item.count ?? 0))),
+      price: Math.max(0, Math.round(Number(item.price || 0)))
+    };
+  }).filter((item) => item.quantity >= 2 && item.price > 0);
+}
+
+function subtotalWithQuantityDeals(unitPrice, deals = [], quantity = 1) {
+  const qty = Math.max(0, Math.round(Number(quantity || 0)));
+  const price = Math.max(0, Math.round(Number(unitPrice || 0)));
+  if (!qty || !price) return 0;
+
+  const usableDeals = deals.filter((deal) => deal.price < deal.quantity * price);
+  if (!usableDeals.length) return price * qty;
+
+  const best = Array(qty + 1).fill(Infinity);
+  best[0] = 0;
+  for (let count = 1; count <= qty; count += 1) {
+    best[count] = best[count - 1] + price;
+    usableDeals.forEach((deal) => {
+      if (count >= deal.quantity) {
+        best[count] = Math.min(best[count], best[count - deal.quantity] + deal.price);
+      }
+    });
+  }
+  return Math.round(best[qty]);
+}
+
 function parseJsonObject(value) {
   if (value && typeof value === "object" && !Array.isArray(value)) return value;
   if (!value) return {};
@@ -184,6 +221,7 @@ function normalizeProduct(row) {
     models: parseJsonArray(row.models),
     specs: parseJsonArray(row.specs),
     variantPrices: parseJsonArray(row.variant_prices),
+    quantityDeals: parseJsonArray(row.quantity_deals),
     addOns: parseJsonArray(row.add_ons),
     active: Number(row.active ?? 1)
   };
@@ -206,6 +244,7 @@ async function ensureSchemas(env) {
       models TEXT NOT NULL DEFAULT '[]',
       specs TEXT NOT NULL DEFAULT '[]',
       variant_prices TEXT NOT NULL DEFAULT '[]',
+      quantity_deals TEXT NOT NULL DEFAULT '[]',
       add_ons TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
       deleted_at TEXT,
@@ -225,6 +264,7 @@ async function ensureSchemas(env) {
     ["models", "models TEXT NOT NULL DEFAULT '[]'"],
     ["specs", "specs TEXT NOT NULL DEFAULT '[]'"],
     ["variant_prices", "variant_prices TEXT NOT NULL DEFAULT '[]'"],
+    ["quantity_deals", "quantity_deals TEXT NOT NULL DEFAULT '[]'"],
     ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"],
     ["active", "active INTEGER NOT NULL DEFAULT 1"],
     ["deleted_at", "deleted_at TEXT"],
@@ -400,8 +440,11 @@ export async function onRequestPost({ request, env }) {
       return availableAddOns.find((available) => available.name === requested.name) || requested;
     });
     const originalPrice = regularProductPrice(product, selectedOptions);
-    const unitPrice = productPrice(product, selectedOptions) + addOnsSubtotal(addOns);
-    const subtotal = unitPrice * quantity;
+    const baseUnitPrice = productPrice(product, selectedOptions);
+    const addOnUnitPrice = addOnsSubtotal(addOns);
+    const baseSubtotal = subtotalWithQuantityDeals(baseUnitPrice, parseQuantityDeals(product), quantity);
+    const unitPrice = baseUnitPrice + addOnUnitPrice;
+    const subtotal = baseSubtotal + (addOnUnitPrice * quantity);
     total += subtotal;
     orderItems.push({ product, quantity, unitPrice, originalPrice, subtotal, selectedOptions, addOns });
   }

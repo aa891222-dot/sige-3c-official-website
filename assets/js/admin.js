@@ -108,6 +108,14 @@ function addOnsText(value) {
   }).filter(Boolean).join("\n");
 }
 
+function quantityDealsText(value) {
+  return asList(value).map((item) => {
+    if (typeof item === "string") return item;
+    const quantity = item.quantity ?? item.qty ?? item.count ?? "";
+    return quantity && item.price ? `${Number(quantity)}|${Number(item.price || 0)}` : "";
+  }).filter(Boolean).join("\n");
+}
+
 function variantPricesText(value) {
   return asList(value).map((item) => {
     if (typeof item === "string") return item;
@@ -179,6 +187,15 @@ function readAddOns(value) {
     const [name, price = "0"] = line.split("|").map((item) => item.trim());
     return { name, price: Number(price || 0) };
   }).filter((item) => item.name);
+}
+
+function readQuantityDeals(value) {
+  return readLines(value).map((line) => {
+    const parts = (line.includes("|") ? line.split("|") : line.split(/\s+/)).map((item) => item.trim());
+    const quantity = Number(String(parts[0] || "").replace(/[^\d]/g, ""));
+    const price = parseMoneyToken(parts[1] || "");
+    return { quantity, price };
+  }).filter((item) => item.quantity >= 2 && item.price > 0);
 }
 
 function parseMoneyToken(value) {
@@ -354,6 +371,7 @@ function productRow(product, index) {
       <label><span>型號（一行一個）</span><textarea data-product-field="models" rows="4">${escapeHtml(listText(product.models))}</textarea></label>
       <label><span>規格（一行一個）</span><textarea data-product-field="specs" rows="4">${escapeHtml(listText(product.specs))}</textarea></label>
       <label class="product-admin-desc"><span>規格組合價格（一行一筆：型號|規格|原價|優惠價，也可填 USB TO IOS 60cm 290）</span><textarea data-product-field="variantPrices" rows="4" placeholder="USB TO IOS 60cm 290&#10;USB TO IOS 120cm 590&#10;Type-C to Type-C|60公分|290">${escapeHtml(variantPricesText(product.variantPrices || product.variant_prices))}</textarea></label>
+      <label class="product-admin-desc"><span>數量優惠（一行一筆：數量|優惠總價，例如 2|1000。買 4 隻會自動算兩組）</span><textarea data-product-field="quantityDeals" rows="3" placeholder="2|1000">${escapeHtml(quantityDealsText(product.quantityDeals || product.quantity_deals))}</textarea></label>
       <label class="product-admin-desc"><span>加購商品（一行一筆：名稱|價格）</span><textarea data-product-field="addOns" rows="4" placeholder="線材保護套|49">${escapeHtml(addOnsText(product.addOns || product.add_ons))}</textarea></label>
     </article>
   `;
@@ -383,6 +401,7 @@ function readProductRows() {
       models: readLines(read("models").value),
       specs: readLines(read("specs").value),
       variantPrices: readVariantPrices(read("variantPrices").value),
+      quantityDeals: readQuantityDeals(read("quantityDeals").value),
       addOns: readAddOns(read("addOns").value),
       active: read("active").checked ? 1 : 0
     };
@@ -571,6 +590,7 @@ addProductRow?.addEventListener("click", () => {
     models: [],
     specs: [],
     variantPrices: [],
+    quantityDeals: [],
     addOns: [],
     description: "",
     active: 0

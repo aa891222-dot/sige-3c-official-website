@@ -156,6 +156,23 @@ function cleanAddOns(value) {
   }).filter((item) => item.name);
 }
 
+function cleanQuantityDeals(value) {
+  const source = Array.isArray(value) ? value : parseJsonArray(value);
+  return source.map((item) => {
+    if (typeof item === "string") {
+      const parts = (item.includes("|") ? item.split("|") : item.split(/\s+/)).map((part) => part.trim());
+      return {
+        quantity: Math.max(0, Math.round(Number(String(parts[0] || "").replace(/[^\d]/g, "")))),
+        price: Math.max(0, Math.round(parseMoneyToken(parts[1] || "")))
+      };
+    }
+    return {
+      quantity: Math.max(0, Math.round(Number(item.quantity ?? item.qty ?? item.count ?? 0))),
+      price: Math.max(0, Math.round(Number(item.price || 0)))
+    };
+  }).filter((item) => item.quantity >= 2 && item.price > 0);
+}
+
 function parseMoneyToken(value) {
   const normalized = String(value || "").replace(/[^\d.]/g, "");
   return normalized ? Number(normalized) : 0;
@@ -247,6 +264,7 @@ function normalizeProduct(row) {
     models: parseJsonArray(row.models, fallback.models || []),
     specs: parseJsonArray(row.specs, fallback.specs || []),
     variantPrices: parseJsonArray(row.variant_prices, fallback.variantPrices || []),
+    quantityDeals: parseJsonArray(row.quantity_deals, fallback.quantityDeals || []),
     addOns: parseJsonArray(row.add_ons, fallback.addOns || []),
     active: Number(row.active ?? 1)
   };
@@ -270,6 +288,7 @@ function sanitizeProduct(product, fallbackId) {
   const models = cleanList(product.models).slice(0, 12);
   const specs = cleanList(product.specs).slice(0, 12);
   const variantPrices = cleanVariantPrices(product.variantPrices ?? product.variant_prices).slice(0, 80);
+  const quantityDeals = cleanQuantityDeals(product.quantityDeals ?? product.quantity_deals).slice(0, 12);
   const addOns = cleanAddOns(product.addOns ?? product.add_ons).slice(0, 12);
   const active = product.active === false || Number(product.active) === 0 ? 0 : 1;
 
@@ -292,6 +311,7 @@ function sanitizeProduct(product, fallbackId) {
     models,
     specs,
     variantPrices,
+    quantityDeals,
     addOns,
     active
   };
@@ -314,6 +334,7 @@ async function ensureProductSchema(env) {
       models TEXT NOT NULL DEFAULT '[]',
       specs TEXT NOT NULL DEFAULT '[]',
       variant_prices TEXT NOT NULL DEFAULT '[]',
+      quantity_deals TEXT NOT NULL DEFAULT '[]',
       add_ons TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
       deleted_at TEXT,
@@ -333,6 +354,7 @@ async function ensureProductSchema(env) {
     ["models", "models TEXT NOT NULL DEFAULT '[]'"],
     ["specs", "specs TEXT NOT NULL DEFAULT '[]'"],
     ["variant_prices", "variant_prices TEXT NOT NULL DEFAULT '[]'"],
+    ["quantity_deals", "quantity_deals TEXT NOT NULL DEFAULT '[]'"],
     ["add_ons", "add_ons TEXT NOT NULL DEFAULT '[]'"],
     ["active", "active INTEGER NOT NULL DEFAULT 1"],
     ["deleted_at", "deleted_at TEXT"],
@@ -351,8 +373,8 @@ async function seedDefaultProducts(env) {
   if (Number(row?.count || 0) > 0) return;
   for (const product of defaultProducts) {
     await env.DB.prepare(`
-      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, add_ons, active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       product.id,
       product.sku,
@@ -368,6 +390,7 @@ async function seedDefaultProducts(env) {
       JSON.stringify(product.models || []),
       JSON.stringify(product.specs || []),
       JSON.stringify(product.variantPrices || []),
+      JSON.stringify(product.quantityDeals || []),
       JSON.stringify(product.addOns || []),
       product.active
     ).run();
@@ -426,8 +449,8 @@ export async function onRequestPut({ request, env }) {
 
     for (const item of items) {
       await env.DB.prepare(`
-        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, add_ons, active, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(id) DO UPDATE SET
           sku = excluded.sku,
           name = excluded.name,
@@ -442,6 +465,7 @@ export async function onRequestPut({ request, env }) {
           models = excluded.models,
           specs = excluded.specs,
           variant_prices = excluded.variant_prices,
+          quantity_deals = excluded.quantity_deals,
           add_ons = excluded.add_ons,
           active = excluded.active,
           deleted_at = NULL,
@@ -461,6 +485,7 @@ export async function onRequestPut({ request, env }) {
         JSON.stringify(item.models || []),
         JSON.stringify(item.specs || []),
         JSON.stringify(item.variantPrices || []),
+        JSON.stringify(item.quantityDeals || []),
         JSON.stringify(item.addOns || []),
         item.active
       ).run();

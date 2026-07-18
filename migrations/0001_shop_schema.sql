@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS products (
   models TEXT NOT NULL DEFAULT '[]',
   specs TEXT NOT NULL DEFAULT '[]',
   variant_prices TEXT NOT NULL DEFAULT '[]',
+  quantity_deals TEXT NOT NULL DEFAULT '[]',
   add_ons TEXT NOT NULL DEFAULT '[]',
   active INTEGER NOT NULL DEFAULT 1,
   deleted_at TEXT,
