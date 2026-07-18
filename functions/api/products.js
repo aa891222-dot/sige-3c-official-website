@@ -156,6 +156,35 @@ function cleanAddOns(value) {
   }).filter((item) => item.name);
 }
 
+function cleanOptionImages(value) {
+  const source = Array.isArray(value) ? value : parseJsonArray(value);
+  return source.map((item) => {
+    if (typeof item === "string") {
+      const parts = item.split("|").map((part) => part.trim()).filter(Boolean);
+      if (parts.length >= 3) {
+        return {
+          optionType: parts[0],
+          optionValue: parts[1],
+          imageUrl: parts.slice(2).join("|")
+        };
+      }
+      if (parts.length === 2) {
+        return {
+          optionType: "顏色",
+          optionValue: parts[0],
+          imageUrl: parts[1]
+        };
+      }
+      return null;
+    }
+    return {
+      optionType: String(item.optionType || item.option_type || item.type || item.key || item.field || "").trim().slice(0, 20),
+      optionValue: String(item.optionValue || item.option_value || item.value || item.name || item.color || item.model || item.spec || "").trim().slice(0, 80),
+      imageUrl: String(item.imageUrl || item.image_url || item.url || item.image || "").trim().slice(0, 320)
+    };
+  }).filter((item) => item && item.optionType && item.optionValue && item.imageUrl);
+}
+
 function cleanQuantityDeals(value) {
   const source = Array.isArray(value) ? value : parseJsonArray(value);
   return source.map((item) => {
@@ -260,6 +289,7 @@ function normalizeProduct(row) {
     description: row.description || "",
     imageUrl: row.image_url || fallback.imageUrl || "",
     gallery: parseJsonArray(row.gallery, fallback.gallery || []),
+    optionImages: parseJsonArray(row.option_images, fallback.optionImages || []),
     colors: parseJsonArray(row.colors, fallback.colors || []),
     models: parseJsonArray(row.models, fallback.models || []),
     specs: parseJsonArray(row.specs, fallback.specs || []),
@@ -287,6 +317,7 @@ function sanitizeProduct(product, fallbackId) {
   const description = String(product.description || "").trim().slice(0, 220);
   const imageUrl = String(product.imageUrl || product.image_url || "").trim().slice(0, 320);
   const gallery = cleanList(product.gallery).slice(0, 6);
+  const optionImages = cleanOptionImages(product.optionImages ?? product.option_images).slice(0, 40);
   const colors = cleanList(product.colors).slice(0, 12);
   const models = cleanList(product.models).slice(0, 12);
   const specs = cleanList(product.specs).slice(0, 12);
@@ -313,6 +344,7 @@ function sanitizeProduct(product, fallbackId) {
     description,
     imageUrl,
     gallery,
+    optionImages,
     colors,
     models,
     specs,
@@ -339,6 +371,7 @@ async function ensureProductSchema(env) {
       description TEXT NOT NULL DEFAULT '',
       image_url TEXT NOT NULL DEFAULT '',
       gallery TEXT NOT NULL DEFAULT '[]',
+      option_images TEXT NOT NULL DEFAULT '[]',
       colors TEXT NOT NULL DEFAULT '[]',
       models TEXT NOT NULL DEFAULT '[]',
       specs TEXT NOT NULL DEFAULT '[]',
@@ -362,6 +395,7 @@ async function ensureProductSchema(env) {
     ["description", "description TEXT NOT NULL DEFAULT ''"],
     ["image_url", "image_url TEXT NOT NULL DEFAULT ''"],
     ["gallery", "gallery TEXT NOT NULL DEFAULT '[]'"],
+    ["option_images", "option_images TEXT NOT NULL DEFAULT '[]'"],
     ["colors", "colors TEXT NOT NULL DEFAULT '[]'"],
     ["models", "models TEXT NOT NULL DEFAULT '[]'"],
     ["specs", "specs TEXT NOT NULL DEFAULT '[]'"],
@@ -388,8 +422,8 @@ async function seedDefaultProducts(env) {
   if (Number(row?.count || 0) > 0) return;
   for (const product of defaultProducts) {
     await env.DB.prepare(`
-      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active, display_order, featured, featured_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, option_images, colors, models, specs, variant_prices, quantity_deals, add_ons, active, display_order, featured, featured_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       product.id,
       product.sku,
@@ -401,6 +435,7 @@ async function seedDefaultProducts(env) {
       product.description,
       product.imageUrl,
       JSON.stringify(product.gallery || []),
+      JSON.stringify(product.optionImages || []),
       JSON.stringify(product.colors || []),
       JSON.stringify(product.models || []),
       JSON.stringify(product.specs || []),
@@ -467,8 +502,8 @@ export async function onRequestPut({ request, env }) {
 
     for (const item of items) {
       await env.DB.prepare(`
-        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, colors, models, specs, variant_prices, quantity_deals, add_ons, active, display_order, featured, featured_order, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO products (id, sku, name, category, price, sale_price, stock, description, image_url, gallery, option_images, colors, models, specs, variant_prices, quantity_deals, add_ons, active, display_order, featured, featured_order, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(id) DO UPDATE SET
           sku = excluded.sku,
           name = excluded.name,
@@ -479,6 +514,7 @@ export async function onRequestPut({ request, env }) {
           description = excluded.description,
           image_url = excluded.image_url,
           gallery = excluded.gallery,
+          option_images = excluded.option_images,
           colors = excluded.colors,
           models = excluded.models,
           specs = excluded.specs,
@@ -502,6 +538,7 @@ export async function onRequestPut({ request, env }) {
         item.description,
         item.imageUrl,
         JSON.stringify(item.gallery || []),
+        JSON.stringify(item.optionImages || []),
         JSON.stringify(item.colors || []),
         JSON.stringify(item.models || []),
         JSON.stringify(item.specs || []),

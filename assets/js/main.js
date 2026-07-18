@@ -876,6 +876,66 @@ function productImage(product) {
   return imageSrc(product.imageUrl || product.image_url || ensureArray(product.gallery)[0] || "");
 }
 
+function optionImageKey(value) {
+  const text = compactText(value);
+  if (text.includes("color") || text.includes("colour") || text.includes("顏色") || text.includes("颜色")) return "color";
+  if (text.includes("model") || text.includes("type") || text.includes("型號") || text.includes("型号")) return "model";
+  if (text.includes("spec") || text.includes("size") || text.includes("規格") || text.includes("规格") || text.includes("長度") || text.includes("长度")) return "spec";
+  if (["color", "model", "spec"].includes(text)) return text;
+  return "";
+}
+
+function optionImageEntries(product) {
+  const source = product.optionImages ?? product.option_images;
+  return ensureArray(source).map((item) => {
+    if (typeof item === "string") {
+      const parts = item.split("|").map((part) => part.trim()).filter(Boolean);
+      if (parts.length >= 3) {
+        return {
+          key: optionImageKey(parts[0]),
+          value: parts[1],
+          image: imageSrc(parts.slice(2).join("|"))
+        };
+      }
+      if (parts.length === 2) {
+        return {
+          key: "color",
+          value: parts[0],
+          image: imageSrc(parts[1])
+        };
+      }
+      return null;
+    }
+
+    const rawKey = item.optionType || item.option_type || item.type || item.key || item.field
+      || (item.color ? "color" : item.model ? "model" : item.spec ? "spec" : "");
+    return {
+      key: optionImageKey(rawKey) || rawKey,
+      value: String(item.optionValue || item.option_value || item.value || item.name || item.color || item.model || item.spec || "").trim(),
+      image: imageSrc(item.imageUrl || item.image_url || item.url || item.image || "")
+    };
+  }).filter((item) => item && item.key && item.value && item.image);
+}
+
+function matchingOptionImage(product, selection = {}) {
+  const matched = optionImageEntries(product).find((entry) => {
+    return selection[entry.key] && variantFieldMatches(entry.key, entry.value, selection[entry.key]);
+  });
+  return matched?.image || "";
+}
+
+function selectedProductImage(product, selection = productSelection(product)) {
+  return matchingOptionImage(product, selection) || productImage(product);
+}
+
+function productGallery(product, selection = productSelection(product)) {
+  const selected = selectedProductImage(product, selection);
+  const main = productImage(product);
+  const gallery = ensureArray(product.gallery).map(imageSrc);
+  const optionImages = optionImageEntries(product).map((item) => item.image);
+  return [...new Set([selected, main, ...gallery, ...optionImages].filter(Boolean))];
+}
+
 function optionGroups(product) {
   return [
     { key: "color", label: "顏色", values: ensureArray(product.colors) },
@@ -1033,21 +1093,21 @@ function renderProducts(products = currentProducts) {
     const stock = Number(product.stock || 0);
     const disabled = stock <= 0 ? "disabled" : "";
     const buttonText = stock <= 0 ? translations[language].soldOut : translations[language].addToCart;
-    const image = productImage(product);
     const selection = productSelection(product);
+    const image = selectedProductImage(product, selection);
     const price = regularPrice(product, selection);
     const finalPrice = effectivePrice(product, selection);
     const discount = discountPercent(product, selection);
     const groups = optionGroups(product);
     const addOns = addOnsFor(product);
     const quantityDeal = productQuantityDealLabel(product);
-    const gallery = [...new Set([image, ...ensureArray(product.gallery).map(imageSrc)].filter(Boolean))];
+    const gallery = productGallery(product, selection);
     return `
       <article class="product-card reveal-card is-visible" data-product-card="${product.id}" style="--delay:${index * 60}ms">
         <div class="product-image">
-          ${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" />` : `<span>SIGE 3C</span>`}
+          ${image ? `<img data-product-main-image src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" />` : `<span>SIGE 3C</span>`}
         </div>
-        ${gallery.length > 1 ? `<div class="product-thumbs">${gallery.slice(0, 4).map((src) => `<img src="${escapeHtml(src)}" alt="" loading="lazy" decoding="async" />`).join("")}</div>` : ""}
+        ${gallery.length > 1 ? `<div class="product-thumbs">${gallery.slice(0, 6).map((src) => `<button type="button" class="${src === image ? "is-active" : ""}" data-product-image="${escapeHtml(src)}" aria-label="切換商品圖片"><img src="${escapeHtml(src)}" alt="" loading="lazy" decoding="async" /></button>`).join("")}</div>` : ""}
         <span class="product-tag">${categoryName(product.category)}</span>
         <h3>${escapeHtml(product.name)}</h3>
         <small class="product-sku">${translations[language].productCode}：${escapeHtml(product.sku || "")}</small>
@@ -1123,6 +1183,33 @@ function updateProductCardPricing(card, product) {
     dealRow.textContent = quantityDeal;
     dealRow.hidden = !quantityDeal;
   }
+}
+
+function setProductCardImage(card, src, alt = "") {
+  if (!card || !src) return;
+  const imageBox = card.querySelector(".product-image");
+  if (!imageBox) return;
+  let image = imageBox.querySelector("[data-product-main-image]");
+  if (!image) {
+    imageBox.textContent = "";
+    image = document.createElement("img");
+    image.dataset.productMainImage = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    imageBox.appendChild(image);
+  }
+  imageBox.classList.remove("is-empty");
+  image.src = src;
+  image.alt = alt;
+  card.querySelectorAll("[data-product-image]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.productImage === src);
+  });
+}
+
+function updateProductCardImage(card, product) {
+  if (!card || !product) return;
+  const image = selectedProductImage(product, productSelection(product));
+  if (image) setProductCardImage(card, image, product.name || "");
 }
 
 function saveCart() {
@@ -1250,6 +1337,15 @@ promoCarousel?.addEventListener("mouseenter", () => window.clearInterval(promoTi
 promoCarousel?.addEventListener("mouseleave", startPromoAutoplay);
 
 productList?.addEventListener("click", (event) => {
+  const imageButton = event.target.closest("[data-product-image]");
+  if (imageButton) {
+    event.preventDefault();
+    const card = imageButton.closest("[data-product-card]");
+    const product = currentProducts.find((item) => Number(item.id) === Number(card?.dataset.productCard));
+    setProductCardImage(card, imageButton.dataset.productImage, product?.name || "");
+    return;
+  }
+
   const optionButton = event.target.closest("[data-option-value]");
   if (optionButton) {
     event.preventDefault();
@@ -1269,6 +1365,7 @@ productList?.addEventListener("click", (event) => {
     });
     const product = currentProducts.find((item) => Number(item.id) === Number(productId));
     updateProductCardPricing(card, product);
+    updateProductCardImage(card, product);
     window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "auto" });
     return;
   }
@@ -1283,7 +1380,7 @@ productList?.addEventListener("error", (event) => {
   if (!image) return;
   const thumbList = image.closest(".product-thumbs");
   if (thumbList) {
-    image.remove();
+    (image.closest("[data-product-image]") || image).remove();
     return;
   }
   const imageBox = image.closest(".product-image");

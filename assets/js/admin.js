@@ -127,6 +127,16 @@ function variantPricesText(value) {
   }).filter(Boolean).join("\n");
 }
 
+function optionImagesText(value) {
+  return asList(value).map((item) => {
+    if (typeof item === "string") return item;
+    const optionType = item.optionType || item.option_type || item.type || item.key || item.field || "";
+    const optionValue = item.optionValue || item.option_value || item.value || item.name || item.color || item.model || item.spec || "";
+    const imageUrl = item.imageUrl || item.image_url || item.url || item.image || "";
+    return optionType && optionValue && imageUrl ? `${optionType}|${optionValue}|${imageUrl}` : "";
+  }).filter(Boolean).join("\n");
+}
+
 function readLines(value) {
   return String(value || "").split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
 }
@@ -256,6 +266,27 @@ function readVariantPrices(value) {
   }).filter((item) => item && (item.model || item.spec || item.color) && item.price > 0);
 }
 
+function readOptionImages(value) {
+  return readLines(value).map((line) => {
+    const parts = line.split("|").map((item) => item.trim()).filter(Boolean);
+    if (parts.length >= 3) {
+      return {
+        optionType: parts[0],
+        optionValue: parts[1],
+        imageUrl: parts.slice(2).join("|")
+      };
+    }
+    if (parts.length === 2) {
+      return {
+        optionType: "顏色",
+        optionValue: parts[0],
+        imageUrl: parts[1]
+      };
+    }
+    return null;
+  }).filter((item) => item && item.optionType && item.optionValue && item.imageUrl);
+}
+
 function optionSummary(options = {}) {
   return Object.entries(options)
     .filter(([, value]) => value)
@@ -382,6 +413,7 @@ function productRow(product, index) {
       </label>
       <label class="product-admin-desc"><span>商品描述</span><textarea data-product-field="description" rows="3">${escapeHtml(product.description || "")}</textarea></label>
       <label class="product-admin-desc"><span>多張圖片網址（一行一張）</span><textarea data-product-field="gallery" rows="3" placeholder="./assets/images/product-1.jpg">${escapeHtml(listText(product.gallery))}</textarea></label>
+      <label class="product-admin-desc"><span>選項對應圖片（選填，一行一筆：顏色|黑色|圖片網址）</span><textarea data-product-field="optionImages" rows="3" placeholder="顏色|黑色|products/fan-black.jpg&#10;顏色|白色|products/fan-white.jpg">${escapeHtml(optionImagesText(product.optionImages || product.option_images))}</textarea></label>
       <label><span>顏色（一行一個）</span><textarea data-product-field="colors" rows="4">${escapeHtml(listText(product.colors))}</textarea></label>
       <label><span>型號（一行一個）</span><textarea data-product-field="models" rows="4">${escapeHtml(listText(product.models))}</textarea></label>
       <label><span>規格（一行一個）</span><textarea data-product-field="specs" rows="4">${escapeHtml(listText(product.specs))}</textarea></label>
@@ -413,6 +445,7 @@ function readProductRows() {
       imageUrl: read("imageUrl").value.trim(),
       description: read("description").value.trim(),
       gallery: readLines(read("gallery").value),
+      optionImages: readOptionImages(read("optionImages").value),
       colors: readLines(read("colors").value),
       models: readLines(read("models").value),
       specs: readLines(read("specs").value),
@@ -605,6 +638,7 @@ addProductRow?.addEventListener("click", () => {
     displayOrder: rows.length + 1,
     imageUrl: "",
     gallery: [],
+    optionImages: [],
     colors: [],
     models: [],
     specs: [],

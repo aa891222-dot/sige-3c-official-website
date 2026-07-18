@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT NOT NULL DEFAULT '',
   image_url TEXT NOT NULL DEFAULT '',
   gallery TEXT NOT NULL DEFAULT '[]',
+  option_images TEXT NOT NULL DEFAULT '[]',
   colors TEXT NOT NULL DEFAULT '[]',
   models TEXT NOT NULL DEFAULT '[]',
   specs TEXT NOT NULL DEFAULT '[]',
