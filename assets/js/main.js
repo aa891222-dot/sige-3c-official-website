@@ -949,9 +949,26 @@ function productSelection(product) {
   const saved = selectedProductOptions[product.id] || {};
   const selection = {};
   groups.forEach((group) => {
-    selection[group.key] = saved[group.key] || group.values[0] || "";
+    if (saved[group.key] && group.values.includes(saved[group.key])) {
+      selection[group.key] = saved[group.key];
+    }
   });
   return selection;
+}
+
+function missingOptionGroups(product) {
+  const selection = productSelection(product);
+  return optionGroups(product).filter((group) => !selection[group.key]);
+}
+
+function productOptionsReady(product) {
+  return missingOptionGroups(product).length === 0;
+}
+
+function optionPrompt(product) {
+  const missing = missingOptionGroups(product);
+  if (!missing.length) return translations[language].addToCart;
+  return `請先選擇${missing.map((group) => group.label).join(" / ")}`;
 }
 
 function itemKey(productId, options = {}, addOns = []) {
@@ -1091,9 +1108,10 @@ function renderProducts(products = currentProducts) {
 
   productList.innerHTML = visibleProducts.map((product, index) => {
     const stock = Number(product.stock || 0);
-    const disabled = stock <= 0 ? "disabled" : "";
-    const buttonText = stock <= 0 ? translations[language].soldOut : translations[language].addToCart;
     const selection = productSelection(product);
+    const optionsReady = productOptionsReady(product);
+    const disabled = stock <= 0 || !optionsReady ? "disabled" : "";
+    const buttonText = stock <= 0 ? translations[language].soldOut : (optionsReady ? translations[language].addToCart : optionPrompt(product));
     const image = selectedProductImage(product, selection);
     const price = regularPrice(product, selection);
     const finalPrice = effectivePrice(product, selection);
@@ -1107,7 +1125,7 @@ function renderProducts(products = currentProducts) {
         <div class="product-image">
           ${image ? `<img data-product-main-image src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" />` : `<span>SIGE 3C</span>`}
         </div>
-        ${gallery.length > 1 ? `<div class="product-thumbs">${gallery.slice(0, 6).map((src) => `<button type="button" class="${src === image ? "is-active" : ""}" data-product-image="${escapeHtml(src)}" aria-label="切換商品圖片"><img src="${escapeHtml(src)}" alt="" loading="lazy" decoding="async" /></button>`).join("")}</div>` : ""}
+        ${gallery.length > 1 ? `<div class="product-thumbs">${gallery.map((src) => `<button type="button" class="${src === image ? "is-active" : ""}" data-product-image="${escapeHtml(src)}" aria-label="切換商品圖片"><img src="${escapeHtml(src)}" alt="" loading="lazy" decoding="async" /></button>`).join("")}</div>` : ""}
         <span class="product-tag">${categoryName(product.category)}</span>
         <h3>${escapeHtml(product.name)}</h3>
         <small class="product-sku">${translations[language].productCode}：${escapeHtml(product.sku || "")}</small>
@@ -1116,6 +1134,7 @@ function renderProducts(products = currentProducts) {
         ${groups.length ? `
           <div class="product-options">
             <strong>${translations[language].chooseOptions}</strong>
+            <small class="option-required" data-option-required ${optionsReady ? "hidden" : ""}>${escapeHtml(optionPrompt(product))}</small>
             ${groups.map((group) => `
               <div class="option-group" data-option-group="${group.key}">
                 <span>${group.label}</span>
@@ -1212,6 +1231,22 @@ function updateProductCardImage(card, product) {
   if (image) setProductCardImage(card, image, product.name || "");
 }
 
+function updateProductCardControls(card, product) {
+  if (!card || !product) return;
+  const button = card.querySelector("[data-add-product]");
+  const hint = card.querySelector("[data-option-required]");
+  const stock = Number(product.stock || 0);
+  const ready = productOptionsReady(product);
+  if (button) {
+    button.disabled = stock <= 0 || !ready;
+    button.textContent = stock <= 0 ? translations[language].soldOut : (ready ? translations[language].addToCart : optionPrompt(product));
+  }
+  if (hint) {
+    hint.hidden = ready;
+    hint.textContent = optionPrompt(product);
+  }
+}
+
 function saveCart() {
   localStorage.setItem("sige3c-cart", JSON.stringify(cart));
 }
@@ -1263,6 +1298,11 @@ function renderCart() {
 function addToCart(productId, card) {
   const product = currentProducts.find((item) => Number(item.id) === Number(productId));
   if (!product || Number(product.stock || 0) <= 0) return;
+  if (!productOptionsReady(product)) {
+    updateProductCardControls(card, product);
+    card?.querySelector("[data-option-required]")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    return;
+  }
   const options = productSelection(product);
   const allAddOns = addOnsFor(product);
   const quantityDeals = quantityDealsFor(product);
@@ -1366,6 +1406,7 @@ productList?.addEventListener("click", (event) => {
     const product = currentProducts.find((item) => Number(item.id) === Number(productId));
     updateProductCardPricing(card, product);
     updateProductCardImage(card, product);
+    updateProductCardControls(card, product);
     window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "auto" });
     return;
   }

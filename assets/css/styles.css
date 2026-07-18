@@ -2257,10 +2257,12 @@ img { display: block; max-width: 100%; }
 }
 
 .product-thumbs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(2.75rem, 3.1rem));
+  display: flex;
   gap: .4rem;
   margin: -.35rem 0 .75rem;
+  padding-bottom: .2rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .product-thumbs:empty {
@@ -2268,6 +2270,7 @@ img { display: block; max-width: 100%; }
 }
 
 .product-thumbs button {
+  flex: 0 0 3.1rem;
   width: 3.1rem;
   height: 3.1rem;
   border: 1px solid rgba(255,255,255,.18);
@@ -2275,6 +2278,10 @@ img { display: block; max-width: 100%; }
   padding: .15rem;
   background: rgba(255,255,255,.06);
   cursor: pointer;
+}
+
+.product-thumbs button:hover {
+  border-color: rgba(255,255,255,.36);
 }
 
 .product-thumbs button.is-active {
@@ -2337,6 +2344,12 @@ img { display: block; max-width: 100%; }
 .add-on-group > strong {
   color: var(--gold);
   font-size: .92rem;
+}
+
+.option-required {
+  color: rgba(255,255,255,.72);
+  font-size: .82rem;
+  font-weight: 850;
 }
 
 .option-group {
